@@ -1,4 +1,42 @@
 module ExplanatoryAide
+  class Command
+    class Informative < StandardError; end
+    class Help < Informative
+      def initialize(command_class, argv, unrecognized_command = nil)
+        @command_class, @argv, @unrecognized_command = command_class, argv, unrecognized_command
+      end
+    end
+
+    def self.subcommands
+      @subcommands ||= {}
+    end
+
+    if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
+      # Only available if String#demodulize, String#underscore, and
+      # String#dasherize exist. For instance, when ActiveSupport is loaded
+      # beforehand.
+      #
+      # Otherwise you will have to register the subcommands manually.
+      def self.inherited(subcommand)
+        subcommands[subcommand.name.demodulize.underscore.dasherize] = subcommand
+      end
+    end
+
+    def self.run(argv)
+      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+      if subcommand = subcommands[argv.arguments.first]
+        argv.shift_argument
+        subcommand.run(argv)
+      else
+        new(argv)
+      end
+    end
+
+    def initialize(argv)
+      raise Help.new(self.class, argv) unless argv.remainder.empty?
+    end
+  end
+
   class ARGV
     def initialize(argv)
       @entries = self.class.parse(argv)
