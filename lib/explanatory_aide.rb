@@ -6,6 +6,13 @@ module ExplanatoryAide
         @command_class, @argv, @unrecognized_command = command_class, argv, unrecognized_command
       end
 
+      def commands
+        @command_class.subcommands.sort_by(&:command).map do |klass|
+          description = klass.description.split("\n").map { |line| line.ljust(6) }.join("\n")
+          "    $ #{klass.full_command}\n\n      #{description}"
+        end.join("\n\n")
+      end
+
       def options
         options  = @command_class.options
         key_size = options.inject(0) { |size, (key, _)| key.size > size ? key.size : size }
@@ -13,23 +20,34 @@ module ExplanatoryAide
       end
     end
 
-    def self.subcommands
-      @subcommands ||= {}
+    # Only available if String#demodulize, String#underscore, and
+    # String#dasherize exist. For instance, when ActiveSupport is loaded
+    # beforehand.
+    #
+    # Otherwise you will have to register the subcommands manually.
+    def self.command
+      unless @command
+        if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
+          @command = name.demodulize.underscore.dasherize
+        end
+      end
+      @command
     end
 
-    if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
-      # Only available if String#demodulize, String#underscore, and
-      # String#dasherize exist. For instance, when ActiveSupport is loaded
-      # beforehand.
-      #
-      # Otherwise you will have to register the subcommands manually.
-      #
-      # If the subcommand class is not a subclass of this class, you will have
-      # to register the subcommand manually, regardless of ActiveSupport being
-      # available.
-      def self.inherited(subcommand)
-        subcommands[subcommand.name.demodulize.underscore.dasherize] = subcommand
+    def self.full_command
+      if superclass.superclass == Command
+        command
+      else
+        "#{superclass.full_command} #{command}"
       end
+    end
+
+    def self.subcommands
+      @subcommands ||= []
+    end
+
+    def self.inherited(subcommand)
+      subcommands << subcommand
     end
 
     def self.options
@@ -38,7 +56,8 @@ module ExplanatoryAide
 
     def self.parse(argv)
       argv = ARGV.new(argv) unless argv.is_a?(ARGV)
-      if subcommand = subcommands[argv.arguments.first]
+      command = argv.arguments.first
+      if subcommand = subcommands.find { |sc| sc.command == command }
         argv.shift_argument
         subcommand.parse(argv)
       else
@@ -46,8 +65,20 @@ module ExplanatoryAide
       end
     end
 
+    def self.run(argv)
+      parse(argv).run
+    end
+
     def initialize(argv)
       raise Help.new(self.class, argv) unless argv.remainder.empty?
+      @argv = argv
+    end
+
+    # This method should *only* be overriden by command classes that actually
+    # perform any work. This ensures that commands that require a subcommand
+    # will show the help banner instead.
+    def run
+      raise Help.new(self.class, @argv)
     end
   end
 

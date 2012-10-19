@@ -54,14 +54,26 @@ module Fixture
 
     class SpecFile < Command
       class Create < SpecFile
+        def self.description
+          'Creates a spec file stub.'
+        end
+
         attr_reader :spec
         def initialize(argv)
           @spec = argv.shift_argument
           super
         end
+
+        def run
+          # This command actully does something.
+        end
       end
 
       class Lint < SpecFile
+        def self.description
+          'Checks a spec file.'
+        end
+
         def self.options
           [['--only-errors', 'Skip warnings']].concat(super)
         end
@@ -76,10 +88,10 @@ end
 module ExplanatoryAide
   describe Command do
     it "registers the subcommand classes" do
-      Fixture::Command.subcommands.keys.should == %w{ spec-file }
-      Fixture::Command::SpecFile.subcommands.keys.should == %w{ create lint }
-      Fixture::Command::SpecFile::Create.subcommands.keys.should == []
-      Fixture::Command::SpecFile::Lint.subcommands.keys.should == %w{ repo }
+      Fixture::Command.subcommands.map(&:command).should == %w{ spec-file }
+      Fixture::Command::SpecFile.subcommands.map(&:command).should == %w{ create lint }
+      Fixture::Command::SpecFile::Create.subcommands.map(&:command).should == []
+      Fixture::Command::SpecFile::Lint.subcommands.map(&:command).should == %w{ repo }
     end
 
     it "tries to match a subclass for each of the subcommands" do
@@ -93,24 +105,41 @@ module ExplanatoryAide
       #lambda { Fixture::Command.run([]) }.should.raise Command::Help
     #end
 
+    it "does not raise if one of the subcommands consumes arguments" do
+      subcommand = Fixture::Command.parse(%w{ spec-file create AFNetworking })
+      subcommand.spec.should == 'AFNetworking'
+    end
+
     it "raises a Help exception when created with an invalid subcommand" do
       lambda { Fixture::Command.parse(%w{ unknown }) }.should.raise Command::Help
       lambda { Fixture::Command.parse(%w{ spec-file unknown }) }.should.raise Command::Help
     end
 
-    it "does not raise if one of the subcommands consumes arguments" do
-      subcommand = Fixture::Command.parse(%w{ spec-file create AFNetworking })
-      subcommand.spec.should == 'AFNetworking'
+    it "raises a Help exception when running a command that does not itself implement #run" do
+      lambda { Fixture::Command.run(%w{ spec-file create }) }.should.not.raise
+      lambda { Fixture::Command.run(%w{ spec-file }) }.should.raise Command::Help
     end
   end
 
-  describe Command::Help do
+  describe Command::Help, "formatting" do
+    it "returns the subcommands" do
+      Command::Help.new(Fixture::Command::SpecFile, nil).commands.should == <<-COMMANDS.rstrip
+    $ spec-file create
+
+      Creates a spec file stub.
+
+    $ spec-file lint
+
+      Checks a spec file.
+COMMANDS
+    end
+
     it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
-        Command::Help.new(Fixture::Command::SpecFile, nil).options.should == <<-OPTIONS.sub(/\n$/, '')
+      Command::Help.new(Fixture::Command::SpecFile, nil).options.should == <<-OPTIONS.rstrip
     --verbose   Print more info
     --help      Print help banner
 OPTIONS
-        Command::Help.new(Fixture::Command::SpecFile::Lint::Repo, nil).options.should == <<-OPTIONS.sub(/\n$/, '')
+      Command::Help.new(Fixture::Command::SpecFile::Lint::Repo, nil).options.should == <<-OPTIONS.rstrip
     --only-errors   Skip warnings
     --verbose       Print more info
     --help          Print help banner
