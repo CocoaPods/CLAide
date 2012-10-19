@@ -4,7 +4,7 @@ module ExplanatoryAide
       @entries = self.class.parse(argv)
     end
 
-    def argv
+    def remainder
       @entries.map do |type, (key, value)|
         case type
         when :arg

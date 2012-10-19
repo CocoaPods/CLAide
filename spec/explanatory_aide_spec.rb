@@ -24,18 +24,18 @@ describe ExplanatoryAide::ARGV do
     @argv.flag?('flag').should == true
     @argv.flag?('other-flag').should == false
     @argv.flag?('option').should == nil
-    @argv.argv.should == %w{ --option VALUE ARG1 ARG2 }
+    @argv.remainder.should == %w{ --option VALUE ARG1 ARG2 }
   end
 
   it "returns an option and deletes it" do
     @argv.option('flag').should == nil
     @argv.option('other-flag').should == nil
     @argv.option('option').should == 'VALUE'
-    @argv.argv.should == %w{ --flag ARG1 ARG2 --no-other-flag }
+    @argv.remainder.should == %w{ --flag ARG1 ARG2 --no-other-flag }
   end
 
   it "returns the first argument and deletes it" do
     @argv.shift_argument.should == 'ARG1'
-    @argv.argv.should == %w{ --flag --option VALUE ARG2 --no-other-flag }
+    @argv.remainder.should == %w{ --flag --option VALUE ARG2 --no-other-flag }
   end
 end
