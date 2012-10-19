@@ -1,6 +1,7 @@
 require 'bacon'
-require 'active_support/core_ext/string/inflections'
+
 $:.unshift File.expand_path('../../lib', __FILE__)
+require 'active_support/core_ext/string/inflections'
 require 'explanatory_aide'
 
 module ExplanatoryAide
@@ -44,11 +45,22 @@ end
 
 module Fixture
   class Command < ExplanatoryAide::Command
+    def self.options
+      [
+        ['--verbose', 'Print more info'],
+        ['--help',    'Print help banner'],
+      ]
+    end
+
     class SpecFile < Command
       class Create < SpecFile
       end
 
       class Lint < SpecFile
+        def self.options
+          [['--only-errors', 'Skip warnings']].concat(super)
+        end
+
         class Repo < Lint
         end
       end
@@ -79,6 +91,20 @@ module ExplanatoryAide
     it "raises a Help exception when run with an invalid subcommand" do
       lambda { Fixture::Command.run(%w{ unknown }) }.should.raise Command::Help
       lambda { Fixture::Command.run(%w{ spec-file unknown }) }.should.raise Command::Help
+    end
+  end
+
+  describe Command::Help do
+    it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
+        Command::Help.new(Fixture::Command::SpecFile, nil).options.should == <<-OPTIONS.sub(/\n$/, '')
+    --verbose   Print more info
+    --help      Print help banner
+OPTIONS
+        Command::Help.new(Fixture::Command::SpecFile::Lint::Repo, nil).options.should == <<-OPTIONS.sub(/\n$/, '')
+    --only-errors   Skip warnings
+    --verbose       Print more info
+    --help          Print help banner
+OPTIONS
     end
   end
 end

@@ -5,6 +5,12 @@ module ExplanatoryAide
       def initialize(command_class, argv, unrecognized_command = nil)
         @command_class, @argv, @unrecognized_command = command_class, argv, unrecognized_command
       end
+
+      def options
+        options  = @command_class.options
+        key_size = options.inject(0) { |size, (key, _)| key.size > size ? key.size : size }
+        options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
+      end
     end
 
     def self.subcommands
@@ -20,6 +26,10 @@ module ExplanatoryAide
       def self.inherited(subcommand)
         subcommands[subcommand.name.demodulize.underscore.dasherize] = subcommand
       end
+    end
+
+    def self.options
+      []
     end
 
     def self.run(argv)
