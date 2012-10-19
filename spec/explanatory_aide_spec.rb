@@ -20,10 +20,11 @@ describe ExplanatoryAide::ARGV do
     @argv.arguments.should == %w{ ARG1 ARG2 }
   end
 
-  #it "returns a flag and deletes it" do
-    #@argv.flag?('flag').should == true
-    #@argv.flag?('other-flag').should == false
-    #@argv.flag?('option').should == nil
-    #@argv.should == %w{ --option VALUE ARG1 ARG2 }
-  #end
+  it "returns a flag and deletes it" do
+    @argv.flag?('flag').should == true
+    @argv.flag?('other-flag').should == false
+    @argv.flag?('option').should == nil
+    @argv.should == %w{ --option VALUE ARG1 ARG2 }
+  end
+
 end

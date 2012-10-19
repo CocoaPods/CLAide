@@ -1,45 +1,65 @@
 module ExplanatoryAide
   class ARGV < Array
     def options
-      parse.first
+      options = {}
+      parse do |type, (key, value)|
+        options[key] = value if type == :option || type == :flag
+        false
+      end
+      options
     end
 
     def arguments
-      parse.last
+      args = []
+      parse do |type, value|
+        args << value if type == :arg
+        false
+      end
+      args
     end
 
-    #def flag?(key)
-      #value = parse.first[key]
-      #unless value.is_a?(String)
-        #value
-      #end
-    #end
+    def flag?(name)
+      result = nil
+      parse do |type, (key, value)|
+        if name == key && type == :flag
+          result = value
+          true
+        end
+      end
+      result
+    end
 
     private
 
     def parse
-      options = {}
-      args = []
       copy = dup
+      i = 0
       while x = copy.shift
+        start, i = i, i+1
+        type = key = value = nil
         if is_arg?(x)
-          args << x
+          type, value = :arg, x
         else
           key = x[2..-1]
-          value = nil
           if (next_x = copy.first) && is_arg?(next_x)
+            type = :option
             value = copy.shift
+            i += 1
           else
+            type = :flag
             value = true
             if key[0,3] == 'no-'
               key = key[3..-1]
               value = false
             end
           end
-          options[key] = value
+          value = [key, value]
+        end
+        if yield(type, value)
+          delete_at(start)
+          delete_at(start+1) if type == :option
         end
       end
-      [options, args]
     end
 
     def is_arg?(x)
