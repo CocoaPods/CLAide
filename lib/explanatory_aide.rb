@@ -23,6 +23,10 @@ module ExplanatoryAide
       # beforehand.
       #
       # Otherwise you will have to register the subcommands manually.
+      #
+      # If the subcommand class is not a subclass of this class, you will have
+      # to register the subcommand manually, regardless of ActiveSupport being
+      # available.
       def self.inherited(subcommand)
         subcommands[subcommand.name.demodulize.underscore.dasherize] = subcommand
       end
@@ -32,11 +36,11 @@ module ExplanatoryAide
       []
     end
 
-    def self.run(argv)
+    def self.parse(argv)
       argv = ARGV.new(argv) unless argv.is_a?(ARGV)
       if subcommand = subcommands[argv.arguments.first]
         argv.shift_argument
-        subcommand.run(argv)
+        subcommand.parse(argv)
       else
         new(argv)
       end

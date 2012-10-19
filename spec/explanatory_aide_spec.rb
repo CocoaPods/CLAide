@@ -54,6 +54,11 @@ module Fixture
 
     class SpecFile < Command
       class Create < SpecFile
+        attr_reader :spec
+        def initialize(argv)
+          @spec = argv.shift_argument
+          super
+        end
       end
 
       class Lint < SpecFile
@@ -78,9 +83,9 @@ module ExplanatoryAide
     end
 
     it "tries to match a subclass for each of the subcommands" do
-      Fixture::Command.run(%w{ spec-file }).should.be.instance_of Fixture::Command::SpecFile
-      Fixture::Command.run(%w{ spec-file lint }).should.be.instance_of Fixture::Command::SpecFile::Lint
-      Fixture::Command.run(%w{ spec-file lint repo }).should.be.instance_of Fixture::Command::SpecFile::Lint::Repo
+      Fixture::Command.parse(%w{ spec-file }).should.be.instance_of Fixture::Command::SpecFile
+      Fixture::Command.parse(%w{ spec-file lint }).should.be.instance_of Fixture::Command::SpecFile::Lint
+      Fixture::Command.parse(%w{ spec-file lint repo }).should.be.instance_of Fixture::Command::SpecFile::Lint::Repo
     end
 
     # TODO might be more the task of the application?
@@ -88,9 +93,14 @@ module ExplanatoryAide
       #lambda { Fixture::Command.run([]) }.should.raise Command::Help
     #end
 
-    it "raises a Help exception when run with an invalid subcommand" do
-      lambda { Fixture::Command.run(%w{ unknown }) }.should.raise Command::Help
-      lambda { Fixture::Command.run(%w{ spec-file unknown }) }.should.raise Command::Help
+    it "raises a Help exception when created with an invalid subcommand" do
+      lambda { Fixture::Command.parse(%w{ unknown }) }.should.raise Command::Help
+      lambda { Fixture::Command.parse(%w{ spec-file unknown }) }.should.raise Command::Help
+    end
+
+    it "does not raise if one of the subcommands consumes arguments" do
+      subcommand = Fixture::Command.parse(%w{ spec-file create AFNetworking })
+      subcommand.spec.should == 'AFNetworking'
     end
   end
 
