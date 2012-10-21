@@ -45,6 +45,10 @@ end
 
 module Fixture
   class Command < ExplanatoryAide::Command
+    def self.binname
+      'bin'
+    end
+
     def self.options
       [
         ['--verbose', 'Print more info'],
@@ -55,7 +59,7 @@ module Fixture
     class SpecFile < Command
       class Lint < SpecFile
         def self.description
-          'Checks a spec file.'
+          'Checks the validity of a spec file.'
         end
 
         def self.options
@@ -63,6 +67,9 @@ module Fixture
         end
 
         class Repo < Lint
+          def self.description
+            'Checks the validity of ALL specs in a repo.'
+          end
         end
       end
 
@@ -124,13 +131,13 @@ module ExplanatoryAide
   describe Command, "formatting" do
     it "returns the subcommands, sorted by name" do
       Fixture::Command::SpecFile.formatted_subcommands_description.should == <<-COMMANDS.rstrip
-    $ spec-file create
+    $ bin spec-file create
 
       Creates a spec file stub.
 
-    $ spec-file lint
+    $ bin spec-file lint
 
-      Checks a spec file.
+      Checks the validity of a spec file.
 COMMANDS
     end
 
@@ -144,6 +151,30 @@ OPTIONS
     --verbose       Print more info
     --help          Print help banner
 OPTIONS
+    end
+  end
+
+  describe Command::Help, "formatting" do
+    it "shows the command's own description, those of the subcommands, and of the options" do
+      Command::Help.new(Fixture::Command::SpecFile::Lint).banner.should == <<-BANNER.rstrip
+Usage:
+
+    $ bin spec-file lint
+
+      Checks the validity of a spec file.
+
+Commands:
+
+    $ bin spec-file lint repo
+
+      Checks the validity of ALL specs in a repo.
+
+Options:
+
+    --only-errors   Skip warnings
+    --verbose       Print more info
+    --help          Print help banner
+BANNER
     end
   end
 end

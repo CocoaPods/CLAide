@@ -2,16 +2,26 @@ module ExplanatoryAide
   class Command
     class Informative < StandardError; end
     class Help < Informative
-      def initialize(command_class, argv, unrecognized_command = nil)
-        @command_class, @argv, @unrecognized_command = command_class, argv, unrecognized_command
+      # When given `unknown_argv`, the banner will include an overview of
+      # unrecognized arguments/options.
+      #
+      # When not given `unknown_argv`, the command requires a subcommand, so
+      # simply show the banner.
+      #
+      # a banner of the command itself should be printed.
+      def initialize(command_class, unknown_argv = nil)
+        @command_class, @unknown_argv = command_class, unknown_argv
       end
 
-      def subcommands
-        @command_class.formatted_subcommands_description
-      end
-
-      def options
-        @command_class.formatted_options_description
+      def banner
+        [
+          'Usage:',
+          @command_class.formatted_command_description,
+          'Commands:',
+          @command_class.formatted_subcommands_description,
+          'Options:',
+          @command_class.formatted_options_description
+        ].join("\n\n")
       end
     end
 
@@ -29,9 +39,13 @@ module ExplanatoryAide
       @command
     end
 
+    def self.binname
+      File.basename($0)
+    end
+
     def self.full_command
       if superclass.superclass == Command
-        command
+        "#{binname} #{command}"
       else
         "#{superclass.full_command} #{command}"
       end
@@ -45,12 +59,29 @@ module ExplanatoryAide
       subcommands << subcommand
     end
 
+    # Should be overriden by a subclass if it handles any options.
+    #
+    # The subclass has to combine the result of calling `super` and its own
+    # list of options. The recommended way of doing this is by concatenating
+    # concatening to this classes’ own options.
+    #
+    # @example
+    #
+    #   def self.options
+    #     [
+    #       ['--verbose', 'Print more info'],
+    #       ['--help',    'Print help banner'],
+    #     ].concat(super)
+    #   end
     def self.options
       []
     end
 
+    # Should be overriden by the subclass to provide a description for the
+    # command.
+    #
+    # If this returns `nil`, it will not be included in the help banner.
     def self.description
-      "Here goes a description of the subcommand: #{command}"
     end
 
     def self.formatted_options_description
@@ -58,10 +89,16 @@ module ExplanatoryAide
       options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
     end
 
+    def self.formatted_command_description
+      if desc = description
+        desc = desc.split("\n").map { |line| line.ljust(6) }.join("\n")
+        "    $ #{full_command}\n\n      #{desc}"
+      end
+    end
+
     def self.formatted_subcommands_description
       subcommands.sort_by(&:command).map do |klass|
-        description = klass.description.split("\n").map { |line| line.ljust(6) }.join("\n")
-        "    $ #{klass.full_command}\n\n      #{description}"
+        klass.formatted_command_description
       end.join("\n\n")
     end
 
@@ -80,8 +117,16 @@ module ExplanatoryAide
       parse(argv).run
     end
 
+    # This will raise if argv still contains remaining arguments/options by
+    # the time it reaches this implementation.
+    #
+    # Subclasses should override this method to remove the arguments/options
+    # they support from argv before calling `super`.
     def initialize(argv)
-      raise Help.new(self.class, argv) unless argv.remainder.empty?
+      remainder = argv.remainder
+      unless remainder.empty?
+        raise Help.new(self.class, remainder)
+      end
       @argv = argv
     end
 
@@ -89,7 +134,7 @@ module ExplanatoryAide
     # perform any work. This ensures that commands that require a subcommand
     # will show the help banner instead.
     def run
-      raise Help.new(self.class, @argv)
+      raise Help.new(self.class)
     end
   end
 
