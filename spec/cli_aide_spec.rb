@@ -3,21 +3,21 @@ require 'mocha-on-bacon'
 
 $:.unshift File.expand_path('../../lib', __FILE__)
 require 'active_support/core_ext/string/inflections'
-require 'explanatory_aide'
+require 'cli_aide'
 
 
 def should_raise_help(error_message)
   error = nil
   begin
     yield
-  rescue ExplanatoryAide::Command::Help => e
+  rescue CLIAide::Command::Help => e
     error = e
   end
   error.should.not == nil
   error.error_message.should == error_message
 end
 
-module ExplanatoryAide
+module CLIAide
   describe ARGV do
     before do
       @argv = ARGV.new(%w{ --flag --option VALUE ARG1 ARG2 --no-other-flag })
@@ -57,7 +57,7 @@ module ExplanatoryAide
 end
 
 module Fixture
-  class Command < ExplanatoryAide::Command
+  class Command < CLIAide::Command
     def self.binname
       'bin'
     end
@@ -93,7 +93,7 @@ module Fixture
   end
 end
 
-module ExplanatoryAide
+module CLIAide
   describe Command do
     it "registers the subcommand classes" do
       Fixture::Command.subcommands.map(&:command).should == %w{ spec-file }

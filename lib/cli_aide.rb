@@ -1,4 +1,6 @@
-module ExplanatoryAide
+module CLIAide
+  VERSION = '0.0.1'
+
   class Command
     class Informative < StandardError
       attr_reader :exit_status
@@ -273,3 +275,4 @@ module ExplanatoryAide
     end
   end
 end
+
