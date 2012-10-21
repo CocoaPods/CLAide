@@ -125,10 +125,10 @@ module ExplanatoryAide
 
     it "raises a Help exception when created with an invalid subcommand" do
       should_raise_help 'Unknown arguments: unknown' do
-        Fixture::Command.parse(%w{ unknown })
+        Fixture::Command.parse(%w{ unknown }).validate_argv!
       end
       should_raise_help 'Unknown arguments: unknown' do
-        Fixture::Command.parse(%w{ spec-file unknown })
+        Fixture::Command.parse(%w{ spec-file unknown }).validate_argv!
       end
     end
 
@@ -142,7 +142,7 @@ module ExplanatoryAide
   describe Command, "default options" do
     it "raises a Help exception, without error message" do
       should_raise_help nil do
-        Fixture::Command.parse(%w{ --help })
+        Fixture::Command.parse(%w{ --help }).validate_argv!
       end
     end
 
@@ -155,18 +155,22 @@ module ExplanatoryAide
   end
 
   describe Command, "when running" do
-    it "does not print the backtrace of a Help exception" do
-      expected = Command::Help.new(Fixture::Command.parse([])).message
+    it "does not print the backtrace of a Informative exception by default" do
+      expected = Command::Help.new(Fixture::Command).message
       Fixture::Command.expects(:puts).with(expected)
       Fixture::Command.run(%w{ --help })
     end
 
-    it "does print the backtrace of a Help exception if set to verbose" do
-      Command::Help.any_instance.stubs(:message).returns('the message')
-      Command::Help.any_instance.stubs(:backtrace).returns(['the', 'backtrace'])
+    it "does print the backtrace of a Informative exception if set to verbose" do
+      error = Command::Informative.new
+      Fixture::Command.any_instance.stubs(:validate_argv!).raises(error)
+      error.stubs(:message).returns('the message')
+      error.stubs(:backtrace).returns(['the', 'backtrace'])
+
       printed = states('printed').starts_as(:nothing)
       Fixture::Command.expects(:puts).with('the message').when(printed.is(:nothing)).then(printed.is(:message))
       Fixture::Command.expects(:puts).with('the', 'backtrace').when(printed.is(:message)).then(printed.is(:done))
+
       Fixture::Command.run(%w{ --verbose })
     end
   end
@@ -199,7 +203,7 @@ OPTIONS
 
   describe Command::Help, "formatting" do
     it "shows the command's own description, those of the subcommands, and of the options" do
-      Command::Help.new(Fixture::Command::SpecFile::Lint.parse([])).message.should == <<-BANNER.rstrip
+      Command::Help.new(Fixture::Command::SpecFile::Lint).message.should == <<-BANNER.rstrip
 Usage:
 
     $ bin spec-file lint
@@ -221,7 +225,7 @@ BANNER
     end
 
     it "shows the specified error message before the rest of the banner" do
-      Command::Help.new(Fixture::Command.parse([]), "Unable to process, captain.").message.should == <<-BANNER.rstrip
+      Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
 [!] Unable to process, captain.
 
 Options:
