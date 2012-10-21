@@ -121,9 +121,9 @@ module ExplanatoryAide
     end
   end
 
-  describe Command::Help, "formatting" do
+  describe Command, "formatting" do
     it "returns the subcommands, sorted by name" do
-      Command::Help.new(Fixture::Command::SpecFile, nil).commands.should == <<-COMMANDS.rstrip
+      Fixture::Command::SpecFile.formatted_subcommands_description.should == <<-COMMANDS.rstrip
     $ spec-file create
 
       Creates a spec file stub.
@@ -135,11 +135,11 @@ COMMANDS
     end
 
     it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
-      Command::Help.new(Fixture::Command::SpecFile, nil).options.should == <<-OPTIONS.rstrip
+      Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
     --verbose   Print more info
     --help      Print help banner
 OPTIONS
-      Command::Help.new(Fixture::Command::SpecFile::Lint::Repo, nil).options.should == <<-OPTIONS.rstrip
+      Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
     --only-errors   Skip warnings
     --verbose       Print more info
     --help          Print help banner

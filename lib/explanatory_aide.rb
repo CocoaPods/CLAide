@@ -6,17 +6,12 @@ module ExplanatoryAide
         @command_class, @argv, @unrecognized_command = command_class, argv, unrecognized_command
       end
 
-      def commands
-        @command_class.subcommands.sort_by(&:command).map do |klass|
-          description = klass.description.split("\n").map { |line| line.ljust(6) }.join("\n")
-          "    $ #{klass.full_command}\n\n      #{description}"
-        end.join("\n\n")
+      def subcommands
+        @command_class.formatted_subcommands_description
       end
 
       def options
-        options  = @command_class.options
-        key_size = options.inject(0) { |size, (key, _)| key.size > size ? key.size : size }
-        options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
+        @command_class.formatted_options_description
       end
     end
 
@@ -52,6 +47,22 @@ module ExplanatoryAide
 
     def self.options
       []
+    end
+
+    def self.description
+      "Here goes a description of the subcommand: #{command}"
+    end
+
+    def self.formatted_options_description
+      key_size = options.inject(0) { |size, (key, _)| key.size > size ? key.size : size }
+      options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
+    end
+
+    def self.formatted_subcommands_description
+      subcommands.sort_by(&:command).map do |klass|
+        description = klass.description.split("\n").map { |line| line.ljust(6) }.join("\n")
+        "    $ #{klass.full_command}\n\n      #{description}"
+      end.join("\n\n")
     end
 
     def self.parse(argv)
