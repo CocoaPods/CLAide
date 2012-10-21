@@ -2,18 +2,13 @@ module ExplanatoryAide
   class Command
     class Informative < StandardError; end
     class Help < Informative
-      # When given `unknown_argv`, the banner will include an overview of
-      # unrecognized arguments/options.
-      #
-      # When not given `unknown_argv`, the command requires a subcommand, so
-      # simply show the banner.
-      #
-      # a banner of the command itself should be printed.
+      attr_reader :error_message
+
       def initialize(command_class, error_message = nil)
         @command_class, @error_message = command_class, error_message
       end
 
-      def banner
+      def message
         banner = []
         if @error_message
           banner << "[!] #{@error_message}"
@@ -131,7 +126,7 @@ module ExplanatoryAide
     def initialize(argv)
       remainder = argv.remainder
       unless remainder.empty?
-        raise Help.new(self.class, remainder)
+        raise Help.new(self.class, "Unknown arguments: #{remainder.join(' ')}")
       end
       @argv = argv
     end
@@ -139,6 +134,8 @@ module ExplanatoryAide
     # This method should *only* be overriden by command classes that actually
     # perform any work. This ensures that commands that require a subcommand
     # will show the help banner instead.
+    #
+    # The banner will not include an error message.
     def run
       raise Help.new(self.class)
     end

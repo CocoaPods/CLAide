@@ -117,14 +117,30 @@ module ExplanatoryAide
       subcommand.spec.should == 'AFNetworking'
     end
 
-    it "raises a Help exception when created with an invalid subcommand" do
-      lambda { Fixture::Command.parse(%w{ unknown }) }.should.raise Command::Help
-      lambda { Fixture::Command.parse(%w{ spec-file unknown }) }.should.raise Command::Help
+    def should_raise_help(error_message)
+      error = nil
+      begin
+        yield
+      rescue Command::Help => e
+        error = e
+      end
+      error.should.not == nil
+      error.error_message.should == error_message
     end
 
-    it "raises a Help exception when running a command that does not itself implement #run" do
-      lambda { Fixture::Command.run(%w{ spec-file create }) }.should.not.raise
-      lambda { Fixture::Command.run(%w{ spec-file }) }.should.raise Command::Help
+    it "raises a Help exception when created with an invalid subcommand" do
+      should_raise_help 'Unknown arguments: unknown' do
+        Fixture::Command.parse(%w{ unknown })
+      end
+      should_raise_help 'Unknown arguments: unknown' do
+        Fixture::Command.parse(%w{ spec-file unknown })
+      end
+    end
+
+    it "raises a Help exception (without error message) when running a command that does not itself implement #run" do
+      should_raise_help nil do
+        Fixture::Command.run(%w{ spec-file })
+      end
     end
   end
 
@@ -156,7 +172,7 @@ OPTIONS
 
   describe Command::Help, "formatting" do
     it "shows the command's own description, those of the subcommands, and of the options" do
-      Command::Help.new(Fixture::Command::SpecFile::Lint).banner.should == <<-BANNER.rstrip
+      Command::Help.new(Fixture::Command::SpecFile::Lint).message.should == <<-BANNER.rstrip
 Usage:
 
     $ bin spec-file lint
@@ -178,7 +194,7 @@ BANNER
     end
 
     it "shows the specified error message before the rest of the banner" do
-      Command::Help.new(Fixture::Command, "Unable to process, captain.").banner.should == <<-BANNER.rstrip
+      Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
 [!] Unable to process, captain.
 
 Options:
