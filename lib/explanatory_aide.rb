@@ -2,10 +2,10 @@ module ExplanatoryAide
   class Command
     class Informative < StandardError; end
     class Help < Informative
-      attr_reader :error_message
+      attr_reader :command, :error_message
 
-      def initialize(command_class, error_message = nil)
-        @command_class, @error_message = command_class, error_message
+      def initialize(command, error_message = nil)
+        @command, @error_message = command, error_message
       end
 
       def message
@@ -13,16 +13,16 @@ module ExplanatoryAide
         if @error_message
           banner << "[!] #{@error_message}"
         end
-        if usage = @command_class.formatted_command_description
+        if usage = @command.class.formatted_command_description
           banner << 'Usage:'
           banner << usage
         end
-        if commands = @command_class.formatted_subcommands_description
+        if commands = @command.class.formatted_subcommands_description
           banner << 'Commands:'
           banner << commands
         end
         banner << 'Options:'
-        banner << @command_class.formatted_options_description
+        banner << @command.class.formatted_options_description
         banner.join("\n\n")
       end
     end
@@ -116,6 +116,9 @@ module ExplanatoryAide
 
     def self.run(argv)
       parse(argv).run
+    rescue Help => help
+      puts help.message
+      puts *help.backtrace if help.command.verbose?
     end
 
     attr_accessor :verbose
@@ -152,7 +155,7 @@ module ExplanatoryAide
     protected
 
     def help!(error_message = nil)
-      raise Help.new(self.class, error_message)
+      raise Help.new(self, error_message)
     end
   end
 

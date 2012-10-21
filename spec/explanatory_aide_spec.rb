@@ -1,4 +1,5 @@
 require 'bacon'
+require 'mocha-on-bacon'
 
 $:.unshift File.expand_path('../../lib', __FILE__)
 require 'active_support/core_ext/string/inflections'
@@ -133,7 +134,7 @@ module ExplanatoryAide
 
     it "raises a Help exception (without error message) when running a command that does not itself implement #run" do
       should_raise_help nil do
-        Fixture::Command.run(%w{ spec-file })
+        Fixture::Command.parse(%w{ spec-file }).run
       end
     end
   end
@@ -150,6 +151,23 @@ module ExplanatoryAide
       command.should.not.be.verbose
       command = Fixture::Command.parse(%w{ --verbose })
       command.should.be.verbose
+    end
+  end
+
+  describe Command, "when running" do
+    it "does not print the backtrace of a Help exception" do
+      expected = Command::Help.new(Fixture::Command.parse([])).message
+      Fixture::Command.expects(:puts).with(expected)
+      Fixture::Command.run(%w{ --help })
+    end
+
+    it "does print the backtrace of a Help exception if set to verbose" do
+      Command::Help.any_instance.stubs(:message).returns('the message')
+      Command::Help.any_instance.stubs(:backtrace).returns(['the', 'backtrace'])
+      printed = states('printed').starts_as(:nothing)
+      Fixture::Command.expects(:puts).with('the message').when(printed.is(:nothing)).then(printed.is(:message))
+      Fixture::Command.expects(:puts).with('the', 'backtrace').when(printed.is(:message)).then(printed.is(:done))
+      Fixture::Command.run(%w{ --verbose })
     end
   end
 
@@ -181,7 +199,7 @@ OPTIONS
 
   describe Command::Help, "formatting" do
     it "shows the command's own description, those of the subcommands, and of the options" do
-      Command::Help.new(Fixture::Command::SpecFile::Lint).message.should == <<-BANNER.rstrip
+      Command::Help.new(Fixture::Command::SpecFile::Lint.parse([])).message.should == <<-BANNER.rstrip
 Usage:
 
     $ bin spec-file lint
@@ -203,7 +221,7 @@ BANNER
     end
 
     it "shows the specified error message before the rest of the banner" do
-      Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
+      Command::Help.new(Fixture::Command.parse([]), "Unable to process, captain.").message.should == <<-BANNER.rstrip
 [!] Unable to process, captain.
 
 Options:
