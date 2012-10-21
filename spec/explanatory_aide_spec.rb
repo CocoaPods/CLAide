@@ -4,6 +4,18 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 require 'active_support/core_ext/string/inflections'
 require 'explanatory_aide'
 
+
+def should_raise_help(error_message)
+  error = nil
+  begin
+    yield
+  rescue ExplanatoryAide::Command::Help => e
+    error = e
+  end
+  error.should.not == nil
+  error.error_message.should == error_message
+end
+
 module ExplanatoryAide
   describe ARGV do
     before do
@@ -47,13 +59,6 @@ module Fixture
   class Command < ExplanatoryAide::Command
     def self.binname
       'bin'
-    end
-
-    def self.options
-      [
-        ['--verbose', 'Print more info'],
-        ['--help',    'Print help banner'],
-      ]
     end
 
     class SpecFile < Command
@@ -117,17 +122,6 @@ module ExplanatoryAide
       subcommand.spec.should == 'AFNetworking'
     end
 
-    def should_raise_help(error_message)
-      error = nil
-      begin
-        yield
-      rescue Command::Help => e
-        error = e
-      end
-      error.should.not == nil
-      error.error_message.should == error_message
-    end
-
     it "raises a Help exception when created with an invalid subcommand" do
       should_raise_help 'Unknown arguments: unknown' do
         Fixture::Command.parse(%w{ unknown })
@@ -141,6 +135,21 @@ module ExplanatoryAide
       should_raise_help nil do
         Fixture::Command.run(%w{ spec-file })
       end
+    end
+  end
+
+  describe Command, "default options" do
+    it "raises a Help exception, without error message" do
+      should_raise_help nil do
+        Fixture::Command.parse(%w{ --help })
+      end
+    end
+
+    it "sets the verbose flag" do
+      command = Fixture::Command.parse([])
+      command.should.not.be.verbose
+      command = Fixture::Command.parse(%w{ --verbose })
+      command.should.be.verbose
     end
   end
 
@@ -159,13 +168,13 @@ COMMANDS
 
     it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
       Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
-    --verbose   Print more info
-    --help      Print help banner
+    --verbose   Show more debugging information
+    --help      Show help banner
 OPTIONS
       Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
     --only-errors   Skip warnings
-    --verbose       Print more info
-    --help          Print help banner
+    --verbose       Show more debugging information
+    --help          Show help banner
 OPTIONS
     end
   end
@@ -188,8 +197,8 @@ Commands:
 Options:
 
     --only-errors   Skip warnings
-    --verbose       Print more info
-    --help          Print help banner
+    --verbose       Show more debugging information
+    --help          Show help banner
 BANNER
     end
 
@@ -199,8 +208,8 @@ BANNER
 
 Options:
 
-    --verbose   Print more info
-    --help      Print help banner
+    --verbose   Show more debugging information
+    --help      Show help banner
 BANNER
     end
   end

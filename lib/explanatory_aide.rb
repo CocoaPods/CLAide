@@ -33,12 +33,9 @@ module ExplanatoryAide
     #
     # Otherwise you will have to register the subcommands manually.
     def self.command
-      unless @command
-        if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
-          @command = name.demodulize.underscore.dasherize
-        end
+      if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
+        name.demodulize.underscore.dasherize
       end
-      @command
     end
 
     def self.binname
@@ -76,7 +73,10 @@ module ExplanatoryAide
     #     ].concat(super)
     #   end
     def self.options
-      []
+      [
+        ['--verbose', 'Show more debugging information'],
+        ['--help',    'Show help banner'],
+      ]
     end
 
     # Should be overriden by the subclass to provide a description for the
@@ -118,16 +118,25 @@ module ExplanatoryAide
       parse(argv).run
     end
 
+    attr_accessor :verbose
+    alias_method :verbose?, :verbose
+
+    # Sets the `verbose` attribute based on wether or not the `--verbose`
+    # option is specified, or raises a Help exception if given the `--help`
+    # option.
+    #
     # This will raise if argv still contains remaining arguments/options by
     # the time it reaches this implementation.
     #
     # Subclasses should override this method to remove the arguments/options
     # they support from argv before calling `super`.
     def initialize(argv)
+      @verbose = argv.flag?('verbose')
+
+      help! if argv.flag?('help')
       remainder = argv.remainder
-      unless remainder.empty?
-        raise Help.new(self.class, "Unknown arguments: #{remainder.join(' ')}")
-      end
+      help! "Unknown arguments: #{remainder.join(' ')}" unless remainder.empty?
+
       @argv = argv
     end
 
@@ -137,7 +146,13 @@ module ExplanatoryAide
     #
     # The banner will not include an error message.
     def run
-      raise Help.new(self.class)
+      help!
+    end
+
+    protected
+
+    def help!(error_message = nil)
+      raise Help.new(self.class, error_message)
     end
   end
 
