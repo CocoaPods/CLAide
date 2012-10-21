@@ -64,32 +64,20 @@ module Fixture
 
     class SpecFile < Command
       class Lint < SpecFile
-        def self.description
-          'Checks the validity of a spec file.'
-        end
-
-        def self.arguments
-          '[NAME]'
-        end
+        self.description = 'Checks the validity of a spec file.'
+        self.arguments = '[NAME]'
 
         def self.options
           [['--only-errors', 'Skip warnings']].concat(super)
         end
 
         class Repo < Lint
-          def self.description
-            'Checks the validity of ALL specs in a repo.'
-          end
-
-          def self.arguments
-          end
+          self.description = 'Checks the validity of ALL specs in a repo.'
         end
       end
 
       class Create < SpecFile
-        def self.description
-          'Creates a spec file stub.'
-        end
+        self.description = 'Creates a spec file stub.'
 
         attr_reader :spec
         def initialize(argv)

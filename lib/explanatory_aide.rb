@@ -88,18 +88,16 @@ module ExplanatoryAide
       ]
     end
 
-    # Should be overriden by the subclass to provide a description for the
-    # command.
-    #
-    # If this returns `nil` it will not be included in the help banner.
-    def self.description
-    end
+    class << self
+      # Should be set by the subclass to provide a description for the command.
+      #
+      # If this returns `nil` it will not be included in the help banner.
+      attr_accessor :description
 
-    # Should be overriden by the subclass to provide a list of arguments the
-    # command takes.
-    #
-    # If this returns `nil` it will not be included in the help banner.
-    def self.arguments
+      # Should be set by the subclass to a list of arguments the command takes.
+      #
+      # If this returns `nil` it will not be included in the help banner.
+      attr_accessor :arguments
     end
 
     def self.formatted_options_description
