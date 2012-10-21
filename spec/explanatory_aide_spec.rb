@@ -53,6 +53,19 @@ module Fixture
     end
 
     class SpecFile < Command
+      class Lint < SpecFile
+        def self.description
+          'Checks a spec file.'
+        end
+
+        def self.options
+          [['--only-errors', 'Skip warnings']].concat(super)
+        end
+
+        class Repo < Lint
+        end
+      end
+
       class Create < SpecFile
         def self.description
           'Creates a spec file stub.'
@@ -68,19 +81,6 @@ module Fixture
           # This command actully does something.
         end
       end
-
-      class Lint < SpecFile
-        def self.description
-          'Checks a spec file.'
-        end
-
-        def self.options
-          [['--only-errors', 'Skip warnings']].concat(super)
-        end
-
-        class Repo < Lint
-        end
-      end
     end
   end
 end
@@ -89,7 +89,7 @@ module ExplanatoryAide
   describe Command do
     it "registers the subcommand classes" do
       Fixture::Command.subcommands.map(&:command).should == %w{ spec-file }
-      Fixture::Command::SpecFile.subcommands.map(&:command).should == %w{ create lint }
+      Fixture::Command::SpecFile.subcommands.map(&:command).should == %w{ lint create }
       Fixture::Command::SpecFile::Create.subcommands.map(&:command).should == []
       Fixture::Command::SpecFile::Lint.subcommands.map(&:command).should == %w{ repo }
     end
@@ -122,7 +122,7 @@ module ExplanatoryAide
   end
 
   describe Command::Help, "formatting" do
-    it "returns the subcommands" do
+    it "returns the subcommands, sorted by name" do
       Command::Help.new(Fixture::Command::SpecFile, nil).commands.should == <<-COMMANDS.rstrip
     $ spec-file create
 

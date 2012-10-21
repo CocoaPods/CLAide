@@ -143,9 +143,7 @@ module ExplanatoryAide
     def self.parse(argv)
       entries = []
       copy = argv.dup
-      i = 0
       while x = copy.shift
-        start, i = i, i+1
         type = key = value = nil
         if is_arg?(x)
           # A regular argument (e.g. a command)
@@ -156,7 +154,6 @@ module ExplanatoryAide
             # An option with a value
             type = :option
             value = copy.shift
-            i += 1
           else
             # A boolean flag
             type = :flag
