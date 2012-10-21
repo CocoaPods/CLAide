@@ -91,8 +91,15 @@ module ExplanatoryAide
     # Should be overriden by the subclass to provide a description for the
     # command.
     #
-    # If this returns `nil`, it will not be included in the help banner.
+    # If this returns `nil` it will not be included in the help banner.
     def self.description
+    end
+
+    # Should be overriden by the subclass to provide a list of arguments the
+    # command takes.
+    #
+    # If this returns `nil` it will not be included in the help banner.
+    def self.arguments
     end
 
     def self.formatted_options_description
@@ -103,7 +110,7 @@ module ExplanatoryAide
     def self.formatted_command_description
       if desc = description
         desc = desc.split("\n").map { |line| line.ljust(6) }.join("\n")
-        "    $ #{full_command}\n\n      #{desc}"
+        "    $ #{full_command}#{ " #{arguments}" if arguments}\n\n      #{desc}"
       end
     end
 

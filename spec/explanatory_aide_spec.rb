@@ -68,6 +68,10 @@ module Fixture
           'Checks the validity of a spec file.'
         end
 
+        def self.arguments
+          '[NAME]'
+        end
+
         def self.options
           [['--only-errors', 'Skip warnings']].concat(super)
         end
@@ -75,6 +79,9 @@ module Fixture
         class Repo < Lint
           def self.description
             'Checks the validity of ALL specs in a repo.'
+          end
+
+          def self.arguments
           end
         end
       end
@@ -209,7 +216,7 @@ module ExplanatoryAide
 
       Creates a spec file stub.
 
-    $ bin spec-file lint
+    $ bin spec-file lint [NAME]
 
       Checks the validity of a spec file.
 COMMANDS
@@ -233,7 +240,7 @@ OPTIONS
       Command::Help.new(Fixture::Command::SpecFile::Lint).message.should == <<-BANNER.rstrip
 Usage:
 
-    $ bin spec-file lint
+    $ bin spec-file lint [NAME]
 
       Checks the validity of a spec file.
 
