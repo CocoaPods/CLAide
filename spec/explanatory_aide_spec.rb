@@ -176,5 +176,16 @@ Options:
     --help          Print help banner
 BANNER
     end
+
+    it "shows the specified error message before the rest of the banner" do
+      Command::Help.new(Fixture::Command, "Unable to process, captain.").banner.should == <<-BANNER.rstrip
+[!] Unable to process, captain.
+
+Options:
+
+    --verbose   Print more info
+    --help      Print help banner
+BANNER
+    end
   end
 end

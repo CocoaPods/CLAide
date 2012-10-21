@@ -9,19 +9,26 @@ module ExplanatoryAide
       # simply show the banner.
       #
       # a banner of the command itself should be printed.
-      def initialize(command_class, unknown_argv = nil)
-        @command_class, @unknown_argv = command_class, unknown_argv
+      def initialize(command_class, error_message = nil)
+        @command_class, @error_message = command_class, error_message
       end
 
       def banner
-        [
-          'Usage:',
-          @command_class.formatted_command_description,
-          'Commands:',
-          @command_class.formatted_subcommands_description,
-          'Options:',
-          @command_class.formatted_options_description
-        ].join("\n\n")
+        banner = []
+        if @error_message
+          banner << "[!] #{@error_message}"
+        end
+        if usage = @command_class.formatted_command_description
+          banner << 'Usage:'
+          banner << usage
+        end
+        if commands = @command_class.formatted_subcommands_description
+          banner << 'Commands:'
+          banner << commands
+        end
+        banner << 'Options:'
+        banner << @command_class.formatted_options_description
+        banner.join("\n\n")
       end
     end
 
@@ -97,9 +104,8 @@ module ExplanatoryAide
     end
 
     def self.formatted_subcommands_description
-      subcommands.sort_by(&:command).map do |klass|
-        klass.formatted_command_description
-      end.join("\n\n")
+      descriptions = subcommands.sort_by(&:command).map(&:formatted_command_description).compact
+      descriptions.join("\n\n") unless descriptions.empty?
     end
 
     def self.parse(argv)
