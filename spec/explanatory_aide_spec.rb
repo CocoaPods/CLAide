@@ -155,6 +155,11 @@ module ExplanatoryAide
   end
 
   describe Command, "when running" do
+    before do
+      Fixture::Command.stubs(:puts)
+      Fixture::Command.stubs(:exit)
+    end
+
     it "does not print the backtrace of a Informative exception by default" do
       expected = Command::Help.new(Fixture::Command).message
       Fixture::Command.expects(:puts).with(expected)
@@ -172,6 +177,28 @@ module ExplanatoryAide
       Fixture::Command.expects(:puts).with('the', 'backtrace').when(printed.is(:message)).then(printed.is(:done))
 
       Fixture::Command.run(%w{ --verbose })
+    end
+
+    it "exits with a failure status when an Informative exception occurs" do
+      Fixture::Command.expects(:exit).with(1)
+      Fixture::Command.any_instance.stubs(:validate_argv!).raises(Command::Informative.new)
+      Fixture::Command.run([])
+    end
+
+    it "exits with a failure status when a Help exception occurs that has an error message" do
+      Fixture::Command.expects(:exit).with(1)
+      Fixture::Command.run(%w{ unknown })
+    end
+
+    it "exits with a success status when a Help exception occurs that has *no* error message" do
+      Fixture::Command.expects(:exit).with(0)
+      Fixture::Command.run(%w{ --help })
+    end
+
+    it "exits with a failure status when any other type of exception occurs" do
+      Fixture::Command.expects(:exit).with(1)
+      Fixture::Command.any_instance.stubs(:validate_argv!).raises(ArgumentError.new)
+      Fixture::Command.run([])
     end
   end
 

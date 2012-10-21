@@ -1,11 +1,20 @@
 module ExplanatoryAide
   class Command
-    class Informative < StandardError; end
+    class Informative < StandardError
+      attr_reader :exit_status
+
+      def initialize(message = nil, exit_status = 1)
+        @exit_status = exit_status
+        super(message)
+      end
+    end
+
     class Help < Informative
       attr_reader :command_class, :error_message
 
       def initialize(command_class, error_message = nil)
         @command_class, @error_message = command_class, error_message
+        super(nil, error_message.nil? ? 0 : 1)
       end
 
       def message
@@ -118,9 +127,12 @@ module ExplanatoryAide
       command = parse(argv)
       command.validate_argv!
       command.run
-    rescue Informative => informative
-      puts informative.message
-      puts *informative.backtrace if command.verbose?
+    rescue Exception => exception
+      if exception.is_a?(Informative)
+        puts exception.message
+        puts *exception.backtrace if command.verbose?
+      end
+      exit(exception.respond_to?(:exit_status) ? exception.exit_status : 1)
     end
 
     attr_accessor :verbose
