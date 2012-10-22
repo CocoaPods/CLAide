@@ -21,17 +21,23 @@ module CLIAide
 
       def message
         banner = []
+
         if @error_message
           banner << "[!] #{@error_message}"
         end
-        if usage = @command_class.formatted_command_description
+
+        if @command_class.abstract_command?
+          banner << @command_class.description if @command_class.description
+        elsif usage = @command_class.formatted_command_description
           banner << 'Usage:'
           banner << usage
         end
-        if commands = @command_class.formatted_subcommands_description
+
+        if commands = @command_class.formatted_subcommand_summaries
           banner << 'Commands:'
           banner << commands
         end
+
         banner << 'Options:'
         banner << @command_class.formatted_options_description
         banner.join("\n\n")
@@ -54,8 +60,8 @@ module CLIAide
     end
 
     def self.full_command
-      if superclass.superclass == Command
-        "#{binname} #{command}"
+      if superclass == Command
+        "#{binname}"
       else
         "#{superclass.full_command} #{command}"
       end
@@ -91,6 +97,11 @@ module CLIAide
     end
 
     class << self
+      attr_accessor :abstract_command
+      alias_method :abstract_command?, :abstract_command
+
+      attr_accessor :summary
+
       # Should be set by the subclass to provide a description for the command.
       #
       # If this returns `nil` it will not be included in the help banner.
@@ -107,16 +118,25 @@ module CLIAide
       options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
     end
 
-    def self.formatted_command_description
-      if desc = description
-        desc = desc.split("\n").map { |line| line.ljust(6) }.join("\n")
-        "    $ #{full_command}#{ " #{arguments}" if arguments}\n\n      #{desc}"
+    def self.formatted_command_summary_or_description(message, include_arguments)
+      if message
+        message = message.strip_heredoc if message.respond_to?(:strip_heredoc)
+        message = message.split("\n").map { |line| "      #{line}" }.join("\n")
+        "    $ #{full_command}#{ " #{arguments}" if include_arguments && arguments}\n\n#{message}"
       end
     end
 
-    def self.formatted_subcommands_description
-      descriptions = subcommands.sort_by(&:command).map(&:formatted_command_description).compact
-      descriptions.join("\n\n") unless descriptions.empty?
+    def self.formatted_command_description
+      formatted_command_summary_or_description(description || summary, true)
+    end
+
+    def self.formatted_command_summary
+      formatted_command_summary_or_description(summary, false)
+    end
+
+    def self.formatted_subcommand_summaries
+      summaries = subcommands.sort_by(&:command).map(&:formatted_command_summary).compact
+      summaries.join("\n\n") unless summaries.empty?
     end
 
     def self.parse(argv)
@@ -137,9 +157,14 @@ module CLIAide
     rescue Exception => exception
       if exception.is_a?(Informative)
         puts exception.message
-        puts *exception.backtrace if command.verbose?
+        if command.verbose?
+          puts
+          puts *exception.backtrace
+        end
+        exit(exception.respond_to?(:exit_status) ? exception.exit_status : 1)
+      else
+        raise exception
       end
-      exit(exception.respond_to?(:exit_status) ? exception.exit_status : 1)
     end
 
     attr_accessor :verbose
@@ -211,8 +236,17 @@ module CLIAide
       @entries.map { |type, value| value if type == :arg }.compact
     end
 
-    def flag?(name)
-      delete_entry(:flag, name)
+    def arguments!
+      arguments = []
+      while arg = shift_argument
+        arguments << arg
+      end
+      arguments
+    end
+
+    def flag?(name, default = false)
+      result = delete_entry(:flag, name)
+      result.nil? ? default : result
     end
 
     def option(name)
