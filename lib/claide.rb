@@ -1,4 +1,4 @@
-module CLIAide
+module CLAide
   VERSION = '0.0.1'
 
   class Command
@@ -163,8 +163,13 @@ module CLIAide
         end
         exit(exception.respond_to?(:exit_status) ? exception.exit_status : 1)
       else
-        raise exception
+        report_error(exception)
       end
+    end
+
+    # TODO
+    def self.report_error(exception)
+      raise exception
     end
 
     attr_accessor :verbose
@@ -244,7 +249,7 @@ module CLIAide
       arguments
     end
 
-    def flag?(name, default = false)
+    def flag?(name, default = nil)
       result = delete_entry(:flag, name)
       result.nil? ? default : result
     end
