@@ -50,9 +50,12 @@ module CLAide
     #
     # Otherwise you will have to register the subcommands manually.
     def self.command
-      if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
-        name.demodulize.underscore.dasherize
+      unless @command
+        if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
+          @command = name.demodulize.underscore.dasherize
+        end
       end
+      @command
     end
 
     def self.binname
@@ -114,7 +117,7 @@ module CLAide
     end
 
     def self.formatted_options_description
-      key_size = options.inject(0) { |size, (key, _)| key.size > size ? key.size : size }
+      key_size = options.map(&:size).max
       options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
     end
 
@@ -130,13 +133,14 @@ module CLAide
       formatted_command_summary_or_description(description || summary, true)
     end
 
-    def self.formatted_command_summary
-      formatted_command_summary_or_description(summary, false)
-    end
-
     def self.formatted_subcommand_summaries
-      summaries = subcommands.sort_by(&:command).map(&:formatted_command_summary).compact
-      summaries.join("\n\n") unless summaries.empty?
+      subcommands = self.subcommands.reject { |subcommand| subcommand.summary.nil? }.sort_by(&:command)
+      unless subcommands.empty?
+        command_size = subcommands.map { |subcommand| subcommand.command.size }.max
+        subcommands.map do |subcommand|
+          "    * #{subcommand.command.ljust(command_size)}   #{subcommand.summary}"
+        end.join("\n")
+      end
     end
 
     def self.parse(argv)

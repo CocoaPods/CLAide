@@ -64,7 +64,7 @@ module Fixture
 
     class SpecFile < Command
       class Lint < SpecFile
-        self.description = 'Checks the validity of a spec file.'
+        self.summary = 'Checks the validity of a spec file.'
         self.arguments = '[NAME]'
 
         def self.options
@@ -72,12 +72,12 @@ module Fixture
         end
 
         class Repo < Lint
-          self.description = 'Checks the validity of ALL specs in a repo.'
+          self.summary = 'Checks the validity of ALL specs in a repo.'
         end
       end
 
       class Create < SpecFile
-        self.description = 'Creates a spec file stub.'
+        self.summary = 'Creates a spec file stub.'
 
         attr_reader :spec
         def initialize(argv)
@@ -126,12 +126,6 @@ module CLAide
         Fixture::Command.parse(%w{ spec-file unknown }).validate_argv!
       end
     end
-
-    it "raises a Help exception (without error message) when running a command that does not itself implement #run" do
-      should_raise_help nil do
-        Fixture::Command.parse(%w{ spec-file }).run
-      end
-    end
   end
 
   describe Command, "default options" do
@@ -153,6 +147,12 @@ module CLAide
     before do
       Fixture::Command.stubs(:puts)
       Fixture::Command.stubs(:exit)
+    end
+
+    it "raises a Help exception (without error message) when calling #run on an abstract command" do
+      should_raise_help nil do
+        Fixture::Command.run(%w{ spec-file })
+      end
     end
 
     it "does not print the backtrace of a Informative exception by default" do
@@ -198,32 +198,37 @@ module CLAide
   end
 
   describe Command, "formatting" do
-    #it "returns the subcommands, sorted by name" do
-      #Fixture::Command::SpecFile.formatted_subcommand_summaries.should == <<-COMMANDS.rstrip
-    #$ bin spec-file create
-
-      #Creates a spec file stub.
-
-    #$ bin spec-file lint [NAME]
-
-      #Checks the validity of a spec file.
-#COMMANDS
-    #end
-
-    it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
-      Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
-    --verbose   Show more debugging information
-    --help      Show help banner
-OPTIONS
-      Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
-    --only-errors   Skip warnings
-    --verbose       Show more debugging information
-    --help          Show help banner
-OPTIONS
+    it "returns summaries of the subcommands of a command, sorted by name" do
+      Fixture::Command::SpecFile.formatted_subcommand_summaries.should == <<-COMMANDS.rstrip
+    * create   Creates a spec file stub.
+    * lint     Checks the validity of a spec file.
+COMMANDS
     end
+
+    #it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
+      #Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
+    #--verbose   Show more debugging information
+    #--help      Show help banner
+#OPTIONS
+      #Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
+    #--only-errors   Skip warnings
+    #--verbose       Show more debugging information
+    #--help          Show help banner
+#OPTIONS
+    #end
   end
 
-  describe Command::Help, "formatting" do
+  #describe Command::Help, "formatting for an abstract command" do
+    #it "does not show a 'usage' banner for an abstract command" do
+      
+    #end
+
+    #it "shows just the description as the banner" do
+      
+    #end
+  #end
+
+  describe Command::Help, "formatting for an abstract command" do
     #it "shows the command's own description, those of the subcommands, and of the options" do
       #Command::Help.new(Fixture::Command::SpecFile::Lint).message.should == <<-BANNER.rstrip
 #Usage:
@@ -246,15 +251,15 @@ OPTIONS
 #BANNER
     #end
 
-    it "shows the specified error message before the rest of the banner" do
-      Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
-[!] Unable to process, captain.
+    #it "shows the specified error message before the rest of the banner" do
+      #Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
+#[!] Unable to process, captain.
 
-Options:
+#Options:
 
-    --verbose   Show more debugging information
-    --help      Show help banner
-BANNER
-    end
+    #--verbose   Show more debugging information
+    #--help      Show help banner
+#BANNER
+    #end
   end
 end
