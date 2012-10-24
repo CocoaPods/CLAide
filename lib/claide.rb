@@ -16,31 +16,15 @@ module CLAide
 
       def initialize(command_class, error_message = nil)
         @command_class, @error_message = command_class, error_message
-        super(nil, error_message.nil? ? 0 : 1)
+        super(nil, @error_message.nil? ? 0 : 1)
+      end
+
+      def formatted_error_message
+        "[!] #{@error_message}" if @error_message
       end
 
       def message
-        banner = []
-
-        if @error_message
-          banner << "[!] #{@error_message}"
-        end
-
-        if @command_class.abstract_command?
-          banner << @command_class.description if @command_class.description
-        elsif usage = @command_class.formatted_usage_description
-          banner << 'Usage:'
-          banner << usage
-        end
-
-        if commands = @command_class.formatted_subcommand_summaries
-          banner << 'Commands:'
-          banner << commands
-        end
-
-        banner << 'Options:'
-        banner << @command_class.formatted_options_description
-        banner.join("\n\n")
+        [formatted_error_message, @command_class.formatted_banner].compact.join("\n\n")
       end
     end
 
@@ -137,6 +121,23 @@ module CLAide
           "    * #{subcommand.command.ljust(command_size)}   #{subcommand.summary}"
         end.join("\n")
       end
+    end
+
+    def self.formatted_banner
+      banner = []
+      if abstract_command?
+        banner << description if description
+      elsif usage = formatted_usage_description
+        banner << 'Usage:'
+        banner << usage
+      end
+      if commands = formatted_subcommand_summaries
+        banner << 'Commands:'
+        banner << commands
+      end
+      banner << 'Options:'
+      banner << formatted_options_description
+      banner.join("\n\n")
     end
 
     def self.parse(argv)

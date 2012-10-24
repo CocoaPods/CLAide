@@ -200,7 +200,7 @@ module CLAide
     #end
   end
 
-  describe Command, "formatting" do
+  describe Command, "banner formatting in general" do
     it "returns a 'usage' description based on the command's description" do
       Fixture::Command::SpecFile::Create.formatted_usage_description.should == <<-USAGE.rstrip
     $ bin spec-file create [NAME]
@@ -237,9 +237,9 @@ OPTIONS
     end
   end
 
-  describe Command::Help, "formatting for an abstract command" do
-    it "does not show a 'usage' banner" do
-      Command::Help.new(Fixture::Command::SpecFile).message.should == <<-BANNER.rstrip
+  describe Command, "complete banner formatting" do
+    it "does not include a 'usage' banner for an abstract command" do
+      Fixture::Command::SpecFile.formatted_banner.should == <<-BANNER.rstrip
 Manage spec files.
 
 Commands:
@@ -251,28 +251,30 @@ Options:
 #{Fixture::Command::SpecFile.formatted_options_description}
 BANNER
     end
-  end
 
-  describe Command::Help, "formatting for a command" do
-    it "shows a 'usage' banner" do
-      Command::Help.new(Fixture::Command::SpecFile::Create).message.should == <<-BANNER.rstrip
+    it "shows a banner that is a combination of the summary/description, commands, and options" do
+      Fixture::Command::SpecFile::Create.formatted_banner.should == <<-BANNER.rstrip
 Usage:
 
 #{Fixture::Command::SpecFile::Create.formatted_usage_description}
 
 Options:
 
-#{Fixture::Command::SpecFile.formatted_options_description}
+#{Fixture::Command::SpecFile::Create.formatted_options_description}
 BANNER
+    end
+  end
+
+  describe Command::Help, "formatting for a command" do
+    it "shows just the banner if no error message is specified" do
+      Command::Help.new(Fixture::Command).message.should == Fixture::Command.formatted_banner
     end
 
     it "shows the specified error message before the rest of the banner" do
       Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
 [!] Unable to process, captain.
 
-Options:
-
-#{Fixture::Command.formatted_options_description}
+#{Fixture::Command.formatted_banner}
 BANNER
     end
   end
