@@ -2,21 +2,21 @@ module CLAide
   VERSION = '0.0.1'
 
   class Command
-    class Informative < StandardError
-      attr_reader :exit_status
-
-      def initialize(message = nil, exit_status = 1)
-        @exit_status = exit_status
-        super(message)
+    module InformativeError
+      attr_writer :exit_status
+      def exit_status
+        @exit_status ||= 1
       end
     end
 
-    class Help < Informative
+    class Help < StandardError
+      include InformativeError
+
       attr_reader :command, :error_message
 
       def initialize(command, error_message = nil)
         @command, @error_message = command, error_message
-        super(nil, @error_message.nil? ? 0 : 1)
+        @exit_status = @error_message.nil? ? 0 : 1
       end
 
       def formatted_error_message
@@ -126,7 +126,7 @@ module CLAide
       command.validate!
       command.run
     rescue Exception => exception
-      if exception.is_a?(Informative)
+      if exception.is_a?(InformativeError)
         puts exception.message
         if command.verbose?
           puts

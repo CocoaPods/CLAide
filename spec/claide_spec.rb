@@ -70,6 +70,10 @@ module CLAide
 end
 
 module Fixture
+  class Error < StandardError
+    include CLAide::Command::InformativeError
+  end
+
   class Command < CLAide::Command
     def self.binname
       'bin'
@@ -171,14 +175,14 @@ module CLAide
       Fixture::Command.stubs(:exit)
     end
 
-    it "does not print the backtrace of a Informative exception by default" do
+    it "does not print the backtrace of a InformativeError exception by default" do
       expected = Command::Help.new(Fixture::Command.parse([])).message
       Fixture::Command.expects(:puts).with(expected)
       Fixture::Command.run(%w{ --help })
     end
 
-    it "does print the backtrace of a Informative exception if set to verbose" do
-      error = Command::Informative.new
+    it "does print the backtrace of an exception, that includes InformativeError, if set to verbose" do
+      error = Fixture::Error.new
       Fixture::Command.any_instance.stubs(:validate!).raises(error)
       error.stubs(:message).returns('the message')
       error.stubs(:backtrace).returns(['the', 'backtrace'])
@@ -190,9 +194,9 @@ module CLAide
       Fixture::Command.run(%w{ --verbose })
     end
 
-    it "exits with a failure status when an Informative exception occurs" do
+    it "exits with a failure status when an exception that includes InformativeError occurs" do
       Fixture::Command.expects(:exit).with(1)
-      Fixture::Command.any_instance.stubs(:validate!).raises(Command::Informative.new)
+      Fixture::Command.any_instance.stubs(:validate!).raises(Fixture::Error.new)
       Fixture::Command.run([])
     end
 
