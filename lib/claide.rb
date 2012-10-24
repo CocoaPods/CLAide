@@ -247,12 +247,11 @@ module CLAide
     end
 
     def flag?(name, default = nil)
-      result = delete_entry(:flag, name)
-      result.nil? ? default : result
+      delete_entry(:flag, name, default)
     end
 
-    def option(name)
-      delete_entry(:option, name)
+    def option(name, default = nil)
+      delete_entry(:option, name, default)
     end
 
     def shift_argument
@@ -264,7 +263,7 @@ module CLAide
 
     private
 
-    def delete_entry(requested_type, requested_key)
+    def delete_entry(requested_type, requested_key, default)
       result = nil
       @entries.delete_if do |type, (key, value)|
         if requested_key == key && requested_type == type
@@ -272,7 +271,7 @@ module CLAide
           true
         end
       end
-      result
+      result.nil? ? default : result
     end
 
     def self.parse(argv)

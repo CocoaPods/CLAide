@@ -42,6 +42,11 @@ module CLAide
       @argv.remainder.should == %w{ --option VALUE ARG1 ARG2 }
     end
 
+    it "returns a default value if a flag does not exist" do
+      @argv.flag?('option', true).should == true
+      @argv.flag?('option', false).should == false
+    end
+
     it "returns an option and deletes it" do
       @argv.option('flag').should == nil
       @argv.option('other-flag').should == nil
@@ -49,9 +54,18 @@ module CLAide
       @argv.remainder.should == %w{ --flag ARG1 ARG2 --no-other-flag }
     end
 
+    it "returns a default value if an option does not exist" do
+      @argv.option('flag', 'value').should == 'value'
+    end
+
     it "returns the first argument and deletes it" do
       @argv.shift_argument.should == 'ARG1'
       @argv.remainder.should == %w{ --flag --option VALUE ARG2 --no-other-flag }
+    end
+
+    it "returns and deletes all arguments" do
+      @argv.arguments!.should == %w{ ARG1 ARG2 }
+      @argv.remainder.should == %w{ --flag --option VALUE --no-other-flag }
     end
   end
 end
