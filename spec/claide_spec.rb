@@ -5,7 +5,6 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 require 'active_support/core_ext/string/inflections'
 require 'claide'
 
-
 def should_raise_help(error_message)
   error = nil
   begin
@@ -173,7 +172,7 @@ module CLAide
     end
 
     it "does not print the backtrace of a Informative exception by default" do
-      expected = Command::Help.new(Fixture::Command).message
+      expected = Command::Help.new(Fixture::Command.parse([])).message
       Fixture::Command.expects(:puts).with(expected)
       Fixture::Command.run(%w{ --help })
     end
@@ -216,7 +215,7 @@ module CLAide
 
   describe Command, "banner formatting in general" do
     it "returns a 'usage' description based on the command's description" do
-      Fixture::Command::SpecFile::Create.formatted_usage_description.should == <<-USAGE.rstrip
+      Fixture::Command::SpecFile::Create.parse([]).formatted_usage_description.should == <<-USAGE.rstrip
     $ bin spec-file create [NAME]
 
       Creates a spec file called NAME and populates it with defaults.
@@ -224,7 +223,7 @@ USAGE
     end
 
     it "returns a 'usage' description based on the command's summary, if no description is present" do
-      Fixture::Command::SpecFile::Lint::Repo.formatted_usage_description.should == <<-USAGE.rstrip
+      Fixture::Command::SpecFile::Lint::Repo.parse([]).formatted_usage_description.should == <<-USAGE.rstrip
     $ bin spec-file lint repo
 
       Checks the validity of ALL specs in a repo.
@@ -232,18 +231,18 @@ USAGE
     end
 
     it "returns summaries of the subcommands of a command, sorted by name" do
-      Fixture::Command::SpecFile.formatted_subcommand_summaries.should == <<-COMMANDS.rstrip
+      Fixture::Command::SpecFile.parse([]).formatted_subcommand_summaries.should == <<-COMMANDS.rstrip
     * create   Creates a spec file stub.
     * lint     Checks the validity of a spec file.
 COMMANDS
     end
 
     it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
-      Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
+      Fixture::Command::SpecFile.parse([]).formatted_options_description.should == <<-OPTIONS.rstrip
     --verbose   Show more debugging information
     --help      Show help banner of specified command
 OPTIONS
-      Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
+      Fixture::Command::SpecFile::Lint::Repo.parse([]).formatted_options_description.should == <<-OPTIONS.rstrip
     --only-errors   Skip warnings
     --verbose       Show more debugging information
     --help          Show help banner of specified command
@@ -253,42 +252,46 @@ OPTIONS
 
   describe Command, "complete banner formatting" do
     it "does not include a 'usage' banner for an abstract command" do
-      Fixture::Command::SpecFile.formatted_banner.should == <<-BANNER.rstrip
+      command = Fixture::Command::SpecFile.parse([])
+      command.formatted_banner.should == <<-BANNER.rstrip
 Manage spec files.
 
 Commands:
 
-#{Fixture::Command::SpecFile.formatted_subcommand_summaries}
+#{command.formatted_subcommand_summaries}
 
 Options:
 
-#{Fixture::Command::SpecFile.formatted_options_description}
+#{command.formatted_options_description}
 BANNER
     end
 
     it "shows a banner that is a combination of the summary/description, commands, and options" do
-      Fixture::Command::SpecFile::Create.formatted_banner.should == <<-BANNER.rstrip
+      command = Fixture::Command::SpecFile::Create.parse([])
+      command.formatted_banner.should == <<-BANNER.rstrip
 Usage:
 
-#{Fixture::Command::SpecFile::Create.formatted_usage_description}
+#{command.formatted_usage_description}
 
 Options:
 
-#{Fixture::Command::SpecFile::Create.formatted_options_description}
+#{command.formatted_options_description}
 BANNER
     end
   end
 
   describe Command::Help, "formatting for a command" do
     it "shows just the banner if no error message is specified" do
-      Command::Help.new(Fixture::Command).message.should == Fixture::Command.formatted_banner
+      command = Fixture::Command.parse([])
+      Command::Help.new(command).message.should == command.formatted_banner
     end
 
     it "shows the specified error message before the rest of the banner" do
-      Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
+      command = Fixture::Command.parse([])
+      Command::Help.new(command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
 [!] Unable to process, captain.
 
-#{Fixture::Command.formatted_banner}
+#{command.formatted_banner}
 BANNER
     end
   end

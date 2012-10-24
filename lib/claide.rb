@@ -12,19 +12,22 @@ module CLAide
     end
 
     class Help < Informative
-      attr_reader :command_class, :error_message
+      attr_reader :command, :error_message
 
-      def initialize(command_class, error_message = nil)
-        @command_class, @error_message = command_class, error_message
+      def initialize(command, error_message = nil)
+        @command, @error_message = command, error_message
         super(nil, @error_message.nil? ? 0 : 1)
       end
 
       def formatted_error_message
-        "[!] #{@error_message}" if @error_message
+        if @error_message
+          message = "[!] #{@error_message}"
+          @command.colorize_output? && message.respond_to?(:red) ? message.red : message
+        end
       end
 
       def message
-        [formatted_error_message, @command_class.formatted_banner].compact.join("\n\n")
+        [formatted_error_message, @command.formatted_banner].compact.join("\n\n")
       end
     end
 
@@ -89,6 +92,9 @@ module CLAide
 
       attr_accessor :summary
 
+      attr_accessor :colorize_output
+      alias_method :colorize_output?, :colorize_output
+
       # Should be set by the subclass to provide a description for the command.
       #
       # If this returns `nil` it will not be included in the help banner.
@@ -100,45 +106,7 @@ module CLAide
       attr_accessor :arguments
     end
 
-    def self.formatted_options_description
-      key_size = options.map { |opt| opt.first.size }.max
-      options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
-    end
-
-    def self.formatted_usage_description
-      if message = description || summary
-        message = message.strip_heredoc if message.respond_to?(:strip_heredoc)
-        message = message.split("\n").map { |line| "      #{line}" }.join("\n")
-        "    $ #{full_command}#{ " #{arguments}" if arguments }\n\n#{message}"
-      end
-    end
-
-    def self.formatted_subcommand_summaries
-      subcommands = self.subcommands.reject { |subcommand| subcommand.summary.nil? }.sort_by(&:command)
-      unless subcommands.empty?
-        command_size = subcommands.map { |subcommand| subcommand.command.size }.max
-        subcommands.map do |subcommand|
-          "    * #{subcommand.command.ljust(command_size)}   #{subcommand.summary}"
-        end.join("\n")
-      end
-    end
-
-    def self.formatted_banner
-      banner = []
-      if abstract_command?
-        banner << description if description
-      elsif usage = formatted_usage_description
-        banner << 'Usage:'
-        banner << usage
-      end
-      if commands = formatted_subcommand_summaries
-        banner << 'Commands:'
-        banner << commands
-      end
-      banner << 'Options:'
-      banner << formatted_options_description
-      banner.join("\n\n")
-    end
+    self.colorize_output = String.method_defined?(:red) && String.method_defined?(:green)
 
     def self.parse(argv)
       argv = ARGV.new(argv) unless argv.is_a?(ARGV)
@@ -176,6 +144,9 @@ module CLAide
     attr_accessor :verbose
     alias_method :verbose?, :verbose
 
+    attr_accessor :colorize_output
+    alias_method :colorize_output?, :colorize_output
+
     # Sets the `verbose` attribute based on wether or not the `--verbose`
     # option is specified.
     #
@@ -183,6 +154,7 @@ module CLAide
     # they support from argv before calling `super`.
     def initialize(argv)
       @verbose = argv.flag?('verbose')
+      @colorize_output = argv.flag?('color', self.class.colorize_output?)
       @argv = argv
     end
 
@@ -201,10 +173,53 @@ module CLAide
       raise "A subclass should override the Command#run method to actually perform some work."
     end
 
+    def formatted_options_description
+      options = self.class.options
+      key_size = options.map { |opt| opt.first.size }.max
+      options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
+    end
+
+    def formatted_usage_description
+      if message = self.class.description || self.class.summary
+        message = message.strip_heredoc if message.respond_to?(:strip_heredoc)
+        message = message.split("\n").map { |line| "      #{line}" }.join("\n")
+        "    $ #{self.class.full_command}#{ " #{self.class.arguments}" if self.class.arguments }\n\n#{message}"
+      end
+    end
+
+    def formatted_subcommand_summaries
+      subcommands = self.class.subcommands.reject { |subcommand| subcommand.summary.nil? }.sort_by(&:command)
+      unless subcommands.empty?
+        command_size = subcommands.map { |subcommand| subcommand.command.size }.max
+        subcommands.map do |subcommand|
+          command = subcommand.command
+          command = command.green if colorize_output? && command.respond_to?(:green)
+          "    * #{command.ljust(command_size)}   #{subcommand.summary}"
+        end.join("\n")
+      end
+    end
+
+    def formatted_banner
+      banner = []
+      if self.class.abstract_command?
+        banner << self.class.description if self.class.description
+      elsif usage = formatted_usage_description
+        banner << 'Usage:'
+        banner << usage
+      end
+      if commands = formatted_subcommand_summaries
+        banner << 'Commands:'
+        banner << commands
+      end
+      banner << 'Options:'
+      banner << formatted_options_description
+      banner.join("\n\n")
+    end
+
     protected
 
     def help!(error_message = nil)
-      raise Help.new(self.class, error_message)
+      raise Help.new(self, error_message)
     end
   end
 
