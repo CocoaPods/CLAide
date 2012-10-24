@@ -156,7 +156,7 @@ module CLAide
 
     def self.run(argv)
       command = parse(argv)
-      command.validate_argv!
+      command.validate!
       command.run
     rescue Exception => exception
       if exception.is_a?(Informative)
@@ -189,11 +189,10 @@ module CLAide
       @argv = argv
     end
 
-    # Raises a Help exception if the `--help` option is specified.
-    #
-    # This will raise if argv still contains remaining arguments/options by
-    # the time it reaches this implementation.
-    def validate_argv!
+    # Raises a Help exception if the `--help` option is specified, if argv
+    # still contains remaining arguments/options by the time it reaches this
+    # implementation, or when called on an ‘abstract command’.
+    def validate!
       help! if @argv.flag?('help')
       remainder = @argv.remainder
       help! "Unknown arguments: #{remainder.join(' ')}" unless remainder.empty?

@@ -120,16 +120,16 @@ module CLAide
 
     it "raises a Help exception when created with an invalid subcommand" do
       should_raise_help 'Unknown arguments: unknown' do
-        Fixture::Command.parse(%w{ unknown }).validate_argv!
+        Fixture::Command.parse(%w{ unknown }).validate!
       end
       should_raise_help 'Unknown arguments: unknown' do
-        Fixture::Command.parse(%w{ spec-file unknown }).validate_argv!
+        Fixture::Command.parse(%w{ spec-file unknown }).validate!
       end
     end
 
     it "raises a Help exception (without error message) when called on an abstract command" do
       should_raise_help nil do
-        Fixture::Command.parse(%w{ spec-file }).validate_argv!
+        Fixture::Command.parse(%w{ spec-file }).validate!
       end
     end
   end
@@ -137,7 +137,7 @@ module CLAide
   describe Command, "default options" do
     it "raises a Help exception, without error message" do
       should_raise_help nil do
-        Fixture::Command.parse(%w{ --help }).validate_argv!
+        Fixture::Command.parse(%w{ --help }).validate!
       end
     end
 
@@ -163,7 +163,7 @@ module CLAide
 
     it "does print the backtrace of a Informative exception if set to verbose" do
       error = Command::Informative.new
-      Fixture::Command.any_instance.stubs(:validate_argv!).raises(error)
+      Fixture::Command.any_instance.stubs(:validate!).raises(error)
       error.stubs(:message).returns('the message')
       error.stubs(:backtrace).returns(['the', 'backtrace'])
 
@@ -176,7 +176,7 @@ module CLAide
 
     it "exits with a failure status when an Informative exception occurs" do
       Fixture::Command.expects(:exit).with(1)
-      Fixture::Command.any_instance.stubs(:validate_argv!).raises(Command::Informative.new)
+      Fixture::Command.any_instance.stubs(:validate!).raises(Command::Informative.new)
       Fixture::Command.run([])
     end
 
@@ -192,7 +192,7 @@ module CLAide
 
     #it "exits with a failure status when any other type of exception occurs" do
       #Fixture::Command.expects(:exit).with(1)
-      #Fixture::Command.any_instance.stubs(:validate_argv!).raises(ArgumentError.new)
+      #Fixture::Command.any_instance.stubs(:validate!).raises(ArgumentError.new)
       #Fixture::Command.run([])
     #end
   end
