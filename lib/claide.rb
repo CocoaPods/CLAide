@@ -192,9 +192,9 @@ module CLAide
       unless subcommands.empty?
         command_size = subcommands.map { |subcommand| subcommand.command.size }.max
         subcommands.map do |subcommand|
-          command = subcommand.command
+          command = subcommand.command.ljust(command_size)
           command = command.green if colorize_output? && command.respond_to?(:green)
-          "    * #{command.ljust(command_size)}   #{subcommand.summary}"
+          "    * #{command}   #{subcommand.summary}"
         end.join("\n")
       end
     end
