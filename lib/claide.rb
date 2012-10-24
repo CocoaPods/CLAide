@@ -132,7 +132,7 @@ module CLAide
           puts
           puts *exception.backtrace
         end
-        exit(exception.respond_to?(:exit_status) ? exception.exit_status : 1)
+        exit exception.exit_status
       else
         report_error(exception)
       end
