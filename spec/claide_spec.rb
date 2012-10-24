@@ -63,6 +63,8 @@ module Fixture
     end
 
     class SpecFile < Command
+      self.abstract_command = true
+
       class Lint < SpecFile
         self.summary = 'Checks the validity of a spec file.'
         self.arguments = '[NAME]'
@@ -83,10 +85,6 @@ module Fixture
         def initialize(argv)
           @spec = argv.shift_argument
           super
-        end
-
-        def run
-          # This command actully does something.
         end
       end
     end
@@ -112,7 +110,9 @@ module CLAide
     #it "raises a Help exception when run without any subcommands" do
       #lambda { Fixture::Command.run([]) }.should.raise Command::Help
     #end
+  end
 
+  describe Command, "validation" do
     it "does not raise if one of the subcommands consumes arguments" do
       subcommand = Fixture::Command.parse(%w{ spec-file create AFNetworking })
       subcommand.spec.should == 'AFNetworking'
@@ -124,6 +124,12 @@ module CLAide
       end
       should_raise_help 'Unknown arguments: unknown' do
         Fixture::Command.parse(%w{ spec-file unknown }).validate_argv!
+      end
+    end
+
+    it "raises a Help exception (without error message) when called on an abstract command" do
+      should_raise_help nil do
+        Fixture::Command.parse(%w{ spec-file }).validate_argv!
       end
     end
   end
@@ -147,12 +153,6 @@ module CLAide
     before do
       Fixture::Command.stubs(:puts)
       Fixture::Command.stubs(:exit)
-    end
-
-    it "raises a Help exception (without error message) when calling #run on an abstract command" do
-      should_raise_help nil do
-        Fixture::Command.run(%w{ spec-file })
-      end
     end
 
     it "does not print the backtrace of a Informative exception by default" do

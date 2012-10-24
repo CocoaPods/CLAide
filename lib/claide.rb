@@ -197,15 +197,12 @@ module CLAide
       help! if @argv.flag?('help')
       remainder = @argv.remainder
       help! "Unknown arguments: #{remainder.join(' ')}" unless remainder.empty?
+      help! if self.class.abstract_command?
     end
 
-    # This method should *only* be overriden by command classes that actually
-    # perform any work. This ensures that commands that require a subcommand
-    # will show the help banner instead.
-    #
-    # The banner will not include an error message.
+    # This method should be overriden by command classes to perform their work.
     def run
-      help!
+      raise "A subclass should override the Command#run method to actually perform some work."
     end
 
     protected
