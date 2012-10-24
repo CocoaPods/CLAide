@@ -64,6 +64,7 @@ module Fixture
 
     class SpecFile < Command
       self.abstract_command = true
+      self.description = 'Manage spec files.'
 
       class Lint < SpecFile
         self.summary = 'Checks the validity of a spec file.'
@@ -80,6 +81,8 @@ module Fixture
 
       class Create < SpecFile
         self.summary = 'Creates a spec file stub.'
+        self.description = 'Creates a spec file called NAME and populates it with defaults.'
+        self.arguments = '[NAME]'
 
         attr_reader :spec
         def initialize(argv)
@@ -198,6 +201,22 @@ module CLAide
   end
 
   describe Command, "formatting" do
+    it "returns a 'usage' description based on the command's description" do
+      Fixture::Command::SpecFile::Create.formatted_usage_description.should == <<-USAGE.rstrip
+    $ bin spec-file create [NAME]
+
+      Creates a spec file called NAME and populates it with defaults.
+USAGE
+    end
+
+    it "returns a 'usage' description based on the command's summary, if no description is present" do
+      Fixture::Command::SpecFile::Lint::Repo.formatted_usage_description.should == <<-USAGE.rstrip
+    $ bin spec-file lint repo
+
+      Checks the validity of ALL specs in a repo.
+USAGE
+    end
+
     it "returns summaries of the subcommands of a command, sorted by name" do
       Fixture::Command::SpecFile.formatted_subcommand_summaries.should == <<-COMMANDS.rstrip
     * create   Creates a spec file stub.
@@ -218,48 +237,43 @@ OPTIONS
     end
   end
 
-  #describe Command::Help, "formatting for an abstract command" do
-    #it "does not show a 'usage' banner for an abstract command" do
-      
-    #end
-
-    #it "shows just the description as the banner" do
-      
-    #end
-  #end
-
   describe Command::Help, "formatting for an abstract command" do
-    #it "shows the command's own description, those of the subcommands, and of the options" do
-      #Command::Help.new(Fixture::Command::SpecFile::Lint).message.should == <<-BANNER.rstrip
-#Usage:
+    it "does not show a 'usage' banner" do
+      Command::Help.new(Fixture::Command::SpecFile).message.should == <<-BANNER.rstrip
+Manage spec files.
 
-    #$ bin spec-file lint [NAME]
+Commands:
 
-      #Checks the validity of a spec file.
+#{Fixture::Command::SpecFile.formatted_subcommand_summaries}
 
-#Commands:
+Options:
 
-    #$ bin spec-file lint repo
+#{Fixture::Command::SpecFile.formatted_options_description}
+BANNER
+    end
+  end
 
-      #Checks the validity of ALL specs in a repo.
+  describe Command::Help, "formatting for a command" do
+    it "shows a 'usage' banner" do
+      Command::Help.new(Fixture::Command::SpecFile::Create).message.should == <<-BANNER.rstrip
+Usage:
 
-#Options:
+#{Fixture::Command::SpecFile::Create.formatted_usage_description}
 
-    #--only-errors   Skip warnings
-    #--verbose       Show more debugging information
-    #--help          Show help banner
-#BANNER
-    #end
+Options:
 
-    #it "shows the specified error message before the rest of the banner" do
-      #Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
-#[!] Unable to process, captain.
+#{Fixture::Command::SpecFile.formatted_options_description}
+BANNER
+    end
 
-#Options:
+    it "shows the specified error message before the rest of the banner" do
+      Command::Help.new(Fixture::Command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
+[!] Unable to process, captain.
 
-    #--verbose   Show more debugging information
-    #--help      Show help banner
-#BANNER
-    #end
+Options:
+
+#{Fixture::Command.formatted_options_description}
+BANNER
+    end
   end
 end

@@ -28,7 +28,7 @@ module CLAide
 
         if @command_class.abstract_command?
           banner << @command_class.description if @command_class.description
-        elsif usage = @command_class.formatted_command_description
+        elsif usage = @command_class.formatted_usage_description
           banner << 'Usage:'
           banner << usage
         end
@@ -121,16 +121,12 @@ module CLAide
       options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
     end
 
-    def self.formatted_command_summary_or_description(message, include_arguments)
-      if message
+    def self.formatted_usage_description
+      if message = description || summary
         message = message.strip_heredoc if message.respond_to?(:strip_heredoc)
         message = message.split("\n").map { |line| "      #{line}" }.join("\n")
-        "    $ #{full_command}#{ " #{arguments}" if include_arguments && arguments}\n\n#{message}"
+        "    $ #{full_command}#{ " #{arguments}" if arguments }\n\n#{message}"
       end
-    end
-
-    def self.formatted_command_description
-      formatted_command_summary_or_description(description || summary, true)
     end
 
     def self.formatted_subcommand_summaries
