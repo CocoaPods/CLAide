@@ -154,7 +154,7 @@ module CLAide
     # they support from argv before calling `super`.
     def initialize(argv)
       @verbose = argv.flag?('verbose')
-      @colorize_output = argv.flag?('color', self.class.colorize_output?)
+      @colorize_output = argv.flag?('color', Command.colorize_output?)
       @argv = argv
     end
 
