@@ -80,10 +80,12 @@ module CLAide
     #     ].concat(super)
     #   end
     def self.options
-      [
+      options = [
         ['--verbose', 'Show more debugging information'],
         ['--help',    'Show help banner of specified command'],
       ]
+      options.unshift(['--color', 'Show output with color']) if Command.colorize_output?
+      options
     end
 
     class << self
