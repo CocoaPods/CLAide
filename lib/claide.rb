@@ -117,7 +117,7 @@ module CLAide
     end
 
     def self.formatted_options_description
-      key_size = options.map(&:size).max
+      key_size = options.map { |opt| opt.first.size }.max
       options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
     end
 

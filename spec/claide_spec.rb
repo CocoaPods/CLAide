@@ -205,17 +205,17 @@ module CLAide
 COMMANDS
     end
 
-    #it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
-      #Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
-    #--verbose   Show more debugging information
-    #--help      Show help banner
-#OPTIONS
-      #Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
-    #--only-errors   Skip warnings
-    #--verbose       Show more debugging information
-    #--help          Show help banner
-#OPTIONS
-    #end
+    it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
+      Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
+    --verbose   Show more debugging information
+    --help      Show help banner
+OPTIONS
+      Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
+    --only-errors   Skip warnings
+    --verbose       Show more debugging information
+    --help          Show help banner
+OPTIONS
+    end
   end
 
   #describe Command::Help, "formatting for an abstract command" do
