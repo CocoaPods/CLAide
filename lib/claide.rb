@@ -84,7 +84,7 @@ module CLAide
         ['--verbose', 'Show more debugging information'],
         ['--help',    'Show help banner of specified command'],
       ]
-      options.unshift(['--color', 'Show output with color']) if Command.colorize_output?
+      options.unshift(['--no-color', 'Show output without color']) if Command.colorize_output?
       options
     end
 
