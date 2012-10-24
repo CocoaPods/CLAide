@@ -241,12 +241,12 @@ COMMANDS
     it "returns the options, for all ancestor commands, aligned so they're all aligned with the largest option name" do
       Fixture::Command::SpecFile.formatted_options_description.should == <<-OPTIONS.rstrip
     --verbose   Show more debugging information
-    --help      Show help banner
+    --help      Show help banner of specified command
 OPTIONS
       Fixture::Command::SpecFile::Lint::Repo.formatted_options_description.should == <<-OPTIONS.rstrip
     --only-errors   Skip warnings
     --verbose       Show more debugging information
-    --help          Show help banner
+    --help          Show help banner of specified command
 OPTIONS
     end
   end

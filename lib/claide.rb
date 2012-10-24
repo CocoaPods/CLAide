@@ -79,7 +79,7 @@ module CLAide
     def self.options
       [
         ['--verbose', 'Show more debugging information'],
-        ['--help',    'Show help banner'],
+        ['--help',    'Show help banner of specified command'],
       ]
     end
 
