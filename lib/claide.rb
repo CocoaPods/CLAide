@@ -293,7 +293,7 @@ module CLAide
 
     def self.parse(argv)
       entries = []
-      copy = argv.dup
+      copy = argv.map(&:to_s)
       while x = copy.shift
         type = key = value = nil
         if is_arg?(x)

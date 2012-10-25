@@ -18,6 +18,12 @@ end
 
 module CLAide
   describe ARGV do
+    it "converts objects into strings while parsing" do
+      flag = stub(:to_s => '--flag')
+      arg = stub(:to_s => 'ARG')
+      ARGV.new([flag, arg]).remainder.should == %w{ --flag ARG }
+    end
+
     before do
       @argv = ARGV.new(%w{ --flag --option VALUE ARG1 ARG2 --no-other-flag })
     end
