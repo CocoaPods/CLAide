@@ -25,7 +25,7 @@ module CLAide
     end
 
     before do
-      @argv = ARGV.new(%w{ --flag --option VALUE ARG1 ARG2 --no-other-flag })
+      @argv = ARGV.new(%w{ --flag --option=VALUE ARG1 ARG2 --no-other-flag })
     end
 
     it "returns the options as a hash" do
@@ -44,7 +44,7 @@ module CLAide
       @argv.flag?('flag').should == true
       @argv.flag?('other-flag').should == false
       @argv.flag?('option').should == nil
-      @argv.remainder.should == %w{ --option VALUE ARG1 ARG2 }
+      @argv.remainder.should == %w{ --option=VALUE ARG1 ARG2 }
     end
 
     it "returns a default value if a flag does not exist" do
@@ -65,12 +65,12 @@ module CLAide
 
     it "returns the first argument and deletes it" do
       @argv.shift_argument.should == 'ARG1'
-      @argv.remainder.should == %w{ --flag --option VALUE ARG2 --no-other-flag }
+      @argv.remainder.should == %w{ --flag --option=VALUE ARG2 --no-other-flag }
     end
 
     it "returns and deletes all arguments" do
       @argv.arguments!.should == %w{ ARG1 ARG2 }
-      @argv.remainder.should == %w{ --flag --option VALUE --no-other-flag }
+      @argv.remainder.should == %w{ --flag --option=VALUE --no-other-flag }
     end
   end
 end
@@ -127,9 +127,9 @@ module CLAide
     end
 
     it "tries to match a subclass for each of the subcommands" do
-      Fixture::Command.parse(%w{ spec-file }).should.be.instance_of Fixture::Command::SpecFile
-      Fixture::Command.parse(%w{ spec-file lint }).should.be.instance_of Fixture::Command::SpecFile::Lint
-      Fixture::Command.parse(%w{ spec-file lint repo }).should.be.instance_of Fixture::Command::SpecFile::Lint::Repo
+      #Fixture::Command.parse(%w{ spec-file }).should.be.instance_of Fixture::Command::SpecFile
+      Fixture::Command.parse(%w{ spec-file --verbose lint }).should.be.instance_of Fixture::Command::SpecFile::Lint
+      #Fixture::Command.parse(%w{ spec-file lint --help repo }).should.be.instance_of Fixture::Command::SpecFile::Lint::Repo
     end
 
     # TODO might be more the task of the application?

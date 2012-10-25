@@ -238,9 +238,9 @@ module CLAide
         when :flag
           "--#{'no-' if value == false}#{key}"
         when :option
-          ["--#{key}", value]
+          "--#{key}=#{value}"
         end
-      end.flatten
+      end
     end
 
     def options
@@ -301,10 +301,10 @@ module CLAide
           type, value = :arg, x
         else
           key = x[2..-1]
-          if (next_x = copy.first) && is_arg?(next_x)
+          if key.include?('=')
             # An option with a value
             type = :option
-            value = copy.shift
+            key, value = key.split('=', 2)
           else
             # A boolean flag
             type = :flag
