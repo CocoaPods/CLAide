@@ -31,18 +31,10 @@ module CLAide
       end
     end
 
-    # Only available if String#demodulize, String#underscore, and
-    # String#dasherize exist. For instance, when ActiveSupport is loaded
-    # beforehand.
-    #
-    # Otherwise you will have to register the subcommands manually.
+    # @returns [String]  A snake-cased version of the class’ name, unless
+    #                    explicitely assigned.
     def self.command
-      unless @command
-        if %w{ demodulize underscore dasherize }.all? { |m| String.method_defined?(m) }
-          @command = name.demodulize.underscore.dasherize
-        end
-      end
-      @command
+      @command ||= name.split('::').last.gsub(/[A-Z]+[a-z]*/) { |x| x.downcase << '-' }[0..-2]
     end
 
     def self.full_command
@@ -155,7 +147,7 @@ module CLAide
     # option is specified.
     #
     # Subclasses should override this method to remove the arguments/options
-    # they support from argv before calling `super`.
+    # they support from argv _before_ calling `super`.
     def initialize(argv)
       @verbose = argv.flag?('verbose')
       @colorize_output = argv.flag?('color', Command.colorize_output?)
@@ -165,6 +157,10 @@ module CLAide
     # Raises a Help exception if the `--help` option is specified, if argv
     # still contains remaining arguments/options by the time it reaches this
     # implementation, or when called on an ‘abstract command’.
+    #
+    # Subclasses should call `super` _before_ doing their own validation. This
+    # way when the user specifies the `--help` flag a help banner is shown,
+    # instead of possible actual validation errors.
     def validate!
       help! if @argv.flag?('help')
       remainder = @argv.remainder
