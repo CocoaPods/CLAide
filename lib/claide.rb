@@ -255,6 +255,7 @@ module CLAide
     # @return [Command]
     #
     #   The command instance for which a help banner should be shown.
+    #
     attr_reader :command
 
     # @return [String]
@@ -302,67 +303,11 @@ module CLAide
   end
 
   class Command
-    # @returns [String]  A snake-cased version of the class’ name, unless
-    #                    explicitely assigned.
-    def self.command
-      @command ||= name.split('::').last.gsub(/[A-Z]+[a-z]*/) { |x| x.downcase << '-' }[0..-2]
-    end
-
-    def self.full_command
-      if superclass == Command
-        "#{command}"
-      else
-        "#{superclass.full_command} #{command}"
-      end
-    end
-
-    def self.subcommands
-      @subcommands ||= []
-    end
-
-    def self.inherited(subcommand)
-      subcommands << subcommand
-    end
-
-    # Should be overriden by a subclass if it handles any options.
-    #
-    # The subclass has to combine the result of calling `super` and its own
-    # list of options. The recommended way of doing this is by concatenating
-    # concatening to this classes’ own options.
-    #
-    # @example
-    #
-    #   def self.options
-    #     [
-    #       ['--verbose', 'Print more info'],
-    #       ['--help',    'Print help banner'],
-    #     ].concat(super)
-    #   end
-    def self.options
-      options = [
-        ['--verbose', 'Show more debugging information'],
-        ['--help',    'Show help banner of specified command'],
-      ]
-      options.unshift(['--no-color', 'Show output without color']) if Command.colorize_output?
-      options
-    end
-
     class << self
-      attr_writer :command
-
       attr_accessor :abstract_command
       alias_method :abstract_command?, :abstract_command
 
       attr_accessor :summary
-
-      attr_writer :colorize_output
-      def colorize_output
-        if @colorize_output.nil?
-          @colorize_output = String.method_defined?(:red) && String.method_defined?(:green)
-        end
-        @colorize_output
-      end
-      alias_method :colorize_output?, :colorize_output
 
       # Should be set by the subclass to provide a description for the command.
       #
@@ -373,39 +318,100 @@ module CLAide
       #
       # If this returns `nil` it will not be included in the help banner.
       attr_accessor :arguments
-    end
 
-    def self.parse(argv)
-      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
-      command = argv.arguments.first
-      if command && subcommand = subcommands.find { |sc| sc.command == command }
-        argv.shift_argument
-        subcommand.parse(argv)
-      else
-        new(argv)
-      end
-    end
-
-    def self.run(argv)
-      command = parse(argv)
-      command.validate!
-      command.run
-    rescue Exception => exception
-      if exception.is_a?(InformativeError)
-        puts exception.message
-        if command.verbose?
-          puts
-          puts *exception.backtrace
+      attr_writer :colorize_output
+      def colorize_output
+        if @colorize_output.nil?
+          @colorize_output = String.method_defined?(:red) &&
+                               String.method_defined?(:green)
         end
-        exit exception.exit_status
-      else
-        report_error(exception)
+        @colorize_output
       end
-    end
+      alias_method :colorize_output?, :colorize_output
 
-    # TODO
-    def self.report_error(exception)
-      raise exception
+      attr_writer :command
+
+      # @returns [String]  A snake-cased version of the class’ name, unless
+      #                    explicitely assigned.
+      def command
+        @command ||= name.split('::').last.gsub(/[A-Z]+[a-z]*/) do |part|
+          part.downcase << '-'
+        end[0..-2]
+      end
+
+      def full_command
+        if superclass == Command
+          "#{command}"
+        else
+          "#{superclass.full_command} #{command}"
+        end
+      end
+
+      def subcommands
+        @subcommands ||= []
+      end
+
+      def inherited(subcommand)
+        subcommands << subcommand
+      end
+
+      # Should be overriden by a subclass if it handles any options.
+      #
+      # The subclass has to combine the result of calling `super` and its own
+      # list of options. The recommended way of doing this is by concatenating
+      # concatening to this classes’ own options.
+      #
+      # @example
+      #
+      #   def self.options
+      #     [
+      #       ['--verbose', 'Print more info'],
+      #       ['--help',    'Print help banner'],
+      #     ].concat(super)
+      #   end
+      def options
+        options = [
+          ['--verbose', 'Show more debugging information'],
+          ['--help',    'Show help banner of specified command'],
+        ]
+        if Command.colorize_output?
+          options.unshift(['--no-color', 'Show output without color'])
+        end
+        options
+      end
+
+      def parse(argv)
+        argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+        cmd = argv.arguments.first
+        if cmd && subcommand = subcommands.find { |sc| sc.command == cmd }
+          argv.shift_argument
+          subcommand.parse(argv)
+        else
+          new(argv)
+        end
+      end
+
+      def run(argv)
+        command = parse(argv)
+        command.validate!
+        command.run
+      rescue Exception => exception
+        if exception.is_a?(InformativeError)
+          puts exception.message
+          if command.verbose?
+            puts
+            puts *exception.backtrace
+          end
+          exit exception.exit_status
+        else
+          report_error(exception)
+        end
+      end
+
+      # TODO
+      def report_error(exception)
+        raise exception
+      end
     end
 
     attr_accessor :verbose
@@ -441,27 +447,31 @@ module CLAide
 
     # This method should be overriden by command classes to perform their work.
     def run
-      raise "A subclass should override the Command#run method to actually perform some work."
+      raise "A subclass should override the Command#run method to actually " \
+            "perform some work."
     end
 
     def formatted_options_description
-      options = self.class.options
-      key_size = options.map { |opt| opt.first.size }.max
-      options.map { |key, desc| "    #{key.ljust(key_size)}   #{desc}" }.join("\n")
+      opts = self.class.options
+      size = opts.map { |opt| opt.first.size }.max
+      opts.map { |key, desc| "    #{key.ljust(size)}   #{desc}" }.join("\n")
     end
 
     def formatted_usage_description
       if message = self.class.description || self.class.summary
         message = message.strip_heredoc if message.respond_to?(:strip_heredoc)
         message = message.split("\n").map { |line| "      #{line}" }.join("\n")
-        "    $ #{self.class.full_command}#{ " #{self.class.arguments}" if self.class.arguments }\n\n#{message}"
+        args = " #{self.class.arguments}" if self.class.arguments
+        "    $ #{self.class.full_command}#{args}\n\n#{message}"
       end
     end
 
     def formatted_subcommand_summaries
-      subcommands = self.class.subcommands.reject { |subcommand| subcommand.summary.nil? }.sort_by(&:command)
+      subcommands = self.class.subcommands.reject do |subcommand|
+        subcommand.summary.nil?
+      end.sort_by(&:command)
       unless subcommands.empty?
-        command_size = subcommands.map { |subcommand| subcommand.command.size }.max
+        command_size = subcommands.map { |cmd| cmd.command.size }.max
         subcommands.map do |subcommand|
           command = subcommand.command.ljust(command_size)
           command = command.green if colorize_output?
