@@ -1,6 +1,7 @@
 source :rubygems
 
 group :development do
+  gem 'yard'
   gem 'activesupport'
 end
 

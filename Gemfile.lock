@@ -12,6 +12,7 @@ GEM
     mocha-on-bacon (0.2.1)
       mocha (>= 0.9.8)
     multi_json (1.3.6)
+    yard (0.8.3)
 
 PLATFORMS
   ruby
@@ -20,3 +21,4 @@ DEPENDENCIES
   activesupport
   bacon
   mocha-on-bacon
+  yard

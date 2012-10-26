@@ -1,11 +1,32 @@
 module CLAide
   VERSION = '0.0.1'
 
+  # This class is responsible for parsing the parameters specified by the user,
+  # accessing individual parameters, and keep state by removing handled
+  # parameters.
+  #
   class ARGV
+
+    # @param [Array<String>] argv
+    #
+    #   A list of parameters. Each entry is ensured to be a string by calling
+    #   `#to_s` on it.
+    #
     def initialize(argv)
       @entries = self.class.parse(argv)
     end
 
+    # @return [Array<String>]
+    #
+    #   A list of the remaining unhandled parameters, in the same format a user
+    #   specifies it in.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv.shift_argument # => 'tea'
+    #   argv.remainder      # => ['--no-milk', '--sweetner=honey']
+    #
     def remainder
       @entries.map do |type, (key, value)|
         case type
@@ -19,6 +40,16 @@ module CLAide
       end
     end
 
+    # @return [Hash]
+    #
+    #   A hash that consists of the remaining flags and options and their
+    #   values.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv.options # => { 'milk' => false, 'sweetner' => 'honey' }
+    #
     def options
       options = {}
       @entries.each do |type, (key, value)|
@@ -27,10 +58,35 @@ module CLAide
       options
     end
 
+    # @return [Array<String>]
+    #
+    #   A list of the remaining arguments.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', 'white', '--no-milk', 'biscuit'])
+    #   argv.shift_argument # => 'tea'
+    #   argv.arguments      # => ['white', 'biscuit']
+    #
     def arguments
       @entries.map { |type, value| value if type == :arg }.compact
     end
 
+    # @return [Array<String>]
+    #
+    #   A list of the remaining arguments.
+    #
+    # @note
+    #
+    #   This version also removes the arguments from the remaining parameters.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', 'white', '--no-milk', 'biscuit'])
+    #   argv.arguments  # => ['tea', 'white', 'biscuit']
+    #   argv.arguments! # => ['tea', 'white', 'biscuit']
+    #   argv.arguments  # => []
+    #
     def arguments!
       arguments = []
       while arg = shift_argument
@@ -39,19 +95,85 @@ module CLAide
       arguments
     end
 
-    def flag?(name, default = nil)
-      delete_entry(:flag, name, default)
-    end
-
-    def option(name, default = nil)
-      delete_entry(:option, name, default)
-    end
-
+    # @return [String]
+    #
+    #   The first argument in the remaining parameters.
+    #
+    # @note
+    #
+    #   This will remove the argument from the remaining parameters.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', 'white'])
+    #   argv.shift_argument # => 'tea'
+    #   argv.arguments      # => ['white']
+    #
     def shift_argument
       if entry = @entries.find { |type, _| type == :arg }
         @entries.delete(entry)
         entry.last
       end
+    end
+
+    # @return [Boolean, nil]
+    #
+    #   Returns `true` if the flag by the specified `name` is among the
+    #   remaining parameters and is not negated.
+    #
+    # @param [String] name
+    #
+    #   The name of the flag to look for among the remaining parameters.
+    #
+    # @param [Boolean] default
+    #
+    #   The value that is returned in case the flag is not among the remaining
+    #   parameters.
+    #
+    # @note
+    #
+    #   This will remove the flag from the remaining parameters.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv.flag?('milk')       # => false
+    #   argv.flag?('milk')       # => nil
+    #   argv.flag?('milk', true) # => true
+    #   argv.remainder           # => ['tea', '--sweetner=honey']
+    #
+    def flag?(name, default = nil)
+      delete_entry(:flag, name, default)
+    end
+
+    # @return [String, nil]
+    #
+    #   Returns the value of the option by the specified `name` is among the
+    #   remaining parameters.
+    #
+    # @param [String] name
+    #
+    #   The name of the option to look for among the remaining parameters.
+    #
+    # @param [String] default
+    #
+    #   The value that is returned in case the option is not among the
+    #   remaining parameters.
+    #
+    # @note
+    #
+    #   This will remove the option from the remaining parameters.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv.option('sweetner')          # => 'honey'
+    #   argv.option('sweetner')          # => nil
+    #   argv.option('sweetner', 'sugar') # => 'sugar'
+    #   argv.remainder                   # => ['tea', '--no-milk']
+    #
+    def option(name, default = nil)
+      delete_entry(:option, name, default)
     end
 
     private
@@ -103,23 +225,65 @@ module CLAide
     end
   end
 
+  # Including this module into an exception class will ensure that when raised,
+  # while running {Command.run}, only the message of the exception will be
+  # shown to the user. Unless disabled with the `--verbose` flag.
+  #
+  # In addition, the message will be colored red, if {Command.colorize_output}
+  # is set to `true`.
+  #
   module InformativeError
     attr_writer :exit_status
+
+    # @return [Numeric]
+    #
+    #   The exist status code that should be used to terminate the program with.
+    #
+    #   Defaults to `1`.
+    #
     def exit_status
       @exit_status ||= 1
     end
   end
 
+  # The exception class that is raised to indicate a help banner should be
+  # shown while running {Command.run}.
+  #
   class Help < StandardError
     include InformativeError
 
-    attr_reader :command, :error_message
+    # @return [Command]
+    #
+    #   The command instance for which a help banner should be shown.
+    attr_reader :command
 
+    # @return [String]
+    #
+    #   The optional error message that will be shown before the help banner.
+    #
+    attr_reader :error_message
+
+    # @param [Command] command
+    #
+    #   An instance of a command class for which a help banner should be shown.
+    #
+    # @param [String] error_message
+    #
+    #   An optional error message that will be shown before the help banner.
+    #   If specified, the exit status, used to terminate the program with, will
+    #   be set to `1`, otherwise a {Help} exception is treated as not being a
+    #   real error and exits with `0`.
+    #
     def initialize(command, error_message = nil)
       @command, @error_message = command, error_message
       @exit_status = @error_message.nil? ? 0 : 1
     end
 
+    # @return [String]
+    #
+    #   The optional error message, colored in red if {Command.colorize_output}
+    #   is set to `true`.
+    #
     def formatted_error_message
       if @error_message
         message = "[!] #{@error_message}"
@@ -127,6 +291,11 @@ module CLAide
       end
     end
 
+    # @return [String]
+    #
+    #   The optional error message, combined with the help banner of the
+    #   command.
+    #
     def message
       [formatted_error_message, @command.formatted_banner].compact.join("\n\n")
     end
