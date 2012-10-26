@@ -11,7 +11,7 @@ require 'colored'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/string/strip'
 
-class BevarageMaker < CLAide::Command
+class BeverageMaker < CLAide::Command
   self.abstract_command = true
 
   self.description = 'Make delicious beverages from the comfort of your terminal.'
@@ -39,7 +39,7 @@ class BevarageMaker < CLAide::Command
     sleep 1
   end
 
-  class Tea < BevarageMaker
+  class Tea < BeverageMaker
     self.summary = 'Drink based on cured leaves'
 
     # CLaide will strip the preceding indentation from the description, because
@@ -76,7 +76,7 @@ class BevarageMaker < CLAide::Command
     end
   end
 
-  class Coffee < BevarageMaker
+  class Coffee < BeverageMaker
     self.summary = 'Drink brewed from roasted coffee beans'
 
     # CLaide will strip the preceding indentation from the description, because
@@ -88,4 +88,4 @@ class BevarageMaker < CLAide::Command
   end
 end
 
-BevarageMaker.run(ARGV)
+BeverageMaker.run(ARGV)
