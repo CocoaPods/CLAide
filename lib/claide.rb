@@ -45,13 +45,9 @@ module CLAide
       @command
     end
 
-    def self.binname
-      File.basename($0)
-    end
-
     def self.full_command
       if superclass == Command
-        "#{binname}"
+        "#{command}"
       else
         "#{superclass.full_command} #{command}"
       end
@@ -89,12 +85,20 @@ module CLAide
     end
 
     class << self
+      attr_writer :command
+
       attr_accessor :abstract_command
       alias_method :abstract_command?, :abstract_command
 
       attr_accessor :summary
 
-      attr_accessor :colorize_output
+      attr_writer :colorize_output
+      def colorize_output
+        if @colorize_output.nil?
+          @colorize_output = String.method_defined?(:red) && String.method_defined?(:green)
+        end
+        @colorize_output
+      end
       alias_method :colorize_output?, :colorize_output
 
       # Should be set by the subclass to provide a description for the command.
@@ -107,8 +111,6 @@ module CLAide
       # If this returns `nil` it will not be included in the help banner.
       attr_accessor :arguments
     end
-
-    self.colorize_output = String.method_defined?(:red) && String.method_defined?(:green)
 
     def self.parse(argv)
       argv = ARGV.new(argv) unless argv.is_a?(ARGV)
