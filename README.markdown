@@ -1,65 +1,67 @@
 # Hi, I’m Claide, your friendly command-line tool aide.
 
-I was born out of a need for a ‘simple’ option and command parser by the
-[CocoaPods][CocoaPods] project, while providing an API that allows you to
-quickly create a full featured command-line interface.
+I was born out of a need for a _simple_ option and command parser, while still
+providing an API that allows you to quickly create a full featured command-line
+interface.
+
+
+## Install
+
+```
+$ [sudo] gem install claide
+```
 
 
 ## Usage
 
 ### Argument handling
 
-At the core, a library such as myself needs to parse the arguments specified by
-the user. There are three types that can be specified:
+At its core, a library, such as myself, needs to parse the parameters specified
+by the user.
 
-| `--milk`, `--no-milk` | A boolean ‘flag’, which may be negated.             |
-| `--sweetner=honey`    | An ‘option’ that consists of a key and a value and
-                          **MUST** be separated by an equals sign ‘=’.        |
-| `tea`                 | An ‘argument’ which may be interpreted as a command
-                          or a command’s argument.                            |
+Working with parameters is done through the `CLAide::ARGV` class. It takes an
+array of parameters and parses them as either flags, options, or arguments.
 
-Working with arguments is done through the `CLAide::ARGV` class:
+| Parameter             | Description                                       |
+| :---:                 | :---:                                             |
+| `--milk`, `--no-milk` | A boolean ‘flag’, which may be negated.           |
+| `--sweetner=honey`    | A ‘option’ consists of a key, a ‘=’, and a value. |
+| `tea`                 | A ‘argument’ is just a value.                     |
+
+
+Accessing flags, options, and arguments, with the following methods, will also
+remove the parameter from the remaining unprocessed parameters.
 
 ```ruby
-require 'claide'
-
 argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
-p argv.arguments          # => ['tea']
-p argv.shift_argument     # => 'tea'
-p argv.flag?('milk')      # => false
-p argv.option('sweetner') # => 'honey'
+argv.shift_argument     # => 'tea'
+argv.shift_argument     # => nil
+argv.flag?('milk')      # => false
+argv.flag?('milk')      # => nil
+argv.option('sweetner') # => 'honey'
+argv.option('sweetner') # => nil
 ```
 
-NOTE: _Except for `arguments`, all of the above methods remove the entries from
-      the remaining entries._
 
-In case the requested ‘flag’ or ‘option’ is not present, `nil` is returned. You
-can specify a default value to be used as the optional second argument:
+In case the requested flag or option is not present, `nil` is returned. You can
+specify a default value to be used as the optional second method parameter:
 
 ```ruby
-require 'claide'
-
 argv = CLAide::ARGV.new(['tea'])
-p argv.flag?('milk', true)         # => true
-p argv.option('sweetner', 'sugar') # => 'sugar'
+argv.flag?('milk', true)         # => true
+argv.option('sweetner', 'sugar') # => 'sugar'
 ```
 
 
-### Exception handling
+Unlike flags and options, accessing all of the arguments can be done in either
+a preserving or mutating way:
 
-I’m a tad cheeky; I use exceptions for some control flow. In case a command or
-option is unrecognized (or any of your own validations fail) a `Help` exception
-is raised, which signals to me that the user should see a help banner.
-
-The `Help` exception class includes the `InformativeError` module, which means
-that, unless the user specifies the `--verbose` option, the backtrace of the
-exception is not shown. If your application needs the same behavior, for
-instance when a required file doesn’t exist, you can get that by including the
-`InformativeError` module into your exception class as well. The module also
-allows you to specify an explicit exit status code.
-
-Any other exception is re-raised as-is, or can be reported in a custom way, as
-can be seen in [CocoaPods][repor-error].
+```ruby
+argv = CLAide::ARGV.new(['tea', 'coffee'])
+argv.arguments  # => ['tea', 'coffee']
+argv.arguments! # => ['tea', 'coffee']
+argv.arguments  # => []
+```
 
 
 ### Command handling
@@ -68,25 +70,41 @@ Commands are actions that a tool can perform. Every command is represented by
 its own command class.
 
 Commands may be nested, in which case they inherit from the ‘super command’
-class. Some of these nested commands may not actually perform any work work
-themselves, but are rather used as ‘super commands’ only, in which case they
+class. Some of these nested commands may not actually perform any work
+themselves, but are rather used as ‘super commands’ _only_, in which case they
 are ‘abtract commands’.
 
-See the example for a simple illustration on how to define commands.
+Running commands is typically done through the `CLAide::Command.run(argv)`
+method, which performs the following three steps:
 
-Unless you load ActiveSupport’s string extensions, or define the required
-string methods in any other way, you wil have to override the `command` class
-method of a command class to return a proper name. For example:
+1. Parses the given parameters, finds the command class matching the parameters,
+   and instantiates it with the remaining parameters.  It’s each nested command
+   class’ responsibility to remove the parameters it handles from the remaining
+   parameters, _before_ calling the `super` implementation.
 
-```ruby
-class SpecFile
-  def self.command
-    'spec-file'
-  end
-end
-```
+2. Asks the command instance to validate its parameters, but only _after_
+   calling the `super` implementation.  The `super` implementation will show a
+   help banner in case the `--help` flag is specified, not all parameters where
+   removed from the parameter list, or the command is an abstract command.
 
+3. Calls the `run` method on the command instance, where it may do its work.
+
+4. Catches _any_ uncaught exception and shows it to user in a meaningful way.
+   * A `Help` exception triggers a help banner to be shown for the command.
+   * A exception that includes the `InformativeError` module will show _only_
+     the message, unless disabled with the `--verbose` flag; and in red,
+     depending on the color configuration.
+   * Any other type of exception will be passed to `Command.report_error(error)`
+     for custom error reporting (such as the one in [CocoaPods][report-error]).
+
+In case you want to call commands from _inside_ other commands, you should use
+the `CLAide::Command.parse(argv)` method to retrieve an instance of the command
+and call `run` on it. Unless you are using user-supplied parameters, there
+should not be a need to validate the parameters.
+
+See the [example][example] for a illustration of how to define commands.
 
 
 [CocoaPods]: https://github.com/CocoaPods/CocoaPods
+[example]: https://github.com/alloy/CLAide/blob/master/examples/make.rb
 [report-error]: https://github.com/CocoaPods/CocoaPods/blob/054fe5c861d932219ec40a91c0439a7cfc3a420c/lib/cocoapods/command.rb#L36
