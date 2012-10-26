@@ -189,6 +189,18 @@ module CLAide
       result.nil? ? default : result
     end
 
+    # @return [Array<Array>]
+    #
+    #   A list of tuples for each parameter, where the first entry is the
+    #   `type` and the second entry the actual parsed parameter.
+    #
+    # @example
+    #
+    #   list = parse(['tea', '--no-milk', '--sweetner=honey'])
+    #   list # => [[:arg, "tea"],
+    #              [:flag, ["milk", false]],
+    #              [:option, ["sweetner", "honey"]]]
+    #
     def self.parse(argv)
       entries = []
       copy = argv.map(&:to_s)
@@ -302,8 +314,17 @@ module CLAide
     end
   end
 
+  # This class is used to build a command-line interface
+  #
+  # Each command is represented by a subclass of this class, which may be
+  # nested to create more granular commands.
   class Command
     class << self
+      # @return [Boolean]
+      #
+      #   Indicates wether or not this command can actually perform work of
+      #   itself, or that it only contains subcommands.
+      #
       attr_accessor :abstract_command
       alias_method :abstract_command?, :abstract_command
 
