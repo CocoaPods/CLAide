@@ -2,7 +2,6 @@ require 'bacon'
 require 'mocha-on-bacon'
 
 $:.unshift File.expand_path('../../lib', __FILE__)
-require 'active_support/core_ext/string/inflections'
 require 'claide'
 
 def should_raise_help(error_message)
@@ -81,9 +80,7 @@ module Fixture
   end
 
   class Command < CLAide::Command
-    def self.binname
-      'bin'
-    end
+    self.command = 'bin'
 
     class SpecFile < Command
       self.abstract_command = true
