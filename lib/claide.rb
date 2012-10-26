@@ -1,36 +1,138 @@
 module CLAide
   VERSION = '0.0.1'
 
-  class Command
-    module InformativeError
-      attr_writer :exit_status
-      def exit_status
-        @exit_status ||= 1
-      end
+  class ARGV
+    def initialize(argv)
+      @entries = self.class.parse(argv)
     end
 
-    class Help < StandardError
-      include InformativeError
-
-      attr_reader :command, :error_message
-
-      def initialize(command, error_message = nil)
-        @command, @error_message = command, error_message
-        @exit_status = @error_message.nil? ? 0 : 1
-      end
-
-      def formatted_error_message
-        if @error_message
-          message = "[!] #{@error_message}"
-          @command.colorize_output? ? message.red : message
+    def remainder
+      @entries.map do |type, (key, value)|
+        case type
+        when :arg
+          key
+        when :flag
+          "--#{'no-' if value == false}#{key}"
+        when :option
+          "--#{key}=#{value}"
         end
       end
+    end
 
-      def message
-        [formatted_error_message, @command.formatted_banner].compact.join("\n\n")
+    def options
+      options = {}
+      @entries.each do |type, (key, value)|
+        options[key] = value unless type == :arg
+      end
+      options
+    end
+
+    def arguments
+      @entries.map { |type, value| value if type == :arg }.compact
+    end
+
+    def arguments!
+      arguments = []
+      while arg = shift_argument
+        arguments << arg
+      end
+      arguments
+    end
+
+    def flag?(name, default = nil)
+      delete_entry(:flag, name, default)
+    end
+
+    def option(name, default = nil)
+      delete_entry(:option, name, default)
+    end
+
+    def shift_argument
+      if entry = @entries.find { |type, _| type == :arg }
+        @entries.delete(entry)
+        entry.last
       end
     end
 
+    private
+
+    def delete_entry(requested_type, requested_key, default)
+      result = nil
+      @entries.delete_if do |type, (key, value)|
+        if requested_key == key && requested_type == type
+          result = value
+          true
+        end
+      end
+      result.nil? ? default : result
+    end
+
+    def self.parse(argv)
+      entries = []
+      copy = argv.map(&:to_s)
+      while x = copy.shift
+        type = key = value = nil
+        if is_arg?(x)
+          # A regular argument (e.g. a command)
+          type, value = :arg, x
+        else
+          key = x[2..-1]
+          if key.include?('=')
+            # An option with a value
+            type = :option
+            key, value = key.split('=', 2)
+          else
+            # A boolean flag
+            type = :flag
+            value = true
+            if key[0,3] == 'no-'
+              # A negated boolean flag
+              key = key[3..-1]
+              value = false
+            end
+          end
+          value = [key, value]
+        end
+        entries << [type, value]
+      end
+      entries
+    end
+
+    def self.is_arg?(x)
+      x[0,2] != '--'
+    end
+  end
+
+  module InformativeError
+    attr_writer :exit_status
+    def exit_status
+      @exit_status ||= 1
+    end
+  end
+
+  class Help < StandardError
+    include InformativeError
+
+    attr_reader :command, :error_message
+
+    def initialize(command, error_message = nil)
+      @command, @error_message = command, error_message
+      @exit_status = @error_message.nil? ? 0 : 1
+    end
+
+    def formatted_error_message
+      if @error_message
+        message = "[!] #{@error_message}"
+        @command.colorize_output? ? message.red : message
+      end
+    end
+
+    def message
+      [formatted_error_message, @command.formatted_banner].compact.join("\n\n")
+    end
+  end
+
+  class Command
     # @returns [String]  A snake-cased version of the class’ name, unless
     #                    explicitely assigned.
     def self.command
@@ -223,106 +325,4 @@ module CLAide
     end
   end
 
-  class ARGV
-    def initialize(argv)
-      @entries = self.class.parse(argv)
-    end
-
-    def remainder
-      @entries.map do |type, (key, value)|
-        case type
-        when :arg
-          key
-        when :flag
-          "--#{'no-' if value == false}#{key}"
-        when :option
-          "--#{key}=#{value}"
-        end
-      end
-    end
-
-    def options
-      options = {}
-      @entries.each do |type, (key, value)|
-        options[key] = value unless type == :arg
-      end
-      options
-    end
-
-    def arguments
-      @entries.map { |type, value| value if type == :arg }.compact
-    end
-
-    def arguments!
-      arguments = []
-      while arg = shift_argument
-        arguments << arg
-      end
-      arguments
-    end
-
-    def flag?(name, default = nil)
-      delete_entry(:flag, name, default)
-    end
-
-    def option(name, default = nil)
-      delete_entry(:option, name, default)
-    end
-
-    def shift_argument
-      if entry = @entries.find { |type, _| type == :arg }
-        @entries.delete(entry)
-        entry.last
-      end
-    end
-
-    private
-
-    def delete_entry(requested_type, requested_key, default)
-      result = nil
-      @entries.delete_if do |type, (key, value)|
-        if requested_key == key && requested_type == type
-          result = value
-          true
-        end
-      end
-      result.nil? ? default : result
-    end
-
-    def self.parse(argv)
-      entries = []
-      copy = argv.map(&:to_s)
-      while x = copy.shift
-        type = key = value = nil
-        if is_arg?(x)
-          # A regular argument (e.g. a command)
-          type, value = :arg, x
-        else
-          key = x[2..-1]
-          if key.include?('=')
-            # An option with a value
-            type = :option
-            key, value = key.split('=', 2)
-          else
-            # A boolean flag
-            type = :flag
-            value = true
-            if key[0,3] == 'no-'
-              # A negated boolean flag
-              key = key[3..-1]
-              value = false
-            end
-          end
-          value = [key, value]
-        end
-        entries << [type, value]
-      end
-      entries
-    end
-
-    def self.is_arg?(x)
-      x[0,2] != '--'
-    end
-  end
 end
-

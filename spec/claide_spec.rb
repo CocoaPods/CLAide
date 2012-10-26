@@ -8,7 +8,7 @@ def should_raise_help(error_message)
   error = nil
   begin
     yield
-  rescue CLAide::Command::Help => e
+  rescue CLAide::Help => e
     error = e
   end
   error.should.not == nil
@@ -76,7 +76,7 @@ end
 
 module Fixture
   class Error < StandardError
-    include CLAide::Command::InformativeError
+    include CLAide::InformativeError
   end
 
   class Command < CLAide::Command
@@ -179,7 +179,7 @@ module CLAide
     end
 
     it "does not print the backtrace of a InformativeError exception by default" do
-      expected = Command::Help.new(Fixture::Command.parse([])).message
+      expected = Help.new(Fixture::Command.parse([])).message
       Fixture::Command.expects(:puts).with(expected)
       Fixture::Command.run(%w{ --help })
     end
@@ -287,15 +287,15 @@ BANNER
     end
   end
 
-  describe Command::Help, "formatting for a command" do
+  describe Help, "formatting for a command" do
     it "shows just the banner if no error message is specified" do
       command = Fixture::Command.parse([])
-      Command::Help.new(command).message.should == command.formatted_banner
+      Help.new(command).message.should == command.formatted_banner
     end
 
     it "shows the specified error message before the rest of the banner" do
       command = Fixture::Command.parse([])
-      Command::Help.new(command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
+      Help.new(command, "Unable to process, captain.").message.should == <<-BANNER.rstrip
 [!] Unable to process, captain.
 
 #{command.formatted_banner}
