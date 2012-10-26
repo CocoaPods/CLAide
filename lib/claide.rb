@@ -22,7 +22,7 @@ module CLAide
       def formatted_error_message
         if @error_message
           message = "[!] #{@error_message}"
-          @command.colorize_output? && message.respond_to?(:red) ? message.red : message
+          @command.colorize_output? ? message.red : message
         end
       end
 
@@ -193,7 +193,7 @@ module CLAide
         command_size = subcommands.map { |subcommand| subcommand.command.size }.max
         subcommands.map do |subcommand|
           command = subcommand.command.ljust(command_size)
-          command = command.green if colorize_output? && command.respond_to?(:green)
+          command = command.green if colorize_output?
           "    * #{command}   #{subcommand.summary}"
         end.join("\n")
       end
