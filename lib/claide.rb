@@ -119,8 +119,9 @@ module CLAide
     #   argv.arguments      # => ['white']
     #
     def shift_argument
-      if entry = @entries.find { |type, _| type == :arg }
-        @entries.delete(entry)
+      if index = @entries.find_index { |type, _| type == :arg }
+        entry = @entries[index]
+        @entries.delete_at(index)
         entry.last
       end
     end

@@ -23,6 +23,12 @@ module CLAide
       ARGV.new([flag, arg]).remainder.should == %w{ --flag ARG }
     end
 
+    it "only removes one entry when calling shift_argument" do
+      argv = ARGV.new(%w{ ARG ARG })
+      argv.shift_argument
+      argv.remainder.should == %w{ ARG }
+    end
+
     before do
       @argv = ARGV.new(%w{ --flag --option=VALUE ARG1 ARG2 --no-other-flag })
     end
