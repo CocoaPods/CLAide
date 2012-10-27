@@ -1,4 +1,13 @@
+# encoding: utf-8
+
+# The mods of interest are {CLAide::ARGV}, {CLAide::Command}, and
+# {CLAide::InformativeError}
+#
 module CLAide
+  # @return [String]
+  #
+  #   CLAide’s version, following [semver](http://semver.org).
+  #
   VERSION = '0.0.1'
 
   # This class is responsible for parsing the parameters specified by the user,
@@ -318,6 +327,41 @@ module CLAide
   #
   # Each command is represented by a subclass of this class, which may be
   # nested to create more granular commands.
+  #
+  # Following is an overview of the types of commands and what they should do.
+  #
+  # ### Any command type
+  #
+  # * Inherit from the command class under which the command should be nested.
+  # * Set {Command.summary} to a brief description of the command.
+  # * Override {Command.options} to return the options it handles and their
+  #   descriptions and prepending them to the results of calling `super`.
+  # * Override {Command#initialize} if it handles any parameters.
+  # * Override {Command#validate!} to check if the required parameters the
+  #   command handles are valid, or call {Command#help!} in case they’re not.
+  #
+  # ### Abstract command
+  #
+  # The following is needed for an abstract command:
+  #
+  # * Set {Command.abstract_command} to `true`.
+  # * Subclass the command.
+  #
+  # When the optional {Command.description} is specified, it will be shown at
+  # the top of the command’s help banner.
+  #
+  # ### Normal command
+  #
+  # The following is needed for a normal command:
+  #
+  # * Set {Command.arguments} to the description of the arguments this command
+  #   handles.
+  # * Override {Command#run} to perform the actual work.
+  #
+  # When the optional {Command.description} is specified, it will be shown
+  # underneath the usage section of the command’s help banner. Otherwise this
+  # defaults to {Command.summary}.
+  #
   class Command
     class << self
       # @return [Boolean]
@@ -328,19 +372,34 @@ module CLAide
       attr_accessor :abstract_command
       alias_method :abstract_command?, :abstract_command
 
+      # @return [String]
+      #
+      #   A brief description of the command, which is shown next to the
+      #   command in the help banner of a parent command.
+      #
       attr_accessor :summary
 
-      # Should be set by the subclass to provide a description for the command.
+      # @return [String]
       #
-      # If this returns `nil` it will not be included in the help banner.
+      #   A longer description of the command, which is shown underneath the
+      #   usage section of the command’s help banner.
+      #
       attr_accessor :description
 
-      # Should be set by the subclass to a list of arguments the command takes.
+      # @return [String]
       #
-      # If this returns `nil` it will not be included in the help banner.
+      #   A list of arguments the command handles. This is shown in the usage
+      #   section of the command’s help banner.
+      #
       attr_accessor :arguments
 
-      attr_writer :colorize_output
+      # @return [Boolean]
+      #
+      #   The default value for {Command#colorize_output}. This defaults to
+      #   `true` if `String` has the instance methods `#green` and `#red`.
+      #   Which are defined by, for instance, the
+      #   [colored](https://github.com/defunkt/colored) gem.
+      #
       def colorize_output
         if @colorize_output.nil?
           @colorize_output = String.method_defined?(:red) &&
@@ -348,18 +407,29 @@ module CLAide
         end
         @colorize_output
       end
+      attr_writer :colorize_output
       alias_method :colorize_output?, :colorize_output
 
-      attr_writer :command
-
-      # @returns [String]  A snake-cased version of the class’ name, unless
-      #                    explicitely assigned.
+      # @return [String]
+      #
+      #   The name of the command. Defaults to a snake-cased version of the
+      #   class’ name.
+      #
       def command
         @command ||= name.split('::').last.gsub(/[A-Z]+[a-z]*/) do |part|
           part.downcase << '-'
         end[0..-2]
       end
+      attr_writer :command
 
+      # @return [String]
+      #
+      #   The full command up-to this command.
+      #
+      # @example
+      #
+      #   BevarageMaker::Tea.full_command # => "beverage-maker tea"
+      #
       def full_command
         if superclass == Command
           "#{command}"
@@ -368,10 +438,18 @@ module CLAide
         end
       end
 
+      # @return [Array<Command>]
+      #
+      #   A list of command classes that are nested under this command.
+      #
       def subcommands
         @subcommands ||= []
       end
 
+      # @visibility private
+      #
+      # Automatically registers a subclass as a subcommand.
+      #
       def inherited(subcommand)
         subcommands << subcommand
       end
@@ -382,6 +460,10 @@ module CLAide
       # list of options. The recommended way of doing this is by concatenating
       # concatening to this classes’ own options.
       #
+      # @return [Array<Array>]
+      #
+      #   A list of option name and description tuples.
+      #
       # @example
       #
       #   def self.options
@@ -390,6 +472,7 @@ module CLAide
       #       ['--help',    'Print help banner'],
       #     ].concat(super)
       #   end
+      #
       def options
         options = [
           ['--verbose', 'Show more debugging information'],
@@ -401,6 +484,15 @@ module CLAide
         options
       end
 
+      # @param [Array, ARGV] argv
+      #
+      #   A list of (remaining) parameters.
+      #
+      # @return [Command]
+      #
+      #   An instance of the command class that was matched by going through
+      #   the arguments in the parameters and drilling down command classes.
+      #
       def parse(argv)
         argv = ARGV.new(argv) unless argv.is_a?(ARGV)
         cmd = argv.arguments.first
@@ -412,6 +504,21 @@ module CLAide
         end
       end
 
+      # Instantiates the command class matching the parameters through
+      # {Command.parse}, validates it through {Command#validate!}, and runs it
+      # through {Command#run}.
+      #
+      # @note
+      #
+      #   You should normally call this on 
+      #
+      # @param [Array, ARGV] argv
+      #
+      #   A list of parameters. For instance, the standard `ARGV` constant,
+      #   which contains the parameters passed to the program.
+      #
+      # @return [void]
+      #
       def run(argv)
         command = parse(argv)
         command.validate!
@@ -429,15 +536,51 @@ module CLAide
         end
       end
 
-      # TODO
+      # Allows the application to perform custom error reporting, by overriding
+      # this method.
+      #
+      # @param [Exception] exception
+      #
+      #   An exception that occurred while running a command through
+      #   {Command.run}.
+      #
+      # @raise
+      #
+      #   By default re-raises the specified exception.
+      #
+      # @return [void]
+      #
       def report_error(exception)
         raise exception
       end
     end
 
+    # Set to `true` if the user specifies the `--verbose` option.
+    #
+    # @note
+    #
+    #   If you want to make use of this value for your own configuration, you
+    #   should check the value _after_ calling the `super` {Command#initialize}
+    #   implementation.
+    #
+    # @return [Boolean]
+    #
+    #   Wether or not backtraces should be included when presenting the user an
+    #   exception that includes the {InformativeError} module.
+    #
     attr_accessor :verbose
     alias_method :verbose?, :verbose
 
+    # Set to `true` if {Command.colorize_output} returns `true` and the user
+    # did **not** specify the `--no-color` option.
+    #
+    # @note (see #verbose)
+    #
+    # @return [Boolean]
+    #
+    #   Wether or not to color {InformativeError} exception messages red and
+    #   subcommands in help banners green.
+    #
     attr_accessor :colorize_output
     alias_method :colorize_output?, :colorize_output
 
@@ -459,6 +602,11 @@ module CLAide
     # Subclasses should call `super` _before_ doing their own validation. This
     # way when the user specifies the `--help` flag a help banner is shown,
     # instead of possible actual validation errors.
+    #
+    # @raise [Help]
+    #
+    # @return [void]
+    #
     def validate!
       help! if @argv.flag?('help')
       remainder = @argv.remainder
@@ -466,18 +614,23 @@ module CLAide
       help! if self.class.abstract_command?
     end
 
-    # This method should be overriden by command classes to perform their work.
+    # This method should be overriden by the command class to perform its work.
+    #
+    # @return [void
+    #
     def run
       raise "A subclass should override the Command#run method to actually " \
             "perform some work."
     end
 
+    # @visibility private
     def formatted_options_description
       opts = self.class.options
       size = opts.map { |opt| opt.first.size }.max
       opts.map { |key, desc| "    #{key.ljust(size)}   #{desc}" }.join("\n")
     end
 
+    # @visibility private
     def formatted_usage_description
       if message = self.class.description || self.class.summary
         message = message.strip_heredoc if message.respond_to?(:strip_heredoc)
@@ -487,6 +640,7 @@ module CLAide
       end
     end
 
+    # @visibility private
     def formatted_subcommand_summaries
       subcommands = self.class.subcommands.reject do |subcommand|
         subcommand.summary.nil?
@@ -501,6 +655,7 @@ module CLAide
       end
     end
 
+    # @visibility private
     def formatted_banner
       banner = []
       if self.class.abstract_command?
@@ -520,6 +675,13 @@ module CLAide
 
     protected
 
+    # @raise [Help]
+    #
+    #   Signals CLAide that a help banner for this command should be shown,
+    #   with an optional error message.
+    #
+    # @return [void]
+    #
     def help!(error_message = nil)
       raise Help.new(self, error_message)
     end
