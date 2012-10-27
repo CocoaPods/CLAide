@@ -1,6 +1,7 @@
 desc 'Generate yardoc'
 task :doc do
-  sh "yardoc -m markdown --protected --charset=utf-8 lib"
+  sh "rm -rf yardoc"
+  sh "yardoc"
 end
 
 desc 'Run specs'
