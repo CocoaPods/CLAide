@@ -382,7 +382,8 @@ module CLAide
       # @return [String]
       #
       #   A longer description of the command, which is shown underneath the
-      #   usage section of the command’s help banner.
+      #   usage section of the command’s help banner. Any indentation in this
+      #   value will be ignored.
       #
       attr_accessor :description
 
@@ -633,7 +634,7 @@ module CLAide
     # @visibility private
     def formatted_usage_description
       if message = self.class.description || self.class.summary
-        message = message.strip_heredoc if message.respond_to?(:strip_heredoc)
+        message = strip_heredoc(message)
         message = message.split("\n").map { |line| "      #{line}" }.join("\n")
         args = " #{self.class.arguments}" if self.class.arguments
         "    $ #{self.class.full_command}#{args}\n\n#{message}"
@@ -684,6 +685,17 @@ module CLAide
     #
     def help!(error_message = nil)
       raise Help.new(self, error_message)
+    end
+
+    private
+
+    # Lifted straight from ActiveSupport. Thanks guys!
+    def strip_heredoc(string)
+      if min = string.scan(/^[ \t]*(?=\S)/).min
+        string.gsub(/^[ \t]{#{min.size}}/, '')
+      else
+        string
+      end
     end
   end
 

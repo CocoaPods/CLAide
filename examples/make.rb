@@ -4,10 +4,9 @@ $:.unshift(File.expand_path('../../lib', __FILE__))
 
 require 'claide'
 
-# Loading these third-party gems will automatically color some of CLAide’s
-# output and strip heredoc strings from its indentation.
+# Loading this third-part gem will automatically cause CLAide to color some of
+# its output.
 require 'colored'
-require 'active_support/core_ext/string/strip'
 
 class BeverageMaker < CLAide::Command
   self.abstract_command = true

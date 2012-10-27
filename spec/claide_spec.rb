@@ -101,7 +101,10 @@ module Fixture
 
       class Create < SpecFile
         self.summary = 'Creates a spec file stub.'
-        self.description = 'Creates a spec file called NAME and populates it with defaults.'
+        self.description = <<-DESC
+          Creates a spec file called NAME
+          and populates it with defaults.
+        DESC
         self.arguments = '[NAME]'
 
         attr_reader :spec
@@ -225,7 +228,8 @@ module CLAide
       Fixture::Command::SpecFile::Create.parse([]).formatted_usage_description.should == <<-USAGE.rstrip
     $ bin spec-file create [NAME]
 
-      Creates a spec file called NAME and populates it with defaults.
+      Creates a spec file called NAME
+      and populates it with defaults.
 USAGE
     end
 
