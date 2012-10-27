@@ -1,4 +1,4 @@
-# Hi, I’m Claide, your friendly command-line tool aide.
+# Hi, I’m Claide, your command-line tool aide.
 
 I was born out of a need for a _simple_ option and command parser, while still
 providing an API that allows you to quickly create a full featured command-line
@@ -13,6 +13,9 @@ $ [sudo] gem install claide
 
 
 ## Usage
+
+For full documentation, on the API of CLAide, visit [rubydoc.info][docs].
+
 
 ### Argument handling
 
@@ -105,6 +108,6 @@ should not be a need to validate the parameters.
 See the [example][example] for a illustration of how to define commands.
 
 
-[CocoaPods]: https://github.com/CocoaPods/CocoaPods
+[docs]: http://rubydoc.info/docs/claide/0.1.0/frames
 [example]: https://github.com/alloy/CLAide/blob/master/examples/make.rb
 [report-error]: https://github.com/CocoaPods/CocoaPods/blob/054fe5c861d932219ec40a91c0439a7cfc3a420c/lib/cocoapods/command.rb#L36
