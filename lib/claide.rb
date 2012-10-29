@@ -25,6 +25,14 @@ module CLAide
       @entries = self.class.parse(argv)
     end
 
+    # @return [Boolean]
+    #
+    #   Returns wether or not there are any remaining unhandled parameters.
+    #
+    def empty?
+      @entries.empty?
+    end
+
     # @return [Array<String>]
     #
     #   A list of the remaining unhandled parameters, in the same format a user
@@ -586,18 +594,25 @@ module CLAide
     attr_accessor :colorize_output
     alias_method :colorize_output?, :colorize_output
 
-    # Sets the `verbose` attribute based on wether or not the `--verbose`
-    # option is specified.
-    #
     # Subclasses should override this method to remove the arguments/options
-    # they support from argv _before_ calling `super`.
+    # they support from `argv` _before_ calling `super`.
+    #
+    # The `super` implementation sets the {#verbose} attribute based on wether
+    # or not the `--verbose` option is specified; and the {#colorize_output}
+    # attribute to `false` if {Command.colorize_output} returns `true`, but the
+    # user specified the `--no-color` option.
+    #
+    # @param [ARGV] argv
+    #
+    #   A list of (user-supplied) params that should be handled.
+    #
     def initialize(argv)
       @verbose = argv.flag?('verbose')
       @colorize_output = argv.flag?('color', Command.colorize_output?)
       @argv = argv
     end
 
-    # Raises a Help exception if the `--help` option is specified, if argv
+    # Raises a Help exception if the `--help` option is specified, if `argv`
     # still contains remaining arguments/options by the time it reaches this
     # implementation, or when called on an ‘abstract command’.
     #
@@ -611,8 +626,7 @@ module CLAide
     #
     def validate!
       help! if @argv.flag?('help')
-      remainder = @argv.remainder
-      help! "Unknown arguments: #{remainder.join(' ')}" unless remainder.empty?
+      help! "Unknown arguments: #{@argv.remainder.join(' ')}" if !@argv.empty?
       help! if self.class.abstract_command?
     end
 
