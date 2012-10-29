@@ -109,5 +109,5 @@ See the [example][example] for a illustration of how to define commands.
 
 
 [docs]: http://rubydoc.info/github/CocoaPods/CLAide/0.1.0/frames
-[example]: https://github.com/alloy/CLAide/blob/master/examples/make.rb
+[example]: https://github.com/CocoaPods/CLAide/blob/master/examples/make.rb
 [report-error]: https://github.com/CocoaPods/CocoaPods/blob/054fe5c861d932219ec40a91c0439a7cfc3a420c/lib/cocoapods/command.rb#L36
