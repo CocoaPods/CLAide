@@ -8,7 +8,7 @@ module CLAide
   #
   #   CLAide’s version, following [semver](http://semver.org).
   #
-  VERSION = '0.1.1'
+  VERSION = '0.2.0'
 
   # This class is responsible for parsing the parameters specified by the user,
   # accessing individual parameters, and keep state by removing handled
