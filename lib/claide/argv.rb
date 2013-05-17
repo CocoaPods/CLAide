@@ -186,6 +186,8 @@ module CLAide
 
     private
 
+    attr_reader :entries
+
     def delete_entry(requested_type, requested_key, default)
       result = nil
       @entries.delete_if do |type, (key, value)|

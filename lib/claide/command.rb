@@ -1,3 +1,5 @@
+require 'claide/command/banner'
+
 module CLAide
 
   # This class is used to build a command-line interface
@@ -40,7 +42,11 @@ module CLAide
   # defaults to {Command.summary}.
   #
   class Command
+
+    #-------------------------------------------------------------------------#
+
     class << self
+
       # @return [Boolean]
       #
       #   Indicates whether or not this command can actually perform work of
@@ -186,10 +192,12 @@ module CLAide
       #
       def parse(argv)
         argv = ARGV.new(argv) unless argv.is_a?(ARGV)
-        cmd = argv.arguments.first
+        cmd = argv.arguments.first# || default_subcommand
         if cmd && subcommand = subcommands.find { |sc| sc.command == cmd }
           argv.shift_argument
-          subcommand.parse(argv)
+          result = subcommand.parse(argv)
+          # result.default_subcommand = true unless cmd
+          result
         else
           new(argv)
         end
@@ -212,32 +220,19 @@ module CLAide
       #
       def run(argv)
         command = parse(argv)
-        help! if argv.flag?('help')
-        if command.class.abstract_command
-          if command.class.default_subcommand
-            subcommand = subcommands.find { |sc| sc.command == default_subcommand }
-            unless subcommand
-              raise "[CLAide] Unable to find the default subcommand " \
-                "`#{default_subcommand}` for the command `#{self}`"
-            end
-            command = subcommand.parse(argv)
-          else
-            help!
-          end
-        end
         command.validate!
         command.run
-      rescue Exception => exception
-        if exception.is_a?(InformativeError)
-          puts exception.message
-          if command.verbose?
-            puts
-            puts(*exception.backtrace)
+        rescue Exception => exception
+          if exception.is_a?(InformativeError)
+            puts exception.message
+            if command.verbose?
+              puts
+              puts(*exception.backtrace)
+            end
+            exit exception.exit_status
+          else
+            report_error(exception)
           end
-          exit exception.exit_status
-        else
-          report_error(exception)
-        end
       end
 
       # Allows the application to perform custom error reporting, by overriding
@@ -258,6 +253,8 @@ module CLAide
         raise exception
       end
     end
+
+    #-------------------------------------------------------------------------#
 
     # Set to `true` if the user specifies the `--verbose` option.
     #
@@ -288,6 +285,9 @@ module CLAide
     attr_accessor :colorize_output
     alias_method :colorize_output?, :colorize_output
 
+    attr_accessor :default_subcommand
+    alias_method :default_subcommand?, :default_subcommand
+
     # Subclasses should override this method to remove the arguments/options
     # they support from `argv` _before_ calling `super`.
     #
@@ -296,11 +296,12 @@ module CLAide
     # attribute to `false` if {Command.colorize_output} returns `true`, but the
     # user specified the `--no-color` option.
     #
-    # @param [ARGV] argv
+    # @param [ARGV, Array] argv
     #
     #   A list of (user-supplied) params that should be handled.
     #
     def initialize(argv)
+      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
       @verbose = argv.flag?('verbose')
       @colorize_output = argv.flag?('color', Command.colorize_output?)
       @argv = argv
@@ -319,11 +320,12 @@ module CLAide
     # @return [void]
     #
     def validate!
+      help! if @argv.flag?('help')
       help! "Unknown arguments: #{@argv.remainder.join(' ')}" if !@argv.empty?
       help! if self.class.abstract_command?
     end
 
-    # This method should be overriden by the command class to perform its work.
+    # This method should be overridden by the command class to perform its work.
     #
     # @return [void
     #
@@ -332,55 +334,10 @@ module CLAide
             "perform some work."
     end
 
-    # @visibility private
-    def formatted_options_description
-      opts = self.class.options
-      size = opts.map { |opt| opt.first.size }.max
-      opts.map { |key, desc| "    #{key.ljust(size)}   #{desc}" }.join("\n")
-    end
-
-    # @visibility private
-    def formatted_usage_description
-      if message = self.class.description || self.class.summary
-        message = strip_heredoc(message)
-        message = message.split("\n").map { |line| "      #{line}" }.join("\n")
-        args = " #{self.class.arguments}" if self.class.arguments
-        "    $ #{self.class.full_command}#{args}\n\n#{message}"
-      end
-    end
-
-    # @visibility private
-    def formatted_subcommand_summaries
-      subcommands = self.class.subcommands.reject do |subcommand|
-        subcommand.summary.nil?
-      end.sort_by(&:command)
-      unless subcommands.empty?
-        command_size = subcommands.map { |cmd| cmd.command.size }.max
-        subcommands.map do |subcommand|
-          command = subcommand.command.ljust(command_size)
-          command = command.green if colorize_output?
-          bullet_point = command == self.class.default_subcommand ? '>' : '*'
-          "    #{bullet_point} #{command}   #{subcommand.summary}"
-        end.join("\n")
-      end
-    end
-
-    # @visibility private
+    # @return [String]
+    #
     def formatted_banner
-      banner = []
-      if self.class.abstract_command?
-        banner << self.class.description if self.class.description
-      elsif usage = formatted_usage_description
-        banner << 'Usage:'
-        banner << usage
-      end
-      if commands = formatted_subcommand_summaries
-        banner << 'Commands:'
-        banner << commands
-      end
-      banner << 'Options:'
-      banner << formatted_options_description
-      banner.join("\n\n")
+      Banner.new(self.class, colorize_output?).formatted_banner
     end
 
     protected
@@ -396,15 +353,7 @@ module CLAide
       raise Help.new(self, error_message)
     end
 
-    private
+    #-------------------------------------------------------------------------#
 
-    # Lifted straight from ActiveSupport. Thanks guys!
-    def strip_heredoc(string)
-      if min = string.scan(/^[ \t]*(?=\S)/).min
-        string.gsub(/^[ \t]{#{min.size}}/, '')
-      else
-        string
-      end
-    end
   end
 end

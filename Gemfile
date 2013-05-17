@@ -9,5 +9,5 @@ end
 group :spec do
   gem 'bacon'
   gem 'mocha-on-bacon'
-  gem 'PrettyBacon', :git => 'https://github.com/irrationalfab/PrettyBacon.git'
+  gem 'prettybacon', :git => 'https://github.com/irrationalfab/PrettyBacon.git', :branch => 'master'
 end

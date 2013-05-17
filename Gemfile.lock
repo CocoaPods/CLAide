@@ -1,9 +1,10 @@
 GIT
   remote: https://github.com/irrationalfab/PrettyBacon.git
   revision: d5f9850a5015b21024ab96f66128f6c7bd4f17d0
+  branch: master
   specs:
-    PrettyBacon (0.0.1)
-      PrettyBacon (~> 0.0.1)
+    prettybacon (0.0.1)
+      bacon (~> 1.2)
 
 GEM
   remote: https://rubygems.org/
@@ -26,9 +27,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  PrettyBacon!
   activesupport
   bacon
   mocha-on-bacon
+  prettybacon!
   rake
   yard

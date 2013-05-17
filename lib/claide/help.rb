@@ -44,7 +44,7 @@ module CLAide
     def formatted_error_message
       if @error_message
         message = "[!] #{@error_message}"
-        @command.colorize_output? ? message.red : message
+        command.colorize_output? ? message.red : message
       end
     end
 
@@ -54,7 +54,7 @@ module CLAide
     #   command.
     #
     def message
-      [formatted_error_message, @command.formatted_banner].compact.join("\n\n")
+      [formatted_error_message, command.formatted_banner].compact.join("\n\n")
     end
   end
 end
