@@ -116,5 +116,60 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
+    describe "default_subcommand" do
+
+      before do
+        @command_class = Fixture::Command::SpecFile.dup
+        @command_class.default_subcommand = 'lint'
+      end
+
+      it "returns the default subcommand if specified" do
+        cmd = @command_class.parse([])
+        cmd.class.should == Fixture::Command::SpecFile::Lint
+      end
+
+      it "doesn't invoke a default subcommand the name of a subcommand is passes in the arguments" do
+        cmd = @command_class.parse(%w{ create })
+        cmd.class.should == Fixture::Command::SpecFile::Create
+      end
+
+      it "doesn't invoke a default subcommand by default" do
+        @command_class.default_subcommand = nil
+        cmd = @command_class.parse([])
+        cmd.class.should == @command_class
+      end
+
+      it "invokes the default subcommand only if abstract" do
+        @command_class.abstract_command = false
+        cmd = @command_class.parse([])
+        cmd.class.should == @command_class
+      end
+
+      it "raises if unable to find the default subcommand" do
+        command_class = Fixture::Command::SpecFile.dup
+        @command_class.default_subcommand = 'find-me'
+        should.raise do
+          cmd = @command_class.parse([])
+        end.message.should.match /Unable to find the default subcommand/
+      end
+
+      #----------------------------------------#
+
+      it "shows the help of the parent if a command was invoked by default" do
+        cmd = @command_class.parse([])
+        cmd.class.superclass.expects(:help!)
+        cmd.send(:help!)
+      end
+
+      it "doesn't show the help of the parent if it was not invoked by default" do
+        cmd = @command_class.parse(%w{ create })
+        cmd.class.expects(:help!)
+        cmd.send(:help!)
+      end
+
+    end
+
+    #-------------------------------------------------------------------------#
+
   end
 end

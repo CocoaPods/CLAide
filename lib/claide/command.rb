@@ -47,55 +47,37 @@ module CLAide
 
     class << self
 
-      # @return [Boolean]
-      #
-      #   Indicates whether or not this command can actually perform work of
-      #   itself, or that it only contains subcommands.
+      # @return [Boolean] Indicates whether or not this command can actually
+      #         perform work of itself, or that it only contains subcommands.
       #
       attr_accessor :abstract_command
       alias_method :abstract_command?, :abstract_command
 
-      # Should be overridden by a subclass if it has a subcommand which should
-      # be used by default.
-      #
-      # @note   As subclasses inherit from parent ones it is necessary to use
-      #         a hash to avoid the propagation of this setting to all the
-      #         hierarchy chain.
-      #
-      # @return [Hash{Class => String}] A hash were the keys are the command
-      #         class instances and the values are the subcommands associated
-      #         with the class.
+      # @return [String] The subcommand which an abstract command should invoke
+      #         by default.
       #
       attr_accessor :default_subcommand
 
-      # @return [String]
-      #
-      #   A brief description of the command, which is shown next to the
-      #   command in the help banner of a parent command.
+      # @return [String] A brief description of the command, which is shown
+      #         next to the command in the help banner of a parent command.
       #
       attr_accessor :summary
 
-      # @return [String]
-      #
-      #   A longer description of the command, which is shown underneath the
-      #   usage section of the command’s help banner. Any indentation in this
-      #   value will be ignored.
+      # @return [String] A longer description of the command, which is shown
+      #         underneath the usage section of the command’s help banner. Any
+      #         indentation in this value will be ignored.
       #
       attr_accessor :description
 
-      # @return [String]
-      #
-      #   A list of arguments the command handles. This is shown in the usage
-      #   section of the command’s help banner.
+      # @return [String] A list of arguments the command handles. This is shown
+      #         in the usage section of the command’s help banner.
       #
       attr_accessor :arguments
 
-      # @return [Boolean]
-      #
-      #   The default value for {Command#colorize_output}. This defaults to
-      #   `true` if `String` has the instance methods `#green` and `#red`.
-      #   Which are defined by, for instance, the
-      #   [colored](https://github.com/defunkt/colored) gem.
+      # @return [Boolean] The default value for {Command#colorize_output}. This
+      #         defaults to `true` if `String` has the instance methods
+      #         `#green` and `#red`.  Which are defined by, for instance, the
+      #         [colored](https://github.com/defunkt/colored) gem.
       #
       def colorize_output
         if @colorize_output.nil?
@@ -107,10 +89,8 @@ module CLAide
       attr_writer :colorize_output
       alias_method :colorize_output?, :colorize_output
 
-      # @return [String]
-      #
-      #   The name of the command. Defaults to a snake-cased version of the
-      #   class’ name.
+      # @return [String] The name of the command. Defaults to a snake-cased
+      #         version of the class’ name.
       #
       def command
         @command ||= name.split('::').last.gsub(/[A-Z]+[a-z]*/) do |part|
@@ -119,9 +99,7 @@ module CLAide
       end
       attr_writer :command
 
-      # @return [String]
-      #
-      #   The full command up-to this command.
+      # @return [String] The full command up-to this command.
       #
       # @example
       #
@@ -135,9 +113,8 @@ module CLAide
         end
       end
 
-      # @return [Array<Class>]
-      #
-      #   A list of command classes that are nested under this command.
+      # @return [Array<Class>] A list of command classes that are nested under
+      #         this command.
       #
       def subcommands
         @subcommands ||= []
@@ -181,22 +158,27 @@ module CLAide
         options
       end
 
-      # @param [Array, ARGV] argv
+      # @param  [Array, ARGV] argv
+      #         A list of (remaining) parameters.
       #
-      #   A list of (remaining) parameters.
-      #
-      # @return [Command]
-      #
-      #   An instance of the command class that was matched by going through
-      #   the arguments in the parameters and drilling down command classes.
+      # @return [Command] An instance of the command class that was matched by
+      #         going through the arguments in the parameters and drilling down
+      #         command classes.
       #
       def parse(argv)
         argv = ARGV.new(argv) unless argv.is_a?(ARGV)
-        cmd = argv.arguments.first# || default_subcommand
+        cmd = argv.arguments.first
         if cmd && subcommand = subcommands.find { |sc| sc.command == cmd }
           argv.shift_argument
+          subcommand.parse(argv)
+        elsif abstract_command? && default_subcommand
+          subcommand = subcommands.find { |sc| sc.command == default_subcommand }
+          unless subcommand
+            raise "Unable to find the default subcommand `#{default_subcommand}` " \
+              "for command `#{self}`."
+          end
           result = subcommand.parse(argv)
-          # result.default_subcommand = true unless cmd
+          result.invoked_as_default = true
           result
         else
           new(argv)
@@ -252,6 +234,33 @@ module CLAide
       def report_error(exception)
         raise exception
       end
+
+      # @visibility private
+      #
+      # @raise [Help]
+      #
+      #   Signals CLAide that a help banner for this command should be shown,
+      #   with an optional error message.
+      #
+      # @return [void]
+      #
+      def help!(error_message = nil, colorize = false)
+        raise Help.new(banner, error_message, colorize)
+      end
+
+      # @visibility private
+      #
+      # Returns the banner for the command.
+      #
+      # @param  [Bool] colorize
+      #         Whether the banner should be returned colorized.
+      #
+      # @return [String] The banner for the command.
+      #
+      def banner(colorize = false)
+        Banner.new(self, colorize).formatted_banner
+      end
+
     end
 
     #-------------------------------------------------------------------------#
@@ -285,8 +294,11 @@ module CLAide
     attr_accessor :colorize_output
     alias_method :colorize_output?, :colorize_output
 
-    attr_accessor :default_subcommand
-    alias_method :default_subcommand?, :default_subcommand
+    # @return [Bool] Whether the command was invoked by an abstract command by
+    #         default.
+    #
+    attr_accessor :invoked_as_default
+    alias_method :invoked_as_default?, :invoked_as_default
 
     # Subclasses should override this method to remove the arguments/options
     # they support from `argv` _before_ calling `super`.
@@ -334,7 +346,6 @@ module CLAide
             "perform some work."
     end
 
-
     protected
 
     # @raise [Help]
@@ -345,19 +356,12 @@ module CLAide
     # @return [void]
     #
     def help!(error_message = nil)
-      self.class.help!(error_message, colorize_output?)
-    end
-
-    #
-    #
-    def self.help!(error_message = nil, colorize = false)
-      raise Help.new(banner, error_message, colorize)
-    end
-
-    #
-    #
-    def self.banner(colorize = false)
-      Banner.new(self, colorize).formatted_banner
+      if invoked_as_default?
+        command = self.class.superclass
+      else
+        command = self.class
+      end
+      command = command.help!(error_message, colorize_output?)
     end
 
     #-------------------------------------------------------------------------#
