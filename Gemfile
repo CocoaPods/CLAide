@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 group :development do
   gem 'rake'
@@ -9,4 +9,5 @@ end
 group :spec do
   gem 'bacon'
   gem 'mocha-on-bacon'
+  gem 'PrettyBacon', :git => 'https://github.com/irrationalfab/PrettyBacon.git'
 end

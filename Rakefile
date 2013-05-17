@@ -6,7 +6,11 @@ end
 
 desc 'Run specs'
 task :spec do
-  sh "bacon spec/claide_spec.rb"
+    sh "bacon #{specs('**')}"
 end
 
 task :default => :spec
+
+def specs(dir)
+  FileList["spec/#{dir}/*_spec.rb"].shuffle.join(' ')
+end
