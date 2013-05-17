@@ -375,11 +375,24 @@ module CLAide
     class << self
       # @return [Boolean]
       #
-      #   Indicates wether or not this command can actually perform work of
+      #   Indicates whether or not this command can actually perform work of
       #   itself, or that it only contains subcommands.
       #
       attr_accessor :abstract_command
       alias_method :abstract_command?, :abstract_command
+
+      # Should be overridden by a subclass if it has a subcommand which should
+      # be used by default.
+      #
+      # @note   As subclasses inherit from parent ones it is necessary to use
+      #         a hash to avoid the propagation of this setting to all the
+      #         hierarchy chain.
+      #
+      # @return [Hash{Class => String}] A hash were the keys are the command
+      #         class instances and the values are the subcommands associated
+      #         with the class.
+      #
+      attr_accessor :default_subcommand
 
       # @return [String]
       #
@@ -448,7 +461,7 @@ module CLAide
         end
       end
 
-      # @return [Array<Command>]
+      # @return [Array<Class>]
       #
       #   A list of command classes that are nested under this command.
       #
@@ -464,11 +477,11 @@ module CLAide
         subcommands << subcommand
       end
 
-      # Should be overriden by a subclass if it handles any options.
+      # Should be overridden by a subclass if it handles any options.
       #
       # The subclass has to combine the result of calling `super` and its own
       # list of options. The recommended way of doing this is by concatenating
-      # concatening to this classes’ own options.
+      # concatenating to this classes’ own options.
       #
       # @return [Array<Array>]
       #
@@ -520,7 +533,7 @@ module CLAide
       #
       # @note
       #
-      #   You should normally call this on 
+      #   You should normally call this on
       #
       # @param [Array, ARGV] argv
       #
@@ -531,6 +544,19 @@ module CLAide
       #
       def run(argv)
         command = parse(argv)
+        help! if argv.flag?('help')
+        if command.class.abstract_command
+          if command.class.default_subcommand
+            subcommand = subcommands.find { |sc| sc.command == default_subcommand }
+            unless subcommand
+              raise "[CLAide] Unable to find the default subcommand " \
+                "`#{default_subcommand}` for the command `#{self}`"
+            end
+            command = subcommand.parse(argv)
+          else
+            help!
+          end
+        end
         command.validate!
         command.run
       rescue Exception => exception
@@ -538,7 +564,7 @@ module CLAide
           puts exception.message
           if command.verbose?
             puts
-            puts *exception.backtrace
+            puts(*exception.backtrace)
           end
           exit exception.exit_status
         else
@@ -597,7 +623,7 @@ module CLAide
     # Subclasses should override this method to remove the arguments/options
     # they support from `argv` _before_ calling `super`.
     #
-    # The `super` implementation sets the {#verbose} attribute based on wether
+    # The `super` implementation sets the {#verbose} attribute based on whether
     # or not the `--verbose` option is specified; and the {#colorize_output}
     # attribute to `false` if {Command.colorize_output} returns `true`, but the
     # user specified the `--no-color` option.
@@ -625,7 +651,6 @@ module CLAide
     # @return [void]
     #
     def validate!
-      help! if @argv.flag?('help')
       help! "Unknown arguments: #{@argv.remainder.join(' ')}" if !@argv.empty?
       help! if self.class.abstract_command?
     end
@@ -666,7 +691,8 @@ module CLAide
         subcommands.map do |subcommand|
           command = subcommand.command.ljust(command_size)
           command = command.green if colorize_output?
-          "    * #{command}   #{subcommand.summary}"
+          bullet_point = command == self.class.default_subcommand ? '>' : '*'
+          "    #{bullet_point} #{command}   #{subcommand.summary}"
         end.join("\n")
       end
     end
