@@ -8,14 +8,12 @@ module CLAide
   # is set to `true`.
   #
   module InformativeError
-    attr_writer :exit_status
 
-    # @return [Numeric]
+    # @return [Numeric] The exist status code that should be used to terminate
+    #         the program with. Defaults to `1`.
     #
-    #   The exist status code that should be used to terminate the program with.
-    #
-    #   Defaults to `1`.
-    #
+    attr_accessor :exit_status
+
     def exit_status
       @exit_status ||= 1
     end

@@ -334,11 +334,6 @@ module CLAide
             "perform some work."
     end
 
-    # @return [String]
-    #
-    def formatted_banner
-      Banner.new(self.class, colorize_output?).formatted_banner
-    end
 
     protected
 
@@ -350,7 +345,19 @@ module CLAide
     # @return [void]
     #
     def help!(error_message = nil)
-      raise Help.new(self, error_message)
+      self.class.help!(error_message, colorize_output?)
+    end
+
+    #
+    #
+    def self.help!(error_message = nil, colorize = false)
+      raise Help.new(banner, error_message, colorize)
+    end
+
+    #
+    #
+    def self.banner(colorize = false)
+      Banner.new(self, colorize).formatted_banner
     end
 
     #-------------------------------------------------------------------------#
