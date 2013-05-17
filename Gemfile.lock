@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/irrationalfab/PrettyBacon.git
-  revision: d5f9850a5015b21024ab96f66128f6c7bd4f17d0
+  revision: e137f65de3cebeb262ee0f4bf430501a91525daa
   branch: master
   specs:
     prettybacon (0.0.1)

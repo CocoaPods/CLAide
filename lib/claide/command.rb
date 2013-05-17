@@ -245,7 +245,7 @@ module CLAide
       # @return [void]
       #
       def help!(error_message = nil, colorize = false)
-        raise Help.new(banner, error_message, colorize)
+        raise Help.new(banner(colorize), error_message, colorize)
       end
 
       # @visibility private

@@ -76,11 +76,15 @@ module CLAide
         unless subcommands.empty?
           command_size = subcommands.map { |cmd| cmd.command.size }.max
           subcommands.map do |subcommand|
-            command = subcommand.command.ljust(command_size)
-            command = command.green if colorize_output?
-            #TODO
-            # bullet_point = command == command.default_subcommand ? '>' : '*'
-            "    * #{command}   #{subcommand.summary}"
+            subcommand_string = subcommand.command.ljust(command_size)
+            subcommand_string = subcommand_string.green if colorize_output?
+            is_default = subcommand.command == command.default_subcommand
+            if is_default
+              bullet_point = '-'
+            else
+              bullet_point = '*'
+            end
+            "    #{bullet_point} #{subcommand_string}   #{subcommand.summary}"
           end.join("\n")
         end
       end
