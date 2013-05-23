@@ -71,10 +71,7 @@ namespace :gem do
 
     # Then release
     sh "git commit lib/claide.rb -m 'Release #{gem_version}'"
-    sh "git tag -a #{gem_version} -m 'Release #{gem_version}'"
-    sh "git push origin master"
-    sh "git push origin --tags"
-    sh "gem push #{gem_pkg_path}"
+    Rake::Task['bundler:release'].invoke
   end
 end
 
