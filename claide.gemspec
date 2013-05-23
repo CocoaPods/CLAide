@@ -5,7 +5,6 @@ require 'claide'
 Gem::Specification.new do |s|
   s.name     = "claide"
   s.version  = CLAide::VERSION
-  s.date     = Date.today
   s.license  = "MIT"
   s.email    = ["eloy.de.enige@gmail.com", "fabiopelosin@gmail.com"]
   s.homepage = "https://github.com/CocoaPods/CLAide"
