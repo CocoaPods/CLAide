@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
 
   s.summary  = "A small command-line interface framework."
 
-  s.files = %w{ lib/claide.rb README.markdown LICENSE }
+  s.files = Dir["lib/**/*.rb"] + %w{ README.markdown LICENSE }
   s.require_paths = %w{ lib }
 
   ## Make sure you can build the gem on older versions of RubyGems too:
