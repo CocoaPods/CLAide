@@ -89,7 +89,7 @@ method, which performs the following three steps:
 
 2. Asks the command instance to validate its parameters, but only _after_
    calling the `super` implementation.  The `super` implementation will show a
-   help banner in case the `--help` flag is specified, not all parameters where
+   help banner in case the `--help` flag is specified, not all parameters were
    removed from the parameter list, or the command is an abstract command.
 
 3. Calls the `run` method on the command instance, where it may do its work.
