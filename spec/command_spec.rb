@@ -16,6 +16,39 @@ module CLAide
         Fixture::Command.parse(%w{ spec-file --verbose lint }).should.be.instance_of Fixture::Command::SpecFile::Lint
         #Fixture::Command.parse(%w{ spec-file lint --help repo }).should.be.instance_of Fixture::Command::SpecFile::Lint::Repo
       end
+
+      describe "plugins" do
+        describe "when the plugin is at <command-path>/plugin.rb" do
+          PLUGIN_FIXTURE = Pathname.new(ROOT) + 'spec/fixture/command/plugin_fixture.rb'
+          PLUGIN = Pathname.new(ROOT) + 'spec/fixture/command/plugin.rb'
+
+          before do
+            FileUtils.copy PLUGIN_FIXTURE, PLUGIN
+          end
+
+          after do
+            FileUtils.remove_file PLUGIN
+          end
+
+          it "loads the plugin" do
+            Fixture::Command.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}.should.be.nil
+            Fixture::Command.load_plugins
+            plugin_class = Fixture::Command.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}
+            plugin_class.ancestors.should.include Fixture::Command
+            plugin_class.description.should =~ /plugins/
+          end
+
+          it "is available for help" do
+            Fixture::Command.load_plugins
+            CLAide::Command::Banner.new(Fixture::Command, false).formatted_banner.should =~ /demo-plugin/
+          end
+        end
+
+        it "fails normally if there is no plugin" do
+          Fixture::Command.load_plugins
+          Fixture::Command.subcommands.find {|subcmd| subcmd.name == 'demo-plugin' }.should.be.nil
+        end
+      end
     end
 
     #-------------------------------------------------------------------------#

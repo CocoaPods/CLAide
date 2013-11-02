@@ -201,6 +201,7 @@ module CLAide
       # @return [void]
       #
       def run(argv)
+        load_plugins
         command = parse(argv)
         command.validate!
         command.run
@@ -261,6 +262,39 @@ module CLAide
         Banner.new(self, colorize).formatted_banner
       end
 
+      # Load additional plugins via rubygems looking for:
+      #
+      # <command-path>/plugin.rb
+      #
+      # where <command-path> is the namespace of the Command converted to a
+      # path, for example:
+      #
+      # Pod::Command
+      #
+      # maps to
+      #
+      # pod/command
+      #
+      def load_plugins
+        if Gem.respond_to? :find_latest_files
+          Gem.find_latest_files("#{underscore(name)}/plugin").each {|path| require path }
+        else
+          Gem.find_files("#{underscore(name)}/plugin").each {|path| require path }
+        end
+      end
+
+      private
+
+      # Cribbed from ActiveSupport
+      # https://github.com/rails/rails/blob/master/activesupport/MIT-LICENSE
+      def underscore(str)
+        underscored = str.to_s.dup
+        underscored.gsub!(/::/, '/')
+        underscored.gsub!(/([A-Z]+)([A-Z][a-z])/,'\1_\2')
+        underscored.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
+        underscored.tr!("-", "_")
+        underscored.downcase!
+      end
     end
 
     #-------------------------------------------------------------------------#
