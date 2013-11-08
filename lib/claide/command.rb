@@ -69,6 +69,12 @@ module CLAide
       #
       attr_accessor :description
 
+      # @return [String] The prefix for loading CLAide plugins for this
+      #         command. Plugins are loaded via their
+      #         <plugin_prefix>_plugin.rb file.
+      #
+      attr_accessor :plugin_prefix
+
       # @return [String] A list of arguments the command handles. This is shown
       #         in the usage section of the command’s help banner.
       #
@@ -276,24 +282,12 @@ module CLAide
       # pod/command
       #
       def load_plugins
+        return unless plugin_prefix
         if Gem.respond_to? :find_latest_files
-          Gem.find_latest_files("#{underscore(name)}/plugin").each {|path| require path }
+          Gem.find_latest_files("#{plugin_prefix}_plugin").each {|path| require path }
         else
-          Gem.find_files("#{underscore(name)}/plugin").each {|path| require path }
+          Gem.find_files("#{plugin_prefix}_plugin").each {|path| require path }
         end
-      end
-
-      private
-
-      # Cribbed from ActiveSupport
-      # https://github.com/rails/rails/blob/master/activesupport/MIT-LICENSE
-      def underscore(str)
-        underscored = str.to_s.dup
-        underscored.gsub!(/::/, '/')
-        underscored.gsub!(/([A-Z]+)([A-Z][a-z])/,'\1_\2')
-        underscored.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
-        underscored.tr!("-", "_")
-        underscored.downcase!
       end
     end
 

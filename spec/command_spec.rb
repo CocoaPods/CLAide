@@ -18,9 +18,9 @@ module CLAide
       end
 
       describe "plugins" do
-        describe "when the plugin is at <command-path>/plugin.rb" do
+        describe "when the plugin is at <command-prefix>_plugin.rb" do
           PLUGIN_FIXTURE = Pathname.new(ROOT) + 'spec/fixture/command/plugin_fixture.rb'
-          PLUGIN = Pathname.new(ROOT) + 'spec/fixture/command/plugin.rb'
+          PLUGIN = Pathname.new(ROOT) + 'spec/fixture_plugin.rb'
 
           before do
             FileUtils.copy PLUGIN_FIXTURE, PLUGIN
