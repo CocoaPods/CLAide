@@ -67,7 +67,7 @@ module CLAide
             end
             output = command.instance_variable_get(:@fixture_output)
             output.should.include("Error loading the plugin")
-            output.should.include("LoadError - cannot load such file")
+            output.should.include("LoadError")
           end
         end
 
