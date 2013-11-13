@@ -44,6 +44,33 @@ module CLAide
           end
         end
 
+        describe "failing plugins" do
+          LOAD_ERROR_PLUGIN_FIXTURE = Pathname.new(ROOT) + 'spec/fixture/command/load_error_plugin_fixture.rb'
+          LOAD_ERROR_PLUGIN = Pathname.new(ROOT) + 'spec/fixture_failing_plugin.rb'
+
+          before do
+            FileUtils.copy LOAD_ERROR_PLUGIN_FIXTURE, LOAD_ERROR_PLUGIN
+          end
+
+          after do
+            FileUtils.remove_file LOAD_ERROR_PLUGIN
+          end
+
+          it "rescues exceptions raised during the load of the plugin" do
+            command = Fixture::Command
+            command.plugin_prefix = 'fixture_failing'
+            def command.puts(text)
+              (@fixture_output ||= '') << text
+            end
+            should.not.raise do
+              Fixture::Command.load_plugins
+            end
+            output = command.instance_variable_get(:@fixture_output)
+            output.should.include("Error loading the plugin")
+            output.should.include("LoadError - cannot load such file")
+          end
+        end
+
         it "fails normally if there is no plugin" do
           Fixture::Command.load_plugins
           Fixture::Command.subcommands.find {|subcmd| subcmd.name == 'demo-plugin' }.should.be.nil

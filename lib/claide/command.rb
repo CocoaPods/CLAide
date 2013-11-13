@@ -283,11 +283,29 @@ module CLAide
       #
       def load_plugins
         return unless plugin_prefix
-        if Gem.respond_to? :find_latest_files
-          Gem.find_latest_files("#{plugin_prefix}_plugin").each {|path| require path }
-        else
-          Gem.find_files("#{plugin_prefix}_plugin").each {|path| require path }
-        end
+        files_to_require = if Gem.respond_to? :find_latest_files
+                             Gem.find_latest_files("#{plugin_prefix}_plugin")
+                           else
+                             Gem.find_files("#{plugin_prefix}_plugin")
+                           end
+        files_to_require.each { |path| require_plugin_path(path) }
+      end
+
+      # Loads the plugin file at the given path, catching any failure.
+      #
+      # @param [String] path
+      #        The path to load.
+      #
+      def require_plugin_path(path)
+        require path
+      rescue Exception => exception
+        message = "\n---------------------------------------------"
+        message << "\nError loading the plugin with path `#{path}`.\n"
+        message << "\n#{exception.class} - #{exception.message}"
+        message << "\n#{exception.backtrace.join("\n")}"
+        message << "\n---------------------------------------------\n"
+        message = colorize_output ? message.yellow : message
+        puts message
       end
     end
 
