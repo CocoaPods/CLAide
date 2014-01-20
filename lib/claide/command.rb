@@ -53,6 +53,17 @@ module CLAide
       attr_accessor :abstract_command
       alias_method :abstract_command?, :abstract_command
 
+      # @return [Boolean] Indicates whether or not this command is used during
+      #         command parsing and whether or not it should be shown in the
+      #         help banner or to show its subcommands instead.
+      #
+      #         Setting this to `true` implies it’s an abstract command.
+      attr_reader :ignore_in_command_lookup
+      alias_method :ignore_in_command_lookup?, :ignore_in_command_lookup
+      def ignore_in_command_lookup=(flag)
+        @ignore_in_command_lookup = self.abstract_command = flag
+      end
+
       # @return [String] The subcommand which an abstract command should invoke
       #         by default.
       #
@@ -105,7 +116,10 @@ module CLAide
       end
       attr_writer :command
 
-      # @return [String] The full command up-to this command.
+      # @return [String] The full command up-to this command, as it would be
+      #         looked up during parsing.
+      #
+      # @note (see #ignore_in_command_lookup)
       #
       # @example
       #
@@ -113,17 +127,47 @@ module CLAide
       #
       def full_command
         if superclass == Command
-          "#{command}"
+          ignore_in_command_lookup? ? '' : command
         else
-          "#{superclass.full_command} #{command}"
+          if ignore_in_command_lookup?
+            superclass.full_command
+          else
+            "#{superclass.full_command} #{command}"
+          end
         end
       end
 
-      # @return [Array<Class>] A list of command classes that are nested under
-      #         this command.
+      # @return [Array<Class>] A list of all command classes that are nested
+      #         under this command.
       #
       def subcommands
         @subcommands ||= []
+      end
+
+      # @return [Array<Class>] A list of command classes that are nested under
+      #         this command _or_ the subcommands of those command classes in
+      #         case the command class should be ignored in command lookup.
+      #
+      def subcommands_for_command_lookup
+        subcommands.map do |subcommand|
+          if subcommand.ignore_in_command_lookup?
+            subcommand.subcommands_for_command_lookup
+          else
+            subcommand
+          end
+        end.flatten
+      end
+
+      # Searches the list of subcommands that should not be ignored for command
+      # lookup for a subcommand with the given `name`.
+      #
+      # @param  [String] name
+      #         The name of the subcommand to be found.
+      #
+      # @return [CLAide::Command, nil] The subcommand, if found.
+      #
+      def find_subcommand(name)
+        subcommands_for_command_lookup.find { |sc| sc.command == name }
       end
 
       # @visibility private
@@ -174,14 +218,14 @@ module CLAide
       def parse(argv)
         argv = ARGV.new(argv) unless argv.is_a?(ARGV)
         cmd = argv.arguments.first
-        if cmd && subcommand = subcommands.find { |sc| sc.command == cmd }
+        if cmd && subcommand = find_subcommand(cmd)
           argv.shift_argument
           subcommand.parse(argv)
         elsif abstract_command? && default_subcommand
-          subcommand = subcommands.find { |sc| sc.command == default_subcommand }
+          subcommand = find_subcommand(default_subcommand)
           unless subcommand
-            raise "Unable to find the default subcommand `#{default_subcommand}` " \
-              "for command `#{self}`."
+            raise "Unable to find the default subcommand " \
+                  "`#{default_subcommand}` for command `#{self}`."
           end
           result = subcommand.parse(argv)
           result.invoked_as_default = true

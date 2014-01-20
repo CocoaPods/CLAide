@@ -70,7 +70,7 @@ module CLAide
       # @return [String]
       #
       def formatted_subcommand_summaries
-        subcommands = command.subcommands.reject do |subcommand|
+        subcommands = command.subcommands_for_command_lookup.reject do |subcommand|
           subcommand.summary.nil?
         end.sort_by(&:command)
         unless subcommands.empty?

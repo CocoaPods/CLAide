@@ -6,15 +6,17 @@ module CLAide
     describe "in general" do
       it "registers the subcommand classes" do
         Fixture::Command.subcommands.map(&:command).should == %w{ spec-file }
-        Fixture::Command::SpecFile.subcommands.map(&:command).should == %w{ lint create }
+        Fixture::Command::SpecFile.subcommands.map(&:command).should == %w{ common-invisible-command }
         Fixture::Command::SpecFile::Create.subcommands.map(&:command).should == []
         Fixture::Command::SpecFile::Lint.subcommands.map(&:command).should == %w{ repo }
       end
 
+      it "returns subcommands of a command (that's to be ignored in lookup) instead" do
+        Fixture::Command::SpecFile.subcommands_for_command_lookup.map(&:command).should == %w{ lint create }
+      end
+
       it "tries to match a subclass for each of the subcommands" do
-        #Fixture::Command.parse(%w{ spec-file }).should.be.instance_of Fixture::Command::SpecFile
         Fixture::Command.parse(%w{ spec-file --verbose lint }).should.be.instance_of Fixture::Command::SpecFile::Lint
-        #Fixture::Command.parse(%w{ spec-file lint --help repo }).should.be.instance_of Fixture::Command::SpecFile::Lint::Repo
       end
 
       describe "plugins" do

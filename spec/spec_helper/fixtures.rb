@@ -11,7 +11,11 @@ module Fixture
       self.abstract_command = true
       self.description = 'Manage spec files.'
 
-      class Lint < SpecFile
+      class CommonInvisibleCommand < SpecFile
+        self.ignore_in_command_lookup = true
+      end
+
+      class Lint < CommonInvisibleCommand
         self.summary = 'Checks the validity of a spec file.'
         self.arguments = '[NAME]'
 
@@ -24,7 +28,7 @@ module Fixture
         end
       end
 
-      class Create < SpecFile
+      class Create < CommonInvisibleCommand
         self.summary = 'Creates a spec file stub.'
         self.description = <<-DESC
           Creates a spec file called NAME
