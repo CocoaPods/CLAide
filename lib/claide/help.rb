@@ -1,6 +1,6 @@
 module CLAide
 
-  require 'claide/informative_error.rb'
+  require 'claide/informative_error'
 
   # The exception class that is raised to indicate a help banner should be
   # shown while running {Command.run}.

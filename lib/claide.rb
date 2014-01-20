@@ -11,9 +11,9 @@ module CLAide
   #
   VERSION = '0.4.0'
 
-  require 'claide/argv.rb'
-  require 'claide/command.rb'
-  require 'claide/help.rb'
-  require 'claide/informative_error.rb'
+  require 'claide/argv'
+  require 'claide/command'
+  require 'claide/help'
+  require 'claide/informative_error'
 
 end
