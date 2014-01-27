@@ -158,11 +158,11 @@ module CLAide
         line.gsub(/(.{1,#{line_width}})(\s+|$)/, "\\1\n").strip
       end
 
-      # @return [Fixnum] The width of the current terminal.
+      # @return [Fixnum] The width of the current terminal, unless being piped.
       #
       def terminal_width
         @terminal_width ||= begin
-          if system('which tput > /dev/null 2>&1')
+          if STDOUT.tty? && system('which tput > /dev/null 2>&1')
             `tput cols`.to_i
           else
             0

@@ -92,15 +92,17 @@ module CLAide
       attr_accessor :arguments
 
       # @return [Boolean] The default value for {Command#ansi_output}. This
-      #         defaults to `true` if `String` has the instance methods `#red`,
-      #         `#green`, and `#yellow`.  Which are defined by, for instance,
-      #         the [colored](https://github.com/defunkt/colored) gem.
+      #         defaults to `true` if `STDOUT` is connected to a TTY and
+      #         `String` has the instance methods `#red`, `#green`, and
+      #         `#yellow` (which are defined by, for instance, the
+      #         [colored](https://github.com/defunkt/colored) gem).
       #
       def ansi_output
         if @ansi_output.nil?
-          @ansi_output = String.method_defined?(:red) &&
-                               String.method_defined?(:green) &&
-                                 String.method_defined?(:yellow)
+          @ansi_output = STDOUT.tty? &&
+                           String.method_defined?(:red) &&
+                             String.method_defined?(:green) &&
+                               String.method_defined?(:yellow)
         end
         @ansi_output
       end
