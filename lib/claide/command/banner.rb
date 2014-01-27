@@ -67,10 +67,20 @@ module CLAide
       #
       def formatted_options_description
         opts = command.options
-        size = opts.map { |opt| opt.first.size }.max
+        max_key_size = opts.map { |opt| opt.first.size }.max
+
+        desc_start = max_key_size + 7 # fixed whitespace in `result` var
+        desc_width = terminal_width - desc_start
+
         opts.map do |key, desc|
-          space = ' ' * (size - key.size)
-          "    #{prettify_option_name(key)}#{space}   #{desc}"
+          space = ' ' * (max_key_size - key.size)
+          result = "    #{prettify_option_name(key)}#{space}   "
+          if terminal_width == 0
+            result << desc
+          else
+            space = ' ' * desc_start
+            result << word_wrap(desc, desc_width).split("\n").join("\n#{space}")
+          end
         end.join("\n")
       end
 
@@ -139,6 +149,24 @@ module CLAide
           string.gsub(/^[ \t]{#{min.size}}/, '')
         else
           string
+        end
+      end
+
+      # @return [String] Lifted straight from ActionView. Thanks guys!
+      #
+      def word_wrap(line, line_width)
+        line.gsub(/(.{1,#{line_width}})(\s+|$)/, "\\1\n").strip
+      end
+
+      # @return [Fixnum] The width of the current terminal.
+      #
+      def terminal_width
+        @terminal_width ||= begin
+          if system('which tput > /dev/null 2>&1')
+            `tput cols`.to_i
+          else
+            0
+          end
         end
       end
 

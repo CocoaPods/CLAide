@@ -16,6 +16,10 @@
 * Add more hooks that allow the user to customize how to prettify output.
   [Eloy Durán](https://github.com/alloy)
 
+* Word wrap option descriptions to terminal width.
+  [#6](https://github.com/CocoaPods/CLAide/issues/6)
+  [Eloy Durán](https://github.com/alloy)
+
 
 ## 0.4.0
 
