@@ -12,15 +12,30 @@ module CLAide
 
       # @return [Bool]
       #
-      attr_accessor :colorize_output
+      attr_accessor :ansi_output
+      alias_method :ansi_output?, :ansi_output
+
+      def colorize_output
+        warn "[!] The use of `CLAide::Command::Banner#colorize_output` has " \
+             "been deprecated. Use `CLAide::Command::Banner#ansi_output` " \
+             "instead. (Called from: #{caller.first})"
+        ansi_output
+      end
       alias_method :colorize_output?, :colorize_output
 
+      def colorize_output=(flag)
+        warn "[!] The use of `CLAide::Command::Banner#colorize_output=` has " \
+             "been deprecated. Use `CLAide::Command::Banner#ansi_output=` " \
+             "instead. (Called from: #{caller.first})"
+        self.ansi_output = flag
+      end
+
       # @param [Class] command @see command
-      # @param [Class] colorize_output@see colorize_output
+      # @param [Class] ansi_output @see ansi_output
       #
-      def initialize(command, colorize_output = false)
+      def initialize(command, ansi_output = false)
         @command = command
-        @colorize_output = colorize_output
+        @ansi_output = ansi_output
       end
 
       # @return [String]
@@ -53,7 +68,16 @@ module CLAide
       def formatted_options_description
         opts = command.options
         size = opts.map { |opt| opt.first.size }.max
-        opts.map { |key, desc| "    #{key.ljust(size)}   #{desc}" }.join("\n")
+        opts.map do |key, desc|
+          space = ' ' * (size - key.size)
+          "    #{prettify_option_name(key)}#{space}   #{desc}"
+        end.join("\n")
+      end
+
+      # @return [String]
+      #
+      def prettify_option_name(name)
+        name
       end
 
       # @return [String]
@@ -63,8 +87,15 @@ module CLAide
           message = strip_heredoc(message)
           message = message.split("\n").map { |line| "      #{line}" }.join("\n")
           args = " #{command.arguments}" if command.arguments
-          "    $ #{command.full_command}#{args}\n\n#{message}"
+          cmd = "$ #{command.full_command}#{args}"
+          "    #{prettify_command_in_usage_description(cmd)}\n\n#{message}"
         end
+      end
+
+      # @return [String]
+      #
+      def prettify_command_in_usage_description(command)
+        command
       end
 
       # @return [String]
@@ -77,7 +108,7 @@ module CLAide
           command_size = subcommands.map { |cmd| cmd.command.size }.max
           subcommands.map do |subcommand|
             subcommand_string = subcommand.command.ljust(command_size)
-            subcommand_string = subcommand_string.green if colorize_output?
+            subcommand_string = prettify_subcommand_name(subcommand_string)
             is_default = subcommand.command == command.default_subcommand
             if is_default
               bullet_point = '-'
@@ -87,6 +118,12 @@ module CLAide
             "    #{bullet_point} #{subcommand_string}   #{subcommand.summary}"
           end.join("\n")
         end
+      end
+
+      # @return [String]
+      #
+      def prettify_subcommand_name(name)
+        ansi_output? ? name.green : name
       end
 
       private

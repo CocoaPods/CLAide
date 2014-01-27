@@ -8,6 +8,14 @@
   lookup, and help banner printing.
   [Eloy Durán](https://github.com/alloy)
 
+* Deprecate the `color` option in favor of `ansi`. This is more abstract and
+  can be used for commands that only prettify output by using, for instance,
+  the bold ANSI code. This applies to the `CLAide` APIs as well.
+  [Eloy Durán](https://github.com/alloy)
+
+* Add more hooks that allow the user to customize how to prettify output.
+  [Eloy Durán](https://github.com/alloy)
+
 
 ## 0.4.0
 

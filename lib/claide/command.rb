@@ -91,20 +91,36 @@ module CLAide
       #
       attr_accessor :arguments
 
-      # @return [Boolean] The default value for {Command#colorize_output}. This
-      #         defaults to `true` if `String` has the instance methods
-      #         `#green` and `#red`.  Which are defined by, for instance, the
-      #         [colored](https://github.com/defunkt/colored) gem.
+      # @return [Boolean] The default value for {Command#ansi_output}. This
+      #         defaults to `true` if `String` has the instance methods `#red`,
+      #         `#green`, and `#yellow`.  Which are defined by, for instance,
+      #         the [colored](https://github.com/defunkt/colored) gem.
       #
-      def colorize_output
-        if @colorize_output.nil?
-          @colorize_output = String.method_defined?(:red) &&
-                               String.method_defined?(:green)
+      def ansi_output
+        if @ansi_output.nil?
+          @ansi_output = String.method_defined?(:red) &&
+                               String.method_defined?(:green) &&
+                                 String.method_defined?(:yellow)
         end
-        @colorize_output
+        @ansi_output
       end
-      attr_writer :colorize_output
+      attr_writer :ansi_output
+      alias_method :ansi_output?, :ansi_output
+
+      def colorize_output
+        warn "[!] The use of `CLAide::Command.colorize_output` has been " \
+             "deprecated. Use `CLAide::Command.ansi_output` instead. " \
+             "(Called from: #{caller.first})"
+        ansi_output
+      end
       alias_method :colorize_output?, :colorize_output
+
+      def colorize_output=(flag)
+        warn "[!] The use of `CLAide::Command.colorize_output=` has been " \
+             "deprecated. Use `CLAide::Command.ansi_output=` instead. " \
+             "(Called from: #{caller.first})"
+        self.ansi_output = flag
+      end
 
       # @return [String] The name of the command. Defaults to a snake-cased
       #         version of the class’ name.
@@ -202,8 +218,8 @@ module CLAide
           ['--verbose', 'Show more debugging information'],
           ['--help',    'Show help banner of specified command'],
         ]
-        if Command.colorize_output?
-          options.unshift(['--no-color', 'Show output without color'])
+        if Command.ansi_output?
+          options.unshift(['--no-ansi', 'Show output without ANSI codes'])
         end
         options
       end
@@ -288,28 +304,40 @@ module CLAide
 
       # @visibility private
       #
-      # @raise [Help]
+      # @param  [String] error_message
+      #         The error message to show to the user.
+      #
+      # @param  [Boolean] ansi_output
+      #         Whether or not to use ANSI codes to prettify output.
+      #
+      # @param  [Class] help_class
+      #         The class to use to raise a ‘help’ error.
+      #
+      # @raise  [Help]
       #
       #   Signals CLAide that a help banner for this command should be shown,
       #   with an optional error message.
       #
       # @return [void]
       #
-      def help!(error_message = nil, colorize = false)
-        raise Help.new(banner(colorize), error_message, colorize)
+      def help!(error_message = nil, ansi_output = false, help_class = Help)
+        raise help_class.new(banner(ansi_output), error_message, ansi_output)
       end
 
       # @visibility private
       #
       # Returns the banner for the command.
       #
-      # @param  [Bool] colorize
-      #         Whether the banner should be returned colorized.
+      # @param  [Boolean] ansi
+      #         Whether the banner should use ANSI codes to prettify output.
+      #
+      # @param  [Class] banner_class
+      #         The class to use to format help banners.
       #
       # @return [String] The banner for the command.
       #
-      def banner(colorize = false)
-        Banner.new(self, colorize).formatted_banner
+      def banner(ansi_output = false, banner_class = Banner)
+        banner_class.new(self, ansi_output).formatted_banner
       end
 
       # Load additional plugins via rubygems looking for:
@@ -348,8 +376,20 @@ module CLAide
         message << "\n#{exception.class} - #{exception.message}"
         message << "\n#{exception.backtrace.join("\n")}"
         message << "\n---------------------------------------------\n"
-        message = colorize_output ? message.yellow : message
-        puts message
+        puts prettify_plugin_load_error(message)
+      end
+
+      # Override to control how to print the warning that’s shown when an
+      # exception occurs during plugin loading.
+      #
+      # By default this will be displayed in yellow if `#ansi_output?` returns
+      # `true`.
+      #
+      # @param [String] message
+      #        The plugin load error message.
+      #
+      def prettify_plugin_load_error(message)
+        ansi_output? ? message.yellow : message
       end
     end
 
@@ -371,18 +411,34 @@ module CLAide
     attr_accessor :verbose
     alias_method :verbose?, :verbose
 
-    # Set to `true` if {Command.colorize_output} returns `true` and the user
-    # did **not** specify the `--no-color` option.
+    # Set to `true` if {Command.ansi_output} returns `true` and the user
+    # did **not** specify the `--no-ansi` option.
     #
     # @note (see #verbose)
     #
     # @return [Boolean]
     #
-    #   Wether or not to color {InformativeError} exception messages red and
+    #   Whether or not to use ANSI codes to prettify output. For instance, by
+    #   default {InformativeError} exception messages will be colored red and
     #   subcommands in help banners green.
     #
-    attr_accessor :colorize_output
+    attr_accessor :ansi_output
+    alias_method :ansi_output?, :ansi_output
+
+    def colorize_output
+      warn "[!] The use of `CLAide::Command#colorize_output` has been " \
+           "deprecated. Use `CLAide::Command#ansi_output` instead. " \
+           "(Called from: #{caller.first})"
+      ansi_output
+    end
     alias_method :colorize_output?, :colorize_output
+
+    def colorize_output=(flag)
+      warn "[!] The use of `CLAide::Command#colorize_output=` has been " \
+           "deprecated. Use `CLAide::Command#ansi_output=` instead. " \
+           "(Called from: #{caller.first})"
+      self.ansi_output = flag
+    end
 
     # @return [Bool] Whether the command was invoked by an abstract command by
     #         default.
@@ -394,9 +450,9 @@ module CLAide
     # they support from `argv` _before_ calling `super`.
     #
     # The `super` implementation sets the {#verbose} attribute based on whether
-    # or not the `--verbose` option is specified; and the {#colorize_output}
-    # attribute to `false` if {Command.colorize_output} returns `true`, but the
-    # user specified the `--no-color` option.
+    # or not the `--verbose` option is specified; and the {#ansi_output}
+    # attribute to `false` if {Command.ansi_output} returns `true`, but the
+    # user specified the `--no-ansi` option.
     #
     # @param [ARGV, Array] argv
     #
@@ -405,7 +461,15 @@ module CLAide
     def initialize(argv)
       argv = ARGV.new(argv) unless argv.is_a?(ARGV)
       @verbose = argv.flag?('verbose')
-      @colorize_output = argv.flag?('color', Command.colorize_output?)
+      @ansi_output = argv.flag?('ansi', Command.ansi_output?)
+
+      color = argv.flag?('color')
+      unless color.nil?
+        warn "[!] The use of the `--color`/`--no-color` flag has been " \
+             "deprecated. Use `--ansi`/`--no-ansi` instead."
+        @ansi_output = color
+      end
+
       @argv = argv
     end
 
@@ -432,8 +496,8 @@ module CLAide
     # @return [void
     #
     def run
-      raise "A subclass should override the Command#run method to actually " \
-            "perform some work."
+      raise "A subclass should override the `CLAide::Command#run` method to " \
+            "actually perform some work."
     end
 
     protected
@@ -451,7 +515,7 @@ module CLAide
       else
         command = self.class
       end
-      command = command.help!(error_message, colorize_output?)
+      command = command.help!(error_message, ansi_output?)
     end
 
     #-------------------------------------------------------------------------#
