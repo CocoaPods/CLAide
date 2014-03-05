@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Fixture
   class Error < StandardError
     include CLAide::InformativeError

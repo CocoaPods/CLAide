@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'claide/command/banner'
 
 module CLAide

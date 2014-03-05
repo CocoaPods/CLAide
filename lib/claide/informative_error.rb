@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module CLAide
 
   # Including this module into an exception class will ensure that when raised,

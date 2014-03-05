@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module CLAide
 
   # This class is responsible for parsing the parameters specified by the user,
