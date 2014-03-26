@@ -4,8 +4,8 @@ I was born out of a need for a _simple_ option and command parser, while still
 providing an API that allows you to quickly create a full featured command-line
 interface.
 
-[![Build Status][travis-status]][travis]
-
+[![Build Status](https://travis-ci.org/CocoaPods/CLAide.svg?branch=master)](https://travis-ci.org/CocoaPods/CLAide)
+[![Code Climate](http://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg)](https://codeclimate.com/github/CocoaPods/CLAide)
 
 ## Install
 
