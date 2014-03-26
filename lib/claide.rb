@@ -9,7 +9,7 @@ module CLAide
   #
   #   CLAide’s version, following [semver](http://semver.org).
   #
-  VERSION = '0.4.0'
+  VERSION = '0.5.0'
 
   require 'claide/argv'
   require 'claide/command'
