@@ -54,7 +54,7 @@ namespace :gem do
       diff_lines = `git diff --name-only`.strip.split("\n")
 
       diff_lines.delete('Gemfile.lock')
-      diff_lines.delete('Changelog.md')
+      diff_lines.delete('CHANGELOG.md')
       if diff_lines != ['lib/claide.rb']
         $stderr.puts "[!] Only change the version number in a release commit!"
         $stderr.puts diff_lines
@@ -80,7 +80,7 @@ namespace :gem do
     silent_sh "gem install --install-dir='#{tmp_gems}' #{gem_pkg_path}"
 
     # Then release
-    sh "git commit lib/claide.rb -m 'Release #{gem_version}'"
+    sh "git commit lib/claide.rb CHANGELOG.md Gemfile.lock -m 'Release #{gem_version}'"
     Rake::Task['bundler:release'].invoke
   end
 end
