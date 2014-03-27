@@ -5,7 +5,7 @@ providing an API that allows you to quickly create a full featured command-line
 interface.
 
 [![Build Status](https://travis-ci.org/CocoaPods/CLAide.svg?branch=master)](https://travis-ci.org/CocoaPods/CLAide)
-[![Code Climate](http://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg)](https://codeclimate.com/github/CocoaPods/CLAide)
+[![Code Climate](https://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg)](https://codeclimate.com/github/CocoaPods/CLAide)
 
 ## Install
 
