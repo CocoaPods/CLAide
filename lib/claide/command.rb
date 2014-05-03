@@ -291,7 +291,7 @@ module CLAide
           command.validate!
           command.run
         end
-      rescue Exception => exception
+      rescue Object => exception
         if exception.is_a?(InformativeError)
           puts exception.message
           if command.verbose?
