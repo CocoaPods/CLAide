@@ -11,7 +11,7 @@ end
 
 desc 'Run specs'
 task :spec do
-  sh "bacon #{specs('**')}"
+  sh "bundle exec bacon #{specs('**')}"
 end
 
 task :default => :spec
@@ -33,7 +33,6 @@ end
 #-----------------------------------------------------------------------------#
 
 namespace :gem do
-
   desc "Run all specs, build and install gem, commit version change, tag version change, and push everything"
   task :release do
 
