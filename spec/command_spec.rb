@@ -126,6 +126,40 @@ module CLAide
         command = Fixture::Command.parse(%w{ --verbose })
         command.should.be.verbose
       end
+
+      it "handles the version flag" do
+        command = Fixture::Command
+        command.version = '1.0'
+        command.instance_variable_set(:@fixture_output, '')
+        def command.puts(text)
+          @fixture_output << text
+        end
+        command.run(%w{ --version })
+        output = command.instance_variable_get(:@fixture_output)
+        output.should == '1.0'
+      end
+
+      it "handles the version flag in conjunction with the verbose flag" do
+        path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
+        Command::PluginsHelper.expects(:plugin_load_paths).returns([path])
+        Command::PluginsHelper.expects(:plugin_info).returns('cocoapods_plugin: 1.0')
+        command = Fixture::Command
+        command.stubs(:load_plugins)
+        command.version = '1.0'
+        command.instance_variable_set(:@fixture_output, '')
+        def command.puts(text)
+          @fixture_output << "#{text}\n"
+        end
+        command.run(%w{ --version --verbose })
+        output = command.instance_variable_get(:@fixture_output)
+        output.should == "1.0\ncocoapods_plugin: 1.0\n"
+      end
+
+      it "doesn't set the version flag if no version has been specified" do
+        should.raise CLAide::Help do
+          Fixture::Command.parse(%w{ --version }).validate!
+        end.message.should.include?('Unknown arguments: --version')
+      end
     end
 
     #-------------------------------------------------------------------------#

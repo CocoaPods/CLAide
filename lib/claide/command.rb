@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'claide/command/banner'
+require 'claide/command/plugins_helper'
 
 module CLAide
 
@@ -303,6 +304,51 @@ module CLAide
         end
       end
 
+      # Load additional plugins via rubygems looking for:
+      #
+      # <command-path>/plugin.rb
+      #
+      # where <command-path> is the namespace of the Command converted to a
+      # path, for example:
+      #
+      # Pod::Command
+      #
+      # maps to
+      #
+      # pod/command
+      #
+      def load_plugins
+        paths = PluginsHelper.plugin_load_paths(plugin_prefix)
+        paths.each do |path|
+          begin
+            require path
+          rescue Exception => exception
+            message = "\n---------------------------------------------"
+            message << "\nError loading the plugin with path `#{path}`.\n"
+            message << "\n#{exception.class} - #{exception.message}"
+            message << "\n#{exception.backtrace.join("\n")}"
+            message << "\n---------------------------------------------\n"
+            if ansi_output?
+              puts message.yellow
+            else
+              puts message
+            end
+          end
+        end
+      end
+
+      # Override to control how to print the warning that’s shown when an
+      # exception occurs during plugin loading.
+      #
+      # By default this will be displayed in yellow if `#ansi_output?` returns
+      # `true`.
+      #
+      # @param [String] message
+      #        The plugin load error message.
+      #
+      def self.prettify_plugin_load_error(message, ansi_output)
+      end
+
       # Prints the version of the command optionally including plugins.
       #
       # @param  [Boolean] include_plugins
@@ -313,41 +359,9 @@ module CLAide
       def print_version(include_plugins = false)
         puts version
         if include_plugins
-          plugin_load_paths.each do |path|
-            puts plugin_info(path)
+          PluginsHelper.plugin_load_paths(plugin_prefix).each do |path|
+            puts PluginsHelper.plugin_info(path)
           end
-        end
-      end
-
-      # Returns the name and the version of the plugin with the given path.
-      #
-      # @param  [String] path
-      #         The load path of the plugin.
-      #
-      # @return [String] A string including the name and the version or a
-      #         failure message.
-      #
-      def plugin_info(path)
-        components = path.split('/')
-        progress = ''
-        paths = components.map do |component|
-          progress = progress + '/' + component
-        end
-
-        gemspec = nil
-        paths.reverse.find do |path|
-          glob = Dir.glob("#{path}/*.gemspec")
-          if glob.count == 1
-            gemspec = glob.first
-            break
-          end
-        end
-
-        spec = Gem::Specification.load(gemspec)
-        if spec
-          "#{spec.name}: #{spec.version}"
-        else
-          "[!] Unable to load a specification for `#{path}`"
         end
       end
 
@@ -405,71 +419,6 @@ module CLAide
       #
       def banner(ansi_output = false, banner_class = Banner)
         banner_class.new(self, ansi_output).formatted_banner
-      end
-
-      # Load additional plugins via rubygems looking for:
-      #
-      # <command-path>/plugin.rb
-      #
-      # where <command-path> is the namespace of the Command converted to a
-      # path, for example:
-      #
-      # Pod::Command
-      #
-      # maps to
-      #
-      # pod/command
-      #
-      def load_plugins
-        return unless plugin_prefix
-        paths = plugin_load_paths
-        paths.each { |path| require_plugin_path(path) }
-      end
-
-      # Returns the paths of the files to require to load the available
-      # plugins.
-      #
-      # @return [Array] The found plugins load paths.
-      #
-      def plugin_load_paths
-        if plugin_prefix
-          if Gem.respond_to? :find_latest_files
-            Gem.find_latest_files("#{plugin_prefix}_plugin")
-          else
-            Gem.find_files("#{plugin_prefix}_plugin")
-          end
-        else
-          []
-        end
-      end
-
-      # Loads the plugin file at the given path, catching any failure.
-      #
-      # @param [String] path
-      #        The path to load.
-      #
-      def require_plugin_path(path)
-        require path
-      rescue Exception => exception
-        message = "\n---------------------------------------------"
-        message << "\nError loading the plugin with path `#{path}`.\n"
-        message << "\n#{exception.class} - #{exception.message}"
-        message << "\n#{exception.backtrace.join("\n")}"
-        message << "\n---------------------------------------------\n"
-        puts prettify_plugin_load_error(message)
-      end
-
-      # Override to control how to print the warning that’s shown when an
-      # exception occurs during plugin loading.
-      #
-      # By default this will be displayed in yellow if `#ansi_output?` returns
-      # `true`.
-      #
-      # @param [String] message
-      #        The plugin load error message.
-      #
-      def prettify_plugin_load_error(message)
-        ansi_output? ? message.yellow : message
       end
     end
 
