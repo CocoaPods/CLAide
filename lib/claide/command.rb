@@ -337,18 +337,6 @@ module CLAide
         end
       end
 
-      # Override to control how to print the warning that’s shown when an
-      # exception occurs during plugin loading.
-      #
-      # By default this will be displayed in yellow if `#ansi_output?` returns
-      # `true`.
-      #
-      # @param [String] message
-      #        The plugin load error message.
-      #
-      def self.prettify_plugin_load_error(message, ansi_output)
-      end
-
       # Prints the version of the command optionally including plugins.
       #
       # @param  [Boolean] include_plugins
