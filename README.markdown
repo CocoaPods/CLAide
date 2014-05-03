@@ -1,8 +1,8 @@
 # Hi, I’m Claide, your command-line tool aide.
 
 [![Build Status](https://img.shields.io/travis/CocoaPods/CLAide/master.svg?style=flat)](https://travis-ci.org/CocoaPods/CLAide)
-[![Code Climate](http://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
-[![Coverage](http://img.shields.io/codeclimate/coverage/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
+[![Code Climate](https://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
+[![Coverage](https://img.shields.io/codeclimate/coverage/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
 
 I was born out of a need for a _simple_ option and command parser, while still
 providing an API that allows you to quickly create a full featured command-line
