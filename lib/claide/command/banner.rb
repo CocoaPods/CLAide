@@ -89,7 +89,7 @@ module CLAide
       # @return [String]
       #
       def prettify_option_name(name)
-        name
+        ansi_output? ? name.blue : name
       end
 
       # @return [String]
@@ -99,16 +99,24 @@ module CLAide
           message = strip_heredoc(message)
           message = message.split("\n").map { |line| "      #{line}" }.join("\n")
           args = " #{command.arguments}" if command.arguments
-          cmd = "$ #{command.full_command}#{args}"
-          "    #{prettify_command_in_usage_description(cmd)}\n\n#{message}"
+          command_signature = prettify_command_in_usage_description(command.full_command, args)
+          "    $ #{command_signature}\n\n#{message}"
         end
       end
 
       # @return [String]
       #
-      def prettify_command_in_usage_description(command)
-        command
-      end
+      def prettify_command_in_usage_description(command, args)
+        if ansi_output?
+          result = "#{command.green}"
+          result << "#{args.magenta}" if args
+          result
+        else
+          result = "#{command}"
+          result << args if args
+          result
+        end
+        end
 
       # @return [String]
       #
@@ -123,7 +131,7 @@ module CLAide
             subcommand_string = prettify_subcommand_name(subcommand_string)
             is_default = subcommand.command == command.default_subcommand
             if is_default
-              bullet_point = '-'
+              bullet_point = '>'
             else
               bullet_point = '*'
             end

@@ -1,5 +1,9 @@
 ## Master
 
+* Colorize option, arguments, and example commands in the help banner.  
+  [Fabio Pelosin][irrationalfab]
+  [#12](https://github.com/CocoaPods/CLAide/issues/12)
+
 * Add support for version logic via the introduction of the `version` class
   attribute to the `CLAide::Commmand` class. If a value for the attribute is
   specified the `--version` flag is added. The `--version --verbose` flags
