@@ -4,6 +4,7 @@ group :development do
   gem 'rake'
   gem 'yard'
   gem 'activesupport'
+  gem 'kicker'
 end
 
 group :spec do
