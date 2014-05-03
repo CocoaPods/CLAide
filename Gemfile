@@ -11,4 +11,5 @@ group :spec do
   gem 'bacon'
   gem 'mocha-on-bacon'
   gem 'prettybacon'
+  gem "codeclimate-test-reporter", require: nil
 end
