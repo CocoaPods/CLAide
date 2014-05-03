@@ -96,10 +96,10 @@ module CLAide
       end
 
       it "raises a Help exception when created with an invalid subcommand" do
-        should_raise_help 'Unknown arguments: unknown' do
+        should_raise_help "Unknown command: `unknown`\nDid you mean: spec-file" do
           Fixture::Command.parse(%w{ unknown }).validate!
         end
-        should_raise_help 'Unknown arguments: unknown' do
+        should_raise_help "Unknown command: `unknown`\nDid you mean: lint" do
           Fixture::Command.parse(%w{ spec-file unknown }).validate!
         end
       end
@@ -156,9 +156,11 @@ module CLAide
       end
 
       it "doesn't set the version flag if no version has been specified" do
+        command = Fixture::Command
+        command.version = nil
         should.raise CLAide::Help do
-          Fixture::Command.parse(%w{ --version }).validate!
-        end.message.should.include?('Unknown arguments: --version')
+          command.parse(%w{ --version }).validate!
+        end.message.should.include?('Unknown option: `--version`')
       end
     end
 

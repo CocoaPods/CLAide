@@ -2,6 +2,7 @@
 
 require 'claide/command/banner'
 require 'claide/command/plugins_helper'
+require 'claide/command/validate_helper'
 
 module CLAide
 
@@ -504,8 +505,29 @@ module CLAide
     #
     def validate!
       help! if @argv.flag?('help')
-      help! "Unknown arguments: #{@argv.remainder.join(' ')}" if !@argv.empty?
+      help! unknown_arguments_message(@argv.remainder) if !@argv.empty?
       help! if self.class.abstract_command?
+    end
+
+    # Returns a message for the given unknown arguments including a suggestion.
+    #
+    # @param  [Array<String>] The unknown arguments.
+    #
+    # @return [String] The message.
+    #
+    def unknown_arguments_message(arguments)
+      unknown = arguments.first.downcase
+      if unknown.start_with?('-')
+        type = :option
+        suggestions = self.class.options.map do |option|
+          option.first.sub('--', '')
+        end
+      else
+        type = :command
+        suggestions = self.class.subcommands_for_command_lookup.map(&:command)
+      end
+      ValidateHelper.unknown_arguments_message(
+        unknown, suggestions, type, ansi_output?)
     end
 
     # This method should be overridden by the command class to perform its work.
