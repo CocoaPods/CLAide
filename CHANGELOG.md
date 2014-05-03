@@ -1,3 +1,13 @@
+## Master
+
+* Add support for version logic via the introduction of the `version` class
+  attribute to the `CLAide::Commmand` class. If a value for the attribute is
+  specified the `--version` flag is added. The `--version --verbose` flags
+  include the version of the plugins in the output.  
+  [Fabio Pelosin][irrationalfab]
+  [#13](https://github.com/CocoaPods/CLAide/issues/13)
+  [#14](https://github.com/CocoaPods/CLAide/issues/14)
+
 ## 0.5.0
 
 ###### Enhancements
@@ -28,4 +38,6 @@
 * Added support for plugins.  
   [Les Hill](https://github.com/leshill)
   [#1](https://github.com/CocoaPods/CLAide/pull/1)
+
+[irrationalfab]: https://github.com/irrationalfab
 

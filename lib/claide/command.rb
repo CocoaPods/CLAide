@@ -136,6 +136,12 @@ module CLAide
       end
       attr_writer :command
 
+      # @return [String] The version of the command. This value will be printed
+      #         by the `--version` flag if used for the root command.
+      #
+      attr_accessor :version
+
+
       # @return [String] The full command up-to this command, as it would be
       #         looked up during parsing.
       #
@@ -222,6 +228,10 @@ module CLAide
           ['--verbose', 'Show more debugging information'],
           ['--help',    'Show help banner of specified command'],
         ]
+        if version
+          options << ['--version', 'Show the version of the tool']
+        end
+
         if Command.ansi_output?
           options.unshift(['--no-ansi', 'Show output without ANSI codes'])
         end
@@ -273,19 +283,72 @@ module CLAide
       def run(argv)
         load_plugins
         command = parse(argv)
-        command.validate!
-        command.run
-        rescue Exception => exception
-          if exception.is_a?(InformativeError)
-            puts exception.message
-            if command.verbose?
-              puts
-              puts(*exception.backtrace)
-            end
-            exit exception.exit_status
-          else
-            report_error(exception)
+        argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+        if command.class.version && argv.flag?('version')
+          print_version(argv.flag?('verbose'))
+        else
+          command.validate!
+          command.run
+        end
+      rescue Exception => exception
+        if exception.is_a?(InformativeError)
+          puts exception.message
+          if command.verbose?
+            puts
+            puts(*exception.backtrace)
           end
+          exit exception.exit_status
+        else
+          report_error(exception)
+        end
+      end
+
+      # Prints the version of the command optionally including plugins.
+      #
+      # @param  [Boolean] include_plugins
+      #         Whether the version of the found plugins should be printed.
+      #
+      # @return [void]
+      #
+      def print_version(include_plugins = false)
+        puts version
+        if include_plugins
+          plugin_load_paths.each do |path|
+            puts plugin_info(path)
+          end
+        end
+      end
+
+      # Returns the name and the version of the plugin with the given path.
+      #
+      # @param  [String] path
+      #         The load path of the plugin.
+      #
+      # @return [String] A string including the name and the version or a
+      #         failure message.
+      #
+      def plugin_info(path)
+        components = path.split('/')
+        progress = ''
+        paths = components.map do |component|
+          progress = progress + '/' + component
+        end
+
+        gemspec = nil
+        paths.reverse.find do |path|
+          glob = Dir.glob("#{path}/*.gemspec")
+          if glob.count == 1
+            gemspec = glob.first
+            break
+          end
+        end
+
+        spec = Gem::Specification.load(gemspec)
+        if spec
+          "#{spec.name}: #{spec.version}"
+        else
+          "[!] Unable to load a specification for `#{path}`"
+        end
       end
 
       # Allows the application to perform custom error reporting, by overriding
@@ -359,12 +422,25 @@ module CLAide
       #
       def load_plugins
         return unless plugin_prefix
-        files_to_require = if Gem.respond_to? :find_latest_files
-                             Gem.find_latest_files("#{plugin_prefix}_plugin")
-                           else
-                             Gem.find_files("#{plugin_prefix}_plugin")
-                           end
-        files_to_require.each { |path| require_plugin_path(path) }
+        paths = plugin_load_paths
+        paths.each { |path| require_plugin_path(path) }
+      end
+
+      # Returns the paths of the files to require to load the available
+      # plugins.
+      #
+      # @return [Array] The found plugins load paths.
+      #
+      def plugin_load_paths
+        if plugin_prefix
+          if Gem.respond_to? :find_latest_files
+            Gem.find_latest_files("#{plugin_prefix}_plugin")
+          else
+            Gem.find_files("#{plugin_prefix}_plugin")
+          end
+        else
+          []
+        end
       end
 
       # Loads the plugin file at the given path, catching any failure.
