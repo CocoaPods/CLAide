@@ -1,7 +1,7 @@
 # encoding: utf-8
 module Fixture
-  class Command
-    class DemoPlugin < Command
+  class CommandPluginable
+    class DemoPlugin < CommandPluginable
       self.summary = 'Plugins!'
       self.description = <<-DESC
         Let’s add plugins to CLAide and CocoaPods.

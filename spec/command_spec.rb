@@ -35,16 +35,16 @@ module CLAide
           end
 
           it "loads the plugin" do
-            Fixture::Command.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}.should.be.nil
-            Fixture::Command.load_plugins
-            plugin_class = Fixture::Command.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}
-            plugin_class.ancestors.should.include Fixture::Command
+            Fixture::CommandPluginable.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}.should.be.nil
+            Fixture::CommandPluginable.load_plugins
+            plugin_class = Fixture::CommandPluginable.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}
+            plugin_class.ancestors.should.include Fixture::CommandPluginable
             plugin_class.description.should =~ /plugins/
           end
 
           it "is available for help" do
-            Fixture::Command.load_plugins
-            CLAide::Command::Banner.new(Fixture::Command, false).formatted_banner.should =~ /demo-plugin/
+            Fixture::CommandPluginable.load_plugins
+            CLAide::Command::Banner.new(Fixture::CommandPluginable, false).formatted_banner.should =~ /demo-plugin/
           end
         end
 

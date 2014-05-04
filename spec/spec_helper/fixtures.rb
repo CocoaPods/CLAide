@@ -6,7 +6,6 @@ module Fixture
   end
 
   class Command < CLAide::Command
-    self.plugin_prefix = 'fixture'
     self.command = 'bin'
 
     class SpecFile < Command
@@ -46,4 +45,9 @@ module Fixture
       end
     end
   end
+
+  class CommandPluginable < CLAide::Command
+    self.plugin_prefix = 'fixture'
+  end
+
 end
