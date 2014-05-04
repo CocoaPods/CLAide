@@ -283,15 +283,17 @@ module CLAide
       # @return [void]
       #
       def run(argv)
+        argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+        version_flag = argv.flag?('version')
         load_plugins
         command = parse(argv)
-        argv = ARGV.new(argv) unless argv.is_a?(ARGV)
-        if command.class.version && argv.flag?('version')
-          print_version(argv.flag?('verbose'))
+        if command.class.version && version_flag
+          print_version(command.verbose?)
         else
           command.validate!
           command.run
         end
+
       rescue Object => exception
         if exception.is_a?(InformativeError)
           puts exception.message
