@@ -3,6 +3,7 @@
 require 'claide/command/banner'
 require 'claide/command/plugins_helper'
 require 'claide/command/validate_helper'
+require 'claide/command/shell_completion_helper'
 
 module CLAide
 
@@ -165,6 +166,12 @@ module CLAide
         end
       end
 
+      # @return [Bool] Whether this is the root command class
+      #
+      def root_command?
+        superclass == CLAide::Command
+      end
+
       # @return [Array<Class>] A list of all command classes that are nested
       #         under this command.
       #
@@ -227,11 +234,14 @@ module CLAide
       #
       def options
         options = [
-          ['--verbose', 'Show more debugging information'],
-          ['--help',    'Show help banner of specified command'],
+          ['--verbose'           ,  'Show more debugging information'],
+          ['--help'              ,  'Show help banner of specified command'],
         ]
-        if version
-          options << ['--version', 'Show the version of the tool']
+
+        if root_command?
+          options.unshift(
+            ['--completion-script' ,  'Print the auto-completion script'],
+            ['--version', 'Show the version of the tool'])
         end
 
         if Command.ansi_output?
@@ -285,10 +295,13 @@ module CLAide
       def run(argv)
         argv = ARGV.new(argv) unless argv.is_a?(ARGV)
         version_flag = argv.flag?('version')
+        complete_flag = argv.flag?('completion-script')
         load_plugins
         command = parse(argv)
-        if command.class.version && version_flag
+        if  root_command? && version_flag
           print_version(command.verbose?)
+        elsif root_command? && complete_flag
+          print_autocompletion_script
         else
           command.validate!
           command.run
@@ -355,6 +368,15 @@ module CLAide
           end
         end
       end
+
+      # Prints an auto-completion script according to the user shell.
+      #
+      # @return [void]
+      #
+      def print_autocompletion_script
+        puts ShellCompletionHelper.completion_template(self)
+      end
+
 
       # Allows the application to perform custom error reporting, by overriding
       # this method.
