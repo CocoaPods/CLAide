@@ -41,9 +41,9 @@ module CLAide
         Dir.stubs(:glob).returns([])
         Dir.expects(:glob).with(gemspec_glob).returns([gemspec])
         Gem::Specification.expects(:load).with(gemspec).returns(nil)
-        @subject.plugin_info(path).should ==
-          "[!] Unable to load a specification for " \
-          "`path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb`"
+        result = @subject.plugin_info(path)
+        result.should.include("[!] Unable to load a specification for ")
+        result.should.include("path/to/gems/cocoapods-plugins")
       end
     end
   end

@@ -173,8 +173,8 @@ module CLAide
         def command.puts(text)
           @fixture_output << text
         end
-        Command::ShellCompletionHelper
-          .expects(:completion_template).returns('script')
+        Command::ShellCompletionHelper.
+          expects(:completion_template).returns('script')
         command.run(%w{ --completion-script })
         output = command.instance_variable_get(:@fixture_output)
         output.should == 'script'

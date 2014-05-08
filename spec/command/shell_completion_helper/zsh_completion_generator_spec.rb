@@ -93,7 +93,7 @@ case "$words[2]" in
 esac
         DOC
         result = @subject.generate(Fixture::Command)
-        expected_lines = expected.lines
+        expected_lines = expected.lines.to_a
         result.lines.each_with_index do |line, index|
           "#{index}#{line}".should == "#{index}#{expected_lines[index]}"
         end
@@ -131,7 +131,7 @@ case "$words[4]" in
 esac
         DOC
         result = @subject.case_statement_fragment(Fixture::Command::SpecFile::Lint, 2)
-        expected_lines = expected.chomp.lines
+        expected_lines = expected.chomp.lines.to_a
         result.lines.each_with_index do |line, index|
           "[#{index}]#{line}".should == "[#{index}]#{expected_lines[index]}"
         end
@@ -155,7 +155,7 @@ repo)
 ;;
         DOC
         result = @subject.case_statement_entries_fragment(Fixture::Command::SpecFile::Lint, 3)
-        expected_lines = expected.lines
+        expected_lines = expected.lines.to_a
         result.lines.each_with_index do |line, index|
           "[#{index}]#{line}".should == "[#{index}]#{expected_lines[index]}"
         end
