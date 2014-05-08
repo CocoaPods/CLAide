@@ -3,8 +3,9 @@ source 'https://rubygems.org'
 group :development do
   gem 'rake'
   gem 'yard'
-  gem 'activesupport'
   gem 'kicker'
+  # Ruby 1.8.7
+  gem 'activesupport', '< 4'
 end
 
 group :spec do
