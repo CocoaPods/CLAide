@@ -17,6 +17,11 @@ module CLAide
         Fixture::Command::SpecFile.subcommands_for_command_lookup.map(&:command).should == %w{ lint create }
       end
 
+      it "returns whether it is the root command" do
+        Fixture::Command.should.be.root_command?
+        Fixture::Command::SpecFile.should.not.be.root_command?
+      end
+
       it "tries to match a subclass for each of the subcommands" do
         Fixture::Command.parse(%w{ spec-file --verbose lint }).should.be.instance_of Fixture::Command::SpecFile::Lint
       end
@@ -35,16 +40,16 @@ module CLAide
           end
 
           it "loads the plugin" do
-            Fixture::Command.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}.should.be.nil
-            Fixture::Command.load_plugins
-            plugin_class = Fixture::Command.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}
-            plugin_class.ancestors.should.include Fixture::Command
+            Fixture::CommandPluginable.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}.should.be.nil
+            Fixture::CommandPluginable.load_plugins
+            plugin_class = Fixture::CommandPluginable.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}
+            plugin_class.ancestors.should.include Fixture::CommandPluginable
             plugin_class.description.should =~ /plugins/
           end
 
           it "is available for help" do
-            Fixture::Command.load_plugins
-            CLAide::Command::Banner.new(Fixture::Command, false).formatted_banner.should =~ /demo-plugin/
+            Fixture::CommandPluginable.load_plugins
+            CLAide::Command::Banner.new(Fixture::CommandPluginable, false).formatted_banner.should =~ /demo-plugin/
           end
         end
 
@@ -155,12 +160,31 @@ module CLAide
         output.should == "1.0\ncocoapods_plugin: 1.0\n"
       end
 
-      it "doesn't set the version flag if no version has been specified" do
-        command = Fixture::Command
-        command.version = nil
+      it "doesn't include the version flag for non root commands" do
+        command = Fixture::Command::SpecFile
         should.raise CLAide::Help do
           command.parse(%w{ --version }).validate!
         end.message.should.include?('Unknown option: `--version`')
+      end
+
+      it "handles the completion-script flag" do
+        command = Fixture::Command
+        command.instance_variable_set(:@fixture_output, '')
+        def command.puts(text)
+          @fixture_output << text
+        end
+        Command::ShellCompletionHelper
+          .expects(:completion_template).returns('script')
+        command.run(%w{ --completion-script })
+        output = command.instance_variable_get(:@fixture_output)
+        output.should == 'script'
+      end
+
+      it "doesn't include the completion-script flag for non root commands" do
+        command = Fixture::Command::SpecFile
+        should.raise CLAide::Help do
+          command.parse(%w{ --completion-script }).validate!
+        end.message.should.include?('Unknown option: `--completion-script`')
       end
     end
 
