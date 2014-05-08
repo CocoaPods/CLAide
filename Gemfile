@@ -13,4 +13,5 @@ group :spec do
   gem 'mocha-on-bacon'
   gem 'prettybacon'
   gem "codeclimate-test-reporter", :require => nil
+  gem 'json'
 end
