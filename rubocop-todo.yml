@@ -19,8 +19,6 @@ LineLength:
   Max: 117
 MethodLength:
   Max: 24
-NegatedIf:
-  Enabled: false
 NilComparison:
   Enabled: false
 PercentLiteralDelimiters:

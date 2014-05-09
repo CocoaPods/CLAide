@@ -521,7 +521,7 @@ module CLAide
     #
     def validate!
       help! if @argv.flag?('help')
-      help! unknown_arguments_message(@argv.remainder) if !@argv.empty?
+      help! unknown_arguments_message(@argv.remainder) unless @argv.empty?
       help! if self.class.abstract_command?
     end
 
