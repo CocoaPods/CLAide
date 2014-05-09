@@ -7,9 +7,9 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
-    describe "in general" do
+    describe 'in general' do
 
-      it "does not include a usage banner for an abstract command" do
+      it 'does not include a usage banner for an abstract command' do
         banner = Command::Banner.new(Fixture::Command::SpecFile)
         banner.formatted_banner.should ==
           <<-BANNER.strip_margin('|').rstrip
@@ -25,7 +25,7 @@ module CLAide
         BANNER
       end
 
-      it "combines the summary/description, commands, and options" do
+      it 'combines the summary/description, commands, and options' do
         banner = Command::Banner.new(Fixture::Command::SpecFile::Create)
         banner.formatted_banner.should ==
           <<-BANNER.strip_margin('|').rstrip
@@ -42,7 +42,7 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
-    describe "banner components" do
+    describe 'banner components' do
       it "returns a usage description based on the command's description" do
         banner = Command::Banner.new(Fixture::Command::SpecFile::Create)
         banner.send(:formatted_usage_description).should ==
@@ -64,7 +64,7 @@ module CLAide
         USAGE
       end
 
-      it "returns summaries of the subcommands of a command, sorted by name" do
+      it 'returns summaries of the subcommands of a command, sorted by name' do
         banner = Command::Banner.new(Fixture::Command::SpecFile)
         banner.send(:formatted_subcommand_summaries).should ==
           <<-COMMANDS.strip_margin('|').rstrip
@@ -73,7 +73,7 @@ module CLAide
         COMMANDS
       end
 
-      it "returns the options aligning the descriptions" do
+      it 'returns the options aligning the descriptions' do
         banner = Command::Banner.new(Fixture::Command::SpecFile)
         banner.send(:formatted_options_description).should ==
           <<-OPTIONS.strip_margin('|').rstrip

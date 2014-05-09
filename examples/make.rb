@@ -37,10 +37,10 @@ class BeverageMaker < CLAide::Command
   end
 
   def run
-    puts "* Boiling water…"
+    puts '* Boiling water…'
     sleep 1
     if @add_milk
-      puts "* Adding milk…"
+      puts '* Adding milk…'
       sleep 1
     end
     if @sweetner
@@ -76,7 +76,7 @@ class BeverageMaker < CLAide::Command
     def validate!
       super
       if @flavor.nil?
-        help! "A flavor argument is required."
+        help! 'A flavor argument is required.'
       end
       unless %w(black green oolong white).include?(@flavor)
         help! "`#{@flavor}' is not a valid flavor."
@@ -88,10 +88,10 @@ class BeverageMaker < CLAide::Command
       puts "* Infuse #{@flavor} tea…"
       sleep 1
       if @iced
-        puts "* Cool off…"
+        puts '* Cool off…'
         sleep 1
       end
-      puts "* Enjoy!"
+      puts '* Enjoy!'
     end
   end
 
@@ -112,9 +112,9 @@ class BeverageMaker < CLAide::Command
       super
       puts "* Grinding #{self.class.command} beans…"
       sleep 1
-      puts "* Brewing coffee…"
+      puts '* Brewing coffee…'
       sleep 1
-      puts "* Enjoy!"
+      puts '* Enjoy!'
     end
 
     class BlackEye < Coffee

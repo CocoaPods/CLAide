@@ -109,16 +109,16 @@ module CLAide
       alias_method :ansi_output?, :ansi_output
 
       def colorize_output
-        warn "[!] The use of `CLAide::Command.colorize_output` has been " \
-             "deprecated. Use `CLAide::Command.ansi_output` instead. " \
+        warn '[!] The use of `CLAide::Command.colorize_output` has been ' \
+             'deprecated. Use `CLAide::Command.ansi_output` instead. ' \
              "(Called from: #{caller.first})"
         ansi_output
       end
       alias_method :colorize_output?, :colorize_output
 
       def colorize_output=(flag)
-        warn "[!] The use of `CLAide::Command.colorize_output=` has been " \
-             "deprecated. Use `CLAide::Command.ansi_output=` instead. " \
+        warn '[!] The use of `CLAide::Command.colorize_output=` has been ' \
+             'deprecated. Use `CLAide::Command.ansi_output=` instead. ' \
              "(Called from: #{caller.first})"
         self.ansi_output = flag
       end
@@ -259,7 +259,7 @@ module CLAide
         elsif abstract_command? && default_subcommand
           subcommand = find_subcommand(default_subcommand)
           unless subcommand
-            raise "Unable to find the default subcommand " \
+            raise 'Unable to find the default subcommand ' \
                   "`#{default_subcommand}` for command `#{self}`."
           end
           result = subcommand.parse(argv)
@@ -460,16 +460,16 @@ module CLAide
     alias_method :ansi_output?, :ansi_output
 
     def colorize_output
-      warn "[!] The use of `CLAide::Command#colorize_output` has been " \
-           "deprecated. Use `CLAide::Command#ansi_output` instead. " \
+      warn '[!] The use of `CLAide::Command#colorize_output` has been ' \
+           'deprecated. Use `CLAide::Command#ansi_output` instead. ' \
            "(Called from: #{caller.first})"
       ansi_output
     end
     alias_method :colorize_output?, :colorize_output
 
     def colorize_output=(flag)
-      warn "[!] The use of `CLAide::Command#colorize_output=` has been " \
-           "deprecated. Use `CLAide::Command#ansi_output=` instead. " \
+      warn '[!] The use of `CLAide::Command#colorize_output=` has been ' \
+           'deprecated. Use `CLAide::Command#ansi_output=` instead. ' \
            "(Called from: #{caller.first})"
       self.ansi_output = flag
     end
@@ -499,8 +499,8 @@ module CLAide
 
       color = argv.flag?('color')
       unless color.nil?
-        warn "[!] The use of the `--color`/`--no-color` flag has been " \
-             "deprecated. Use `--ansi`/`--no-ansi` instead."
+        warn '[!] The use of the `--color`/`--no-color` flag has been ' \
+             'deprecated. Use `--ansi`/`--no-ansi` instead.'
         @ansi_output = color
       end
 
@@ -551,8 +551,8 @@ module CLAide
     # @return [void
     #
     def run
-      raise "A subclass should override the `CLAide::Command#run` method to " \
-            "actually perform some work."
+      raise 'A subclass should override the `CLAide::Command#run` method to ' \
+            'actually perform some work.'
     end
 
     protected

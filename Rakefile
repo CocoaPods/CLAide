@@ -4,9 +4,9 @@ task :default => :spec
 
 #-- Bootstrap ----------------------------------------------------------------#
 
-desc "Initializes your working copy to run the specs"
+desc 'Initializes your working copy to run the specs'
 task :bootstrap do
-  puts "Installing gems"
+  puts 'Installing gems'
   `bundle install`
 end
 

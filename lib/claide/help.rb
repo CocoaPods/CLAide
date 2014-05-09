@@ -26,8 +26,8 @@ module CLAide
     alias_method :ansi_output?, :ansi_output
 
     def colorize
-      warn "[!] The use of `CLAide::Help#colorize` has been " \
-           "deprecated. Use `CLAide::Help#ansi_output` instead. " \
+      warn '[!] The use of `CLAide::Help#colorize` has been ' \
+           'deprecated. Use `CLAide::Help#ansi_output` instead. ' \
            "(Called from: #{caller.first})"
       ansi_output
     end

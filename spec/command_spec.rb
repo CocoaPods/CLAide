@@ -5,8 +5,8 @@ require File.expand_path('../spec_helper', __FILE__)
 module CLAide
   describe Command do
 
-    describe "in general" do
-      it "registers the subcommand classes" do
+    describe 'in general' do
+      it 'registers the subcommand classes' do
         Fixture::Command.subcommands.map(&:command).should == %w(spec-file)
         Fixture::Command::SpecFile.subcommands.map(&:command).should == %w(common-invisible-command)
         Fixture::Command::SpecFile::Create.subcommands.map(&:command).should == []
@@ -17,17 +17,17 @@ module CLAide
         Fixture::Command::SpecFile.subcommands_for_command_lookup.map(&:command).should == %w(lint create)
       end
 
-      it "returns whether it is the root command" do
+      it 'returns whether it is the root command' do
         Fixture::Command.should.be.root_command?
         Fixture::Command::SpecFile.should.not.be.root_command?
       end
 
-      it "tries to match a subclass for each of the subcommands" do
+      it 'tries to match a subclass for each of the subcommands' do
         Fixture::Command.parse(%w(spec-file --verbose lint)).should.be.instance_of Fixture::Command::SpecFile::Lint
       end
 
-      describe "plugins" do
-        describe "when the plugin is at <command-prefix>_plugin.rb" do
+      describe 'plugins' do
+        describe 'when the plugin is at <command-prefix>_plugin.rb' do
           PLUGIN_FIXTURE = Pathname.new(ROOT) + 'spec/fixture/command/plugin_fixture.rb'
           PLUGIN = Pathname.new(ROOT) + 'spec/fixture_plugin.rb'
 
@@ -39,7 +39,7 @@ module CLAide
             FileUtils.remove_file PLUGIN
           end
 
-          it "loads the plugin" do
+          it 'loads the plugin' do
             Fixture::CommandPluginable.subcommands.find { |subcmd| subcmd.command == 'demo-plugin' }.should.be.nil
             Fixture::CommandPluginable.load_plugins
             plugin_class = Fixture::CommandPluginable.subcommands.find { |subcmd| subcmd.command == 'demo-plugin' }
@@ -47,13 +47,13 @@ module CLAide
             plugin_class.description.should =~ /plugins/
           end
 
-          it "is available for help" do
+          it 'is available for help' do
             Fixture::CommandPluginable.load_plugins
             CLAide::Command::Banner.new(Fixture::CommandPluginable, false).formatted_banner.should =~ /demo-plugin/
           end
         end
 
-        describe "failing plugins" do
+        describe 'failing plugins' do
           LOAD_ERROR_PLUGIN_FIXTURE = Pathname.new(ROOT) + 'spec/fixture/command/load_error_plugin_fixture.rb'
           LOAD_ERROR_PLUGIN = Pathname.new(ROOT) + 'spec/fixture_failing_plugin.rb'
 
@@ -65,7 +65,7 @@ module CLAide
             FileUtils.remove_file LOAD_ERROR_PLUGIN
           end
 
-          it "rescues exceptions raised during the load of the plugin" do
+          it 'rescues exceptions raised during the load of the plugin' do
             command = Fixture::Command
             command.plugin_prefix = 'fixture_failing'
             def command.puts(text)
@@ -75,12 +75,12 @@ module CLAide
               Fixture::Command.load_plugins
             end
             output = command.instance_variable_get(:@fixture_output)
-            output.should.include("Error loading the plugin")
-            output.should.include("LoadError")
+            output.should.include('Error loading the plugin')
+            output.should.include('LoadError')
           end
         end
 
-        it "fails normally if there is no plugin" do
+        it 'fails normally if there is no plugin' do
           Fixture::Command.load_plugins
           Fixture::Command.subcommands.find { |subcmd| subcmd.name == 'demo-plugin' }.should.be.nil
         end
@@ -94,13 +94,13 @@ module CLAide
     # lambda { Fixture::Command.run([]) }.should.raise Command::Help
     # end
 
-    describe "validation" do
-      it "does not raise if one of the subcommands consumes arguments" do
+    describe 'validation' do
+      it 'does not raise if one of the subcommands consumes arguments' do
         subcommand = Fixture::Command.parse(%w(spec-file create AFNetworking))
         subcommand.spec.should == 'AFNetworking'
       end
 
-      it "raises a Help exception when created with an invalid subcommand" do
+      it 'raises a Help exception when created with an invalid subcommand' do
         should_raise_help "Unknown command: `unknown`\nDid you mean: spec-file" do
           Fixture::Command.parse(%w(unknown)).validate!
         end
@@ -109,7 +109,7 @@ module CLAide
         end
       end
 
-      it "raises a Help exception (without error message) when called on an abstract command" do
+      it 'raises a Help exception (without error message) when called on an abstract command' do
         should_raise_help nil do
           Fixture::Command.parse(%w(spec-file)).validate!
         end
@@ -118,21 +118,21 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
-    describe "default options" do
-      it "raises a Help exception, without error message" do
+    describe 'default options' do
+      it 'raises a Help exception, without error message' do
         should_raise_help nil do
           Fixture::Command.parse(%w(--help)).validate!
         end
       end
 
-      it "sets the verbose flag" do
+      it 'sets the verbose flag' do
         command = Fixture::Command.parse([])
         command.should.not.be.verbose
         command = Fixture::Command.parse(%w(--verbose))
         command.should.be.verbose
       end
 
-      it "handles the version flag" do
+      it 'handles the version flag' do
         command = Fixture::Command
         command.version = '1.0'
         command.instance_variable_set(:@fixture_output, '')
@@ -144,7 +144,7 @@ module CLAide
         output.should == '1.0'
       end
 
-      it "handles the version flag in conjunction with the verbose flag" do
+      it 'handles the version flag in conjunction with the verbose flag' do
         path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
         Command::PluginsHelper.expects(:plugin_load_paths).returns([path])
         Command::PluginsHelper.expects(:plugin_info).returns('cocoapods_plugin: 1.0')
@@ -167,7 +167,7 @@ module CLAide
         end.message.should.include?('Unknown option: `--version`')
       end
 
-      it "handles the completion-script flag" do
+      it 'handles the completion-script flag' do
         command = Fixture::Command
         command.instance_variable_set(:@fixture_output, '')
         def command.puts(text)
@@ -190,19 +190,19 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
-    describe "when running" do
+    describe 'when running' do
       before do
         Fixture::Command.stubs(:puts)
         Fixture::Command.stubs(:exit)
       end
 
-      it "does not print the backtrace of a InformativeError exception by default" do
+      it 'does not print the backtrace of a InformativeError exception by default' do
         expected = Help.new(Fixture::Command.banner).message
         Fixture::Command.expects(:puts).with(expected)
         Fixture::Command.run(%w(--help))
       end
 
-      it "does print the backtrace of an exception, that includes InformativeError, if set to verbose" do
+      it 'does print the backtrace of an exception, that includes InformativeError, if set to verbose' do
           error = Fixture::Error.new
           Fixture::Command.any_instance.stubs(:validate!).raises(error)
           error.stubs(:message).returns('the message')
@@ -215,18 +215,18 @@ module CLAide
           Fixture::Command.run(%w(--verbose))
         end
 
-      it "exits with a failure status when an exception that includes InformativeError occurs" do
+      it 'exits with a failure status when an exception that includes InformativeError occurs' do
         Fixture::Command.expects(:exit).with(1)
         Fixture::Command.any_instance.stubs(:validate!).raises(Fixture::Error.new)
         Fixture::Command.run([])
       end
 
-      it "exits with a failure status when a Help exception occurs that has an error message" do
+      it 'exits with a failure status when a Help exception occurs that has an error message' do
         Fixture::Command.expects(:exit).with(1)
         Fixture::Command.run(%w(unknown))
       end
 
-      it "exits with a success status when a Help exception occurs that has *no* error message" do
+      it 'exits with a success status when a Help exception occurs that has *no* error message' do
         Fixture::Command.expects(:exit).with(0)
         Fixture::Command.run(%w(--help))
       end
@@ -240,14 +240,14 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
-    describe "default_subcommand" do
+    describe 'default_subcommand' do
 
       before do
         @command_class = Fixture::Command::SpecFile.dup
         @command_class.default_subcommand = 'lint'
       end
 
-      it "returns the default subcommand if specified" do
+      it 'returns the default subcommand if specified' do
         cmd = @command_class.parse([])
         cmd.class.should == Fixture::Command::SpecFile::Lint
       end
@@ -263,13 +263,13 @@ module CLAide
         cmd.class.should == @command_class
       end
 
-      it "invokes the default subcommand only if abstract" do
+      it 'invokes the default subcommand only if abstract' do
         @command_class.abstract_command = false
         cmd = @command_class.parse([])
         cmd.class.should == @command_class
       end
 
-      it "raises if unable to find the default subcommand" do
+      it 'raises if unable to find the default subcommand' do
         command_class = Fixture::Command::SpecFile.dup
         @command_class.default_subcommand = 'find-me'
         should.raise do
@@ -279,7 +279,7 @@ module CLAide
 
       #----------------------------------------#
 
-      it "shows the help of the parent if a command was invoked by default" do
+      it 'shows the help of the parent if a command was invoked by default' do
         cmd = @command_class.parse([])
         cmd.class.superclass.expects(:help!)
         cmd.send(:help!)

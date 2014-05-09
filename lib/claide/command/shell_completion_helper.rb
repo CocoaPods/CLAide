@@ -16,7 +16,7 @@ module CLAide
           ZSHCompletionGenerator.generate(command)
         else
           raise Help, "Auto-completion generator for `#{shell}` shell not" \
-            " implemented."
+            ' implemented.'
         end
       end
 

@@ -8,8 +8,8 @@ module CLAide
       @subject = Command::ShellCompletionHelper::ZSHCompletionGenerator
     end
 
-    describe "::generate" do
-      it "generates an auto-completion script" do
+    describe '::generate' do
+      it 'generates an auto-completion script' do
         if Fixture::Command.const_defined?(:DemoPlugin)
           Fixture::Command.send(:remove_const, :DemoPlugin)
         end
@@ -100,8 +100,8 @@ module CLAide
       end
     end
 
-    describe "::case_statement_fragment" do
-      it "returns the case statement fragment for a command" do
+    describe '::case_statement_fragment' do
+      it 'returns the case statement fragment for a command' do
         expected = <<-DOC.strip_margin('|').rstrip
           |case "$words[4]" in
           |  repo)
@@ -138,8 +138,8 @@ module CLAide
       end
     end
 
-    describe "::case_statement_entries_fragment" do
-      it "returns the entries fragment for a case statement" do
+    describe '::case_statement_entries_fragment' do
+      it 'returns the entries fragment for a case statement' do
         expected = <<-DOC.strip_margin('|')
           |repo)
           |  case "$words[5]" in

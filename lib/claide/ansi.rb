@@ -69,7 +69,7 @@ module CLAide
     #
     def self.code_for_key(key, map)
       unless key
-        raise ArgumentError, "A key must be provided"
+        raise ArgumentError, 'A key must be provided'
       end
       code = map[key]
       unless code

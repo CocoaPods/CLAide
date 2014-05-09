@@ -16,16 +16,16 @@ module CLAide
       alias_method :ansi_output?, :ansi_output
 
       def colorize_output
-        warn "[!] The use of `CLAide::Command::Banner#colorize_output` has " \
-             "been deprecated. Use `CLAide::Command::Banner#ansi_output` " \
+        warn '[!] The use of `CLAide::Command::Banner#colorize_output` has ' \
+             'been deprecated. Use `CLAide::Command::Banner#ansi_output` ' \
              "instead. (Called from: #{caller.first})"
         ansi_output
       end
       alias_method :colorize_output?, :colorize_output
 
       def colorize_output=(flag)
-        warn "[!] The use of `CLAide::Command::Banner#colorize_output=` has " \
-             "been deprecated. Use `CLAide::Command::Banner#ansi_output=` " \
+        warn '[!] The use of `CLAide::Command::Banner#colorize_output=` has ' \
+             'been deprecated. Use `CLAide::Command::Banner#ansi_output=` ' \
              "instead. (Called from: #{caller.first})"
         self.ansi_output = flag
       end

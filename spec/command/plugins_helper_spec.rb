@@ -25,25 +25,25 @@ module CLAide
     describe '::plugin_info' do
       it 'returns the information for a given plugin' do
         path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
-        gemspec_glob = "/path/to/gems/cocoapods-plugins/*.gemspec"
+        gemspec_glob = '/path/to/gems/cocoapods-plugins/*.gemspec'
         gemspec = 'path/to/gems/cocoapods-plugins/cocoapods-plugins.gemspec'
         spec = stub(:name => 'cocoapods-plugins', :version => '0.1.0')
         Dir.stubs(:glob).returns([])
         Dir.expects(:glob).with(gemspec_glob).returns([gemspec])
         Gem::Specification.expects(:load).with(gemspec).returns(spec)
-        @subject.plugin_info(path).should == "cocoapods-plugins: 0.1.0"
+        @subject.plugin_info(path).should == 'cocoapods-plugins: 0.1.0'
       end
 
       it 'returns an error message if the specification could not be loaded' do
         path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
-        gemspec_glob = "/path/to/gems/cocoapods-plugins/*.gemspec"
+        gemspec_glob = '/path/to/gems/cocoapods-plugins/*.gemspec'
         gemspec = 'path/to/gems/cocoapods-plugins/cocoapods-plugins.gemspec'
         Dir.stubs(:glob).returns([])
         Dir.expects(:glob).with(gemspec_glob).returns([gemspec])
         Gem::Specification.expects(:load).with(gemspec).returns(nil)
         result = @subject.plugin_info(path)
-        result.should.include("[!] Unable to load a specification for ")
-        result.should.include("path/to/gems/cocoapods-plugins")
+        result.should.include('[!] Unable to load a specification for ')
+        result.should.include('path/to/gems/cocoapods-plugins')
       end
     end
   end
