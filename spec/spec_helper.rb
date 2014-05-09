@@ -41,6 +41,3 @@ def should_raise_help(error_message)
   error.should.not.nil?
   error.error_message.should == error_message
 end
-
-
-

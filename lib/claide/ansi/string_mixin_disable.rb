@@ -29,4 +29,3 @@ module CLAide
     end
   end
 end
-
