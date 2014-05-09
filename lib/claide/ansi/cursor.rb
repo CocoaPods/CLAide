@@ -37,9 +37,9 @@ module CLAide
         if lines.nonzero?
           wants_coma = true
           if lines < 0
-            result<< "#{-lines}A"
+            result << "#{-lines}A"
           else
-            result<< "#{lines}B"
+            result << "#{lines}B"
           end
         end
 
@@ -48,9 +48,9 @@ module CLAide
             result << ';'
           end
           if columns > 0
-            result<< "#{columns}C"
+            result << "#{columns}C"
           else
-            result<< "#{-columns}D"
+            result << "#{-columns}D"
           end
         end
         result

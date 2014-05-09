@@ -55,7 +55,7 @@ module CLAide
         #   esac
         #
         def self.case_statement_fragment(command, nest_level = 0)
-          entries = case_statement_entries_fragment(command, nest_level+1)
+          entries = case_statement_entries_fragment(command, nest_level + 1)
           subcommands = subcommands_fragment(command)
           options = options_fragment(command)
 
