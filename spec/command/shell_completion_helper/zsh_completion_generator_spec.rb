@@ -29,6 +29,7 @@ module CLAide
           |          *) # bin spec-file create
           |            _options=(
           |              "--help:Show help banner of specified command"
+          |              "--no-ansi:Show output without ANSI codes"
           |              "--verbose:Show more debugging information"
           |            )
           |            _describe -t options "bin spec-file create options" _options
@@ -42,6 +43,7 @@ module CLAide
           |              *) # bin spec-file lint repo
           |                _options=(
           |                  "--help:Show help banner of specified command"
+          |                  "--no-ansi:Show output without ANSI codes"
           |                  "--only-errors:Skip warnings"
           |                  "--verbose:Show more debugging information"
           |                )
@@ -56,6 +58,7 @@ module CLAide
           |            _describe -t commands "bin spec-file lint subcommands" _subcommands
           |            _options=(
           |              "--help:Show help banner of specified command"
+          |              "--no-ansi:Show output without ANSI codes"
           |              "--only-errors:Skip warnings"
           |              "--verbose:Show more debugging information"
           |            )
@@ -71,6 +74,7 @@ module CLAide
           |        _describe -t commands "bin spec-file subcommands" _subcommands
           |        _options=(
           |          "--help:Show help banner of specified command"
+          |          "--no-ansi:Show output without ANSI codes"
           |          "--verbose:Show more debugging information"
           |        )
           |        _describe -t options "bin spec-file options" _options
@@ -85,6 +89,7 @@ module CLAide
           |    _options=(
           |      "--completion-script:Print the auto-completion script"
           |      "--help:Show help banner of specified command"
+          |      "--no-ansi:Show output without ANSI codes"
           |      "--verbose:Show more debugging information"
           |      "--version:Show the version of the tool"
           |    )
@@ -109,6 +114,7 @@ module CLAide
           |      *) # bin spec-file lint repo
           |        _options=(
           |          "--help:Show help banner of specified command"
+          |          "--no-ansi:Show output without ANSI codes"
           |          "--only-errors:Skip warnings"
           |          "--verbose:Show more debugging information"
           |        )
@@ -123,6 +129,7 @@ module CLAide
           |    _describe -t commands "bin spec-file lint subcommands" _subcommands
           |    _options=(
           |      "--help:Show help banner of specified command"
+          |      "--no-ansi:Show output without ANSI codes"
           |      "--only-errors:Skip warnings"
           |      "--verbose:Show more debugging information"
           |    )
@@ -146,6 +153,7 @@ module CLAide
           |    *) # bin spec-file lint repo
           |      _options=(
           |        "--help:Show help banner of specified command"
+          |        "--no-ansi:Show output without ANSI codes"
           |        "--only-errors:Skip warnings"
           |        "--verbose:Show more debugging information"
           |      )

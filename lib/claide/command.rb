@@ -227,19 +227,17 @@ module CLAide
       #
       def options
         options = [
-          ['--verbose'           ,  'Show more debugging information'],
-          ['--help'              ,  'Show help banner of specified command'],
+          ['--verbose', 'Show more debugging information'],
+          ['--no-ansi', 'Show output without ANSI codes'],
+          ['--help',    'Show help banner of specified command']
         ]
 
         if root_command?
           options.unshift(
-            ['--completion-script' ,  'Print the auto-completion script'],
-            ['--version', 'Show the version of the tool'])
+            ['--completion-script',  'Print the auto-completion script'],
+            ['--version',            'Show the version of the tool'])
         end
 
-        if Command.ansi_output?
-          options.unshift(['--no-ansi', 'Show output without ANSI codes'])
-        end
         options
       end
 

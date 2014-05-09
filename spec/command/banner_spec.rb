@@ -78,6 +78,7 @@ module CLAide
         banner.send(:formatted_options_description).should ==
           <<-OPTIONS.strip_margin('|').rstrip
            |    --verbose   Show more debugging information
+           |    --no-ansi   Show output without ANSI codes
            |    --help      Show help banner of specified command
         OPTIONS
 
@@ -86,6 +87,7 @@ module CLAide
           <<-OPTIONS.strip_margin('|').rstrip
             |    --only-errors   Skip warnings
             |    --verbose       Show more debugging information
+            |    --no-ansi       Show output without ANSI codes
             |    --help          Show help banner of specified command
         OPTIONS
       end
