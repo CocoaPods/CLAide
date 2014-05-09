@@ -63,29 +63,38 @@ module CLAide
       #
       DESCRIPTION_SPACES = 3
 
+      # @return [String] The minimum between a name and its description.
+      #
+      SUBCOMMAND_BULLET_SIZE = 2
+
       # @return [String] The section describing the subcommands of the command.
       #
       def formatted_subcommand_summaries
         subcommands = subcommands_for_banner
         unless subcommands.empty?
           max_width = subcommands.map { |cmd| cmd.command.size }.max
+          max_width += SUBCOMMAND_BULLET_SIZE
           subcommands.map do |subcommand|
-            # subcommand_summary(subcommand, command_size)
             name = annotated_subcommand_name(subcommand.command)
             description = subcommand.summary
             pretty_name = prettify_subcommand(name)
-            entry_description(pretty_name, description, name.size, max_width + 2)
+            entry_description(pretty_name, description, name.size, max_width)
           end.join("\n")
         end
       end
 
-      # @return [String] The line describing a single subcommand.
+      # @return [String] The subcommand name with a bullet point which
+      #         indicates whether it is the default subcommand.
+      #
+      # @note   The plus sing emphasizes the that the subcommands are added to
+      #         the command. The square brackets conveys a sense of direction
+      #         and thus indicates the gravity towards the default command.
       #
       def annotated_subcommand_name(name)
         if name == command.default_subcommand
           "> #{name}"
         else
-          "* #{name}"
+          "+ #{name}"
         end
       end
 
