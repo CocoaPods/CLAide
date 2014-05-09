@@ -38,7 +38,7 @@ def should_raise_help(error_message)
   rescue CLAide::Help => e
     error = e
   end
-  error.should.not == nil
+  error.should.not.nil?
   error.error_message.should == error_message
 end
 

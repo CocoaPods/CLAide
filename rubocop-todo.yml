@@ -19,8 +19,6 @@ LineLength:
   Max: 117
 MethodLength:
   Max: 24
-NilComparison:
-  Enabled: false
 PercentLiteralDelimiters:
   Enabled: false
 PredicateName:

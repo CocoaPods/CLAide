@@ -40,7 +40,7 @@ module CLAide
       it "returns a flag and deletes it" do
         @argv.flag?('flag').should == true
         @argv.flag?('other-flag').should == false
-        @argv.flag?('option').should == nil
+        @argv.flag?('option').should.nil?
         @argv.remainder.should == %w{ --option=VALUE ARG1 ARG2 }
       end
 
@@ -50,8 +50,8 @@ module CLAide
       end
 
       it "returns an option and deletes it" do
-        @argv.option('flag').should == nil
-        @argv.option('other-flag').should == nil
+        @argv.option('flag').should.nil?
+        @argv.option('other-flag').should.nil?
         @argv.option('option').should == 'VALUE'
         @argv.remainder.should == %w{ --flag ARG1 ARG2 --no-other-flag }
       end
