@@ -163,8 +163,8 @@ module CLAide
         unless @max_name_width
           widths = []
           widths << command.options.map { |option| option.first.size }
-          widths << command.subcommands.map do
-            |cmd| cmd.command.size + SUBCOMMAND_BULLET_SIZE
+          widths << subcommands_for_banner.map do |cmd|
+            cmd.command.size + SUBCOMMAND_BULLET_SIZE
           end.max
           @max_name_width = widths.flatten.compact.max || 1
         end
