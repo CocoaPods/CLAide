@@ -36,8 +36,8 @@ module CLAide
         end
 
         gemspec = nil
-        paths.reverse.find do |path|
-          glob = Dir.glob("#{path}/*.gemspec")
+        paths.reverse.find do |candidate_path|
+          glob = Dir.glob("#{candidate_path}/*.gemspec")
           if glob.count == 1
             gemspec = glob.first
             break

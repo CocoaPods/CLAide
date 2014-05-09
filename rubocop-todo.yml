@@ -42,10 +42,6 @@ MethodLength:
 RescueException:
   Enabled: false
 
-# Offense count: 1
-ShadowingOuterLocalVariable:
-  Enabled: false
-
 # Offense count: 3
 # Configuration parameters: EnforcedStyleForMultiline, SupportedStyles.
 TrailingComma:
