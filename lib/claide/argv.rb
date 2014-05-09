@@ -229,7 +229,7 @@ module CLAide
             # A boolean flag
             type = :flag
             value = true
-            if key[0,3] == 'no-'
+            if key[0, 3] == 'no-'
               # A negated boolean flag
               key = key[3..-1]
               value = false
@@ -243,7 +243,7 @@ module CLAide
     end
 
     def self.is_arg?(x)
-      x[0,2] != '--'
+      x[0, 2] != '--'
     end
   end
 end

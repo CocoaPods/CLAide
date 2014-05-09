@@ -61,7 +61,7 @@ module CLAide
 
           result = <<-DOC.strip_margin('|')
             |case "$words[#{nest_level + 2}]" in
-            |  #{ShellCompletionHelper.indent(entries,1)}
+            |  #{ShellCompletionHelper.indent(entries, 1)}
             |  *) # #{command.full_command}
             |    #{ShellCompletionHelper.indent(subcommands, 2)}
             |    #{ShellCompletionHelper.indent(options, 2)}
