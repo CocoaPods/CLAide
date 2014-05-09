@@ -4,9 +4,6 @@ require File.expand_path('../../spec_helper', __FILE__)
 
 module CLAide
   describe Command::Banner do
-
-    #-------------------------------------------------------------------------#
-
     describe 'in general' do
 
       it 'does not include a usage banner for an abstract command' do
@@ -87,7 +84,7 @@ module CLAide
         banner = Command::Banner.new(Fixture::Command::SpecFile)
         result = banner.formatted_banner
         result.should.include('    + create    Creates a spec file stub.')
-        result.should.include('    --verbose   Show more debugging information')
+        result.should.include('    --verbose   Show more debugging')
       end
     end
   end

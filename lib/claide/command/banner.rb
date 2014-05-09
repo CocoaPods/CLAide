@@ -20,26 +20,34 @@ module CLAide
       #
       def formatted_banner
         banner = []
-        if command.abstract_command?
-          banner << command.description if command.description
-        elsif usage = formatted_usage_description
-          banner << 'Usage:'
-          banner << usage
-        end
+        banner << banner_head
+
         if commands = formatted_subcommand_summaries
-          banner << 'Commands:'
-          banner << commands
+          banner << "Commands:\n\n#{commands}"
         end
-        banner << 'Options:'
-        banner << formatted_options_description
-        banner.join("\n\n")
+
+        if options = formatted_options_description
+          banner << "Options:\n\n#{options}"
+        end
+
+        banner.compact.join("\n\n")
       end
 
       private
 
       # @!group Banner sections
-
       #-----------------------------------------------------------------------#
+
+      # @return [String] The head section describing the usage or
+      #         the description for abstract commands.
+      #
+      def banner_head
+        if command.abstract_command?
+          command.description if command.description
+        elsif usage = formatted_usage_description
+          "Usage:\n\n#{usage}"
+        end
+      end
 
       # @return [String] The section describing the usage of the command.
       #
