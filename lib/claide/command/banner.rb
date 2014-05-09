@@ -6,7 +6,7 @@ module CLAide
     # class.
     #
     class Banner
-      # @return [Class]
+      # @return [Class] The command for which the banner should be created.
       #
       attr_accessor :command
 
@@ -16,7 +16,7 @@ module CLAide
         @command = command
       end
 
-      # @return [String]
+      # @return [String] The banner for the command.
       #
       def formatted_banner
         banner = []
@@ -41,34 +41,7 @@ module CLAide
 
       #-----------------------------------------------------------------------#
 
-      # @return [String]
-      #
-      def formatted_options_description
-        opts = command.options
-        max_key_size = opts.map { |opt| opt.first.size }.max
-
-        desc_start = max_key_size + 7 # fixed whitespace in `result` var
-        desc_width = terminal_width - desc_start
-
-        opts.map do |key, desc|
-          space = ' ' * (max_key_size - key.size)
-          result = "    #{prettify_option_name(key)}#{space}   "
-          if terminal_width == 0
-            result << desc
-          else
-            space = ' ' * desc_start
-            result << word_wrap(desc, desc_width).split("\n").join("\n#{space}")
-          end
-        end.join("\n")
-      end
-
-      # @return [String]
-      #
-      def prettify_option_name(name)
-        name.ansi.blue
-      end
-
-      # @return [String]
+      # @return [String] The section describing the usage of the command.
       #
       def formatted_usage_description
         if message = command.description || command.summary
@@ -80,15 +53,7 @@ module CLAide
         end
       end
 
-      # @return [String]
-      #
-      def prettify_command_in_usage_description(command, args)
-        result = "#{command.ansi.green}"
-        result << "#{args.ansi.magenta}" if args
-        result
-      end
-
-      # @return [String]
+      # @return [String] The section describing the subcommands of the command.
       #
       def formatted_subcommand_summaries
         subcommands = command.subcommands_for_command_lookup.reject do |subcommand|
@@ -110,16 +75,53 @@ module CLAide
         end
       end
 
-      # @return [String]
+      # @return [String] The section describing the options of the command.
+      #
+      def formatted_options_description
+        opts = command.options
+        max_key_size = opts.map { |opt| opt.first.size }.max
+
+        desc_start = max_key_size + 7 # fixed whitespace in `result` var
+        desc_width = terminal_width - desc_start
+
+        opts.map do |key, desc|
+          space = ' ' * (max_key_size - key.size)
+          result = "    #{prettify_option_name(key)}#{space}   "
+          if terminal_width == 0
+            result << desc
+          else
+            space = ' ' * desc_start
+            result << word_wrap(desc, desc_width).split("\n").join("\n#{space}")
+          end
+        end.join("\n")
+      end
+
+      # @!group Subclasses overrides
+      #-----------------------------------------------------------------------#
+
+      # @return [String] A decorated textual representation of the option name.
+      #
+      #
+      def prettify_option_name(name)
+        name.ansi.blue
+      end
+
+      # @return [String] A decorated textual representation of the command.
+      #
+      def prettify_command_in_usage_description(command, args)
+        result = "#{command.ansi.green}"
+        result << "#{args.ansi.magenta}" if args
+        result
+      end
+
+      # @return [String] A decorated textual representation of the subcommand
+      #         name.
       #
       def prettify_subcommand_name(name)
         name.ansi.green
       end
 
-      private
-
       # @!group Private helpers
-
       #-----------------------------------------------------------------------#
 
       # @return [String] Lifted straight from ActiveSupport. Thanks guys!
