@@ -45,7 +45,7 @@ module CLAide
       # terminated by the same sequence).
       #
       String.send(:define_method, :wrap_in_ansi_sequence) do |open, close|
-        replaced = self.gsub(close, open)
+        replaced = gsub(close, open)
         "#{open}#{replaced}#{close}"
       end
     end

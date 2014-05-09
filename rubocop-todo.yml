@@ -21,8 +21,6 @@ MethodLength:
   Max: 24
 PredicateName:
   Enabled: false
-RedundantSelf:
-  Enabled: false
 RescueException:
   Enabled: false
 ShadowingOuterLocalVariable:
