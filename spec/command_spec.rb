@@ -203,17 +203,17 @@ module CLAide
       end
 
       it 'does print the backtrace of an exception, that includes InformativeError, if set to verbose' do
-          error = Fixture::Error.new
-          Fixture::Command.any_instance.stubs(:validate!).raises(error)
-          error.stubs(:message).returns('the message')
-          error.stubs(:backtrace).returns(%w(the backtrace))
+        error = Fixture::Error.new
+        Fixture::Command.any_instance.stubs(:validate!).raises(error)
+        error.stubs(:message).returns('the message')
+        error.stubs(:backtrace).returns(%w(the backtrace))
 
-          printed = states('printed').starts_as(:nothing)
-          Fixture::Command.expects(:puts).with('the message').when(printed.is(:nothing)).then(printed.is(:message))
-          Fixture::Command.expects(:puts).with('the', 'backtrace').when(printed.is(:message)).then(printed.is(:done))
+        printed = states('printed').starts_as(:nothing)
+        Fixture::Command.expects(:puts).with('the message').when(printed.is(:nothing)).then(printed.is(:message))
+        Fixture::Command.expects(:puts).with('the', 'backtrace').when(printed.is(:message)).then(printed.is(:done))
 
-          Fixture::Command.run(%w(--verbose))
-        end
+        Fixture::Command.run(%w(--verbose))
+      end
 
       it 'exits with a failure status when an exception that includes InformativeError occurs' do
         Fixture::Command.expects(:exit).with(1)
