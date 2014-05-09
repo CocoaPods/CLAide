@@ -24,13 +24,7 @@ require 'pretty_bacon'
 require 'claide'
 require 'spec_helper/fixtures'
 
-# Specs should produce the same output regardless whether they are called from
-# a TTY or not.
-#
-CLAide::Command.ansi_output = false
-require 'claide/ansi/string_mixin_disable'
-
-#-----------------------------------------------------------------------------#
+#-- Helpers ------------------------------------------------------------------#
 
 def should_raise_help(error_message)
   error = nil
@@ -41,4 +35,21 @@ def should_raise_help(error_message)
   end
   error.should.not.nil?
   error.error_message.should == error_message
+end
+
+#-- Spec environment ---------------------------------------------------------#
+
+# Specs should produce the same output regardless whether they are called from
+# a TTY or not.
+#
+CLAide::Command.ansi_output = false
+
+module Bacon
+  class Context
+    old_run_requirement = instance_method(:run_requirement)
+    define_method(:run_requirement) do |description, spec|
+      ::CLAide::ANSI.disabled = true
+      old_run_requirement.bind(self).call(description, spec)
+    end
+  end
 end

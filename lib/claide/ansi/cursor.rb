@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 module CLAide
-  module ANSI
+  class ANSI
     # Provides support for generating escape sequences relative to the position
     # of the cursor and to erase parts of text.
     #

@@ -16,9 +16,13 @@ module CLAide
   # - colored
   # - colorize
   #
-  module ANSI
+  class ANSI
     extend Cursor
     extend Graphics
+
+    class << self
+      attr_accessor :disabled
+    end
 
     # @return [Hash]
     #
@@ -77,5 +81,23 @@ module CLAide
       end
       code
     end
+  end
+end
+
+#-- String mixin -------------------------------------------------------------#
+
+require 'claide/ansi/string_escaper'
+
+class String
+  # @return [StringEscaper] An object which provides convenience methods to
+  #         wrap the receiver in ANSI sequences.
+  #
+  # @example
+  #   "example".ansi.yellow #=> "\e[33mexample\e[39m"
+  #   "example".ansi.on_red #=> "\e[41mexample\e[49m"
+  #   "example".ansi.bold   #=> "\e[1mexample\e[21m"
+  #
+  def ansi
+    CLAide::ANSI::StringEscaper.new(self)
   end
 end

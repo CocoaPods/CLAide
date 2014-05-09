@@ -193,6 +193,7 @@ module CLAide
       end
 
       it 'does not print the backtrace of a InformativeError exception by default' do
+        ::CLAide::ANSI.disabled = true
         expected = Help.new(Fixture::Command.banner).message
         Fixture::Command.expects(:puts).with(expected)
         Fixture::Command.run(%w(--help))

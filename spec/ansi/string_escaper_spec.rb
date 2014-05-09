@@ -1,11 +1,11 @@
 # encoding: utf-8
 
 require File.expand_path('../../spec_helper', __FILE__)
-load 'claide/ansi/string_mixin.rb'
 
 module CLAide
   describe ANSI::StringEscaper do
     before do
+      ANSI.disabled = false
       @subject = 'test string'
     end
 
@@ -42,13 +42,11 @@ module CLAide
     end
 
     it 'enables the support for ANSI sequences even if it was disabled' do
-      load 'claide/ansi/string_mixin_disable.rb'
+      ANSI.disabled = true
       @subject.ansi.yellow.should == @subject
 
-      load 'claide/ansi/string_mixin.rb'
+      ANSI.disabled = false
       @subject.ansi.yellow.should == "\e[33mtest string\e[39m"
     end
   end
 end
-
-load 'claide/ansi/string_mixin_disable.rb'
