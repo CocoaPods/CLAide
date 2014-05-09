@@ -14,13 +14,13 @@ module CLAide
       #
       ANSI::COLORS.each_key do |key|
         String.send(:define_method, key) do
-          start_sequence = Graphics::foreground_color(key)
+          start_sequence = Graphics.foreground_color(key)
           end_sequence = ANSI::DEFAULT_FOREGROUND_COLOR
           wrap_in_ansi_sequence(start_sequence, end_sequence)
         end
 
         String.send(:define_method, "on_#{key}") do
-          start_sequence = Graphics::background_color(key)
+          start_sequence = Graphics.background_color(key)
           end_sequence = ANSI::DEFAULT_BACKGROUND_COLOR
           wrap_in_ansi_sequence(start_sequence, end_sequence)
         end
@@ -33,7 +33,7 @@ module CLAide
       #
       ANSI::TEXT_ATTRIBUTES.each_key do |key|
         String.send(:define_method, key) do
-          start_sequence = Graphics::text_attribute(key)
+          start_sequence = Graphics.text_attribute(key)
           code = TEXT_DISABLE_ATTRIBUTES[key]
           end_sequence = Graphics.graphics_mode(code)
           wrap_in_ansi_sequence(start_sequence, end_sequence)

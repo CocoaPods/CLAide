@@ -5,8 +5,6 @@ BlockNesting:
   Max: 4
 ClassLength:
   Max: 237
-ColonMethodCall:
-  Enabled: false
 CommentAnnotation:
   Enabled: false
 CyclomaticComplexity:
