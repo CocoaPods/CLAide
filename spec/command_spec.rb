@@ -40,9 +40,9 @@ module CLAide
           end
 
           it "loads the plugin" do
-            Fixture::CommandPluginable.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}.should.be.nil
+            Fixture::CommandPluginable.subcommands.find { |subcmd| subcmd.command == 'demo-plugin' }.should.be.nil
             Fixture::CommandPluginable.load_plugins
-            plugin_class = Fixture::CommandPluginable.subcommands.find {|subcmd| subcmd.command == 'demo-plugin'}
+            plugin_class = Fixture::CommandPluginable.subcommands.find { |subcmd| subcmd.command == 'demo-plugin' }
             plugin_class.ancestors.should.include Fixture::CommandPluginable
             plugin_class.description.should =~ /plugins/
           end
@@ -82,7 +82,7 @@ module CLAide
 
         it "fails normally if there is no plugin" do
           Fixture::Command.load_plugins
-          Fixture::Command.subcommands.find {|subcmd| subcmd.name == 'demo-plugin' }.should.be.nil
+          Fixture::Command.subcommands.find { |subcmd| subcmd.name == 'demo-plugin' }.should.be.nil
         end
       end
     end
