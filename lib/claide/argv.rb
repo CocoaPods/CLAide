@@ -203,36 +203,56 @@ module CLAide
     def self.parse(argv)
       entries = []
       copy = argv.map(&:to_s)
-      while x = copy.shift
-        type = key = value = nil
-        if is_arg?(x)
-          # A regular argument (e.g. a command)
-          type, value = :arg, x
-        else
-          key = x[2..-1]
-          if key.include?('=')
-            # An option with a value
-            type = :option
-            key, value = key.split('=', 2)
-          else
-            # A boolean flag
-            type = :flag
-            value = true
-            if key[0, 3] == 'no-'
-              # A negated boolean flag
-              key = key[3..-1]
-              value = false
-            end
-          end
-          value = [key, value]
-        end
-        entries << [type, value]
+      while argument = copy.shift
+        type = argument_type(argument)
+        parameter = argument_parameter(type, argument)
+        entries << [type, parameter]
       end
       entries
     end
 
-    def self.is_arg?(x)
-      x[0, 2] != '--'
+    # @return [Symbol] Returns the type of an argument. The types can be
+    #         either: `:arg`, `:flag`, `:option`.
+    #
+    # @param  [String] argument
+    #         The argument to check.
+    #
+    def self.argument_type(argument)
+      if argument.start_with?('--')
+        if argument.include?('=')
+          :option
+        else
+          :flag
+        end
+      else
+        :arg
+      end
+    end
+
+    # @return [String, Array<String, String>] Returns argument itself for
+    #         normal arguments (like commands) and a tuple with they key and
+    #         the value for options and flags.
+    #
+    # @param  [String] argument
+    #         The argument to check.
+    #
+    def self.argument_parameter(type, argument)
+      case type
+      when :arg
+        return argument
+      when :flag
+        if argument.start_with?('--no-')
+          key = argument[5..-1]
+          value = false
+        else
+          key = argument[2..-1]
+          value = true
+        end
+        return [key, value]
+      when :option
+        key, value = argument[2..-1].split('=', 2)
+        return [key, value]
+      end
     end
   end
 end
