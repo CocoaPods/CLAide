@@ -1,24 +1,9 @@
 require 'claide/ansi'
 
-class String
-  # @return [StringEscaper] An object which provides convenience methods to
-  #         wrap the receiver in ANSI sequences.
-  #
-  # @example
-  #   "example".ansi.yellow #=> "\e[33mexample\e[39m"
-  #   "example".ansi.on_red #=> "\e[41mexample\e[49m"
-  #   "example".ansi.bold   #=> "\e[1mexample\e[21m"
-  #
-  def ansi
-    CLAide::ANSI::StringEscaper.new(self)
-  end
-end
-
-#-----------------------------------------------------------------------------#
-
 module CLAide
-  module ANSI
-    # Provides support to wrap strings in ANSI sequences.
+  class ANSI
+    # Provides support to wrap strings in ANSI sequences according to the
+    # `ANSI.disabled` setting.
     #
     class StringEscaper
       # @param  [String] The string to wrap.
@@ -33,8 +18,12 @@ module CLAide
       #         same sequence).
       #
       def wrap_in_ansi_sequence(string, open, close)
-        replaced = string.gsub(close, open)
-        "#{open}#{replaced}#{close}"
+        if ANSI.disabled
+          string
+        else
+          replaced = string.gsub(close, open)
+          "#{open}#{replaced}#{close}"
+        end
       end
 
       ANSI::COLORS.each_key do |key|

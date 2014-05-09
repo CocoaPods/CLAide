@@ -49,7 +49,8 @@ module CLAide
 
           it 'is available for help' do
             Fixture::CommandPluginable.load_plugins
-            CLAide::Command::Banner.new(Fixture::CommandPluginable, false).formatted_banner.should =~ /demo-plugin/
+            banner = CLAide::Command::Banner.new(Fixture::CommandPluginable)
+            banner.formatted_banner.should =~ /demo-plugin/
           end
         end
 
@@ -192,6 +193,7 @@ module CLAide
       end
 
       it 'does not print the backtrace of a InformativeError exception by default' do
+        ::CLAide::ANSI.disabled = true
         expected = Help.new(Fixture::Command.banner).message
         Fixture::Command.expects(:puts).with(expected)
         Fixture::Command.run(%w(--help))

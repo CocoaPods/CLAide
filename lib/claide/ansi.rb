@@ -16,11 +16,27 @@ module CLAide
   # - colored
   # - colorize
   #
-  module ANSI
+  class ANSI
     extend Cursor
     extend Graphics
 
-    # @return [Hash]
+    class << self
+      # @return [Bool] Wether the string mixin should be disabled to return the
+      # original string. This method is intended to offer a central location
+      # where to disable ANSI logic without needed to implement conditionals
+      # across the code base of clients.
+      #
+      # @example
+      #
+      #   "example".ansi.yellow #=> "\e[33mexample\e[39m"
+      #   ANSI.disabled = true
+      #   "example".ansi.yellow #=> "example"
+      #
+      attr_accessor :disabled
+    end
+
+    # @return [Hash{Symbol => Fixnum}] The text attributes codes by their
+    #         English name.
     #
     TEXT_ATTRIBUTES = {
       :bold       => 1,
@@ -30,11 +46,8 @@ module CLAide
       :hidden     => 8,
     }
 
-    # Return [String]
-    #
-    RESET_SEQUENCE = "\e[0m"
-
-    # @return [Hash]
+    # @return [Hash{Symbol => Fixnum}] The codes to disable a text attribute by
+    #         their name.
     #
     TEXT_DISABLE_ATTRIBUTES = {
       :bold       => 21,
@@ -44,7 +57,11 @@ module CLAide
       :hidden     => 28,
     }
 
-    # @return [Hash]
+    # Return [String] The escape sequence to reset the graphics.
+    #
+    RESET_SEQUENCE = "\e[0m"
+
+    # @return [Hash{Symbol => Fixnum}] The colors codes by their English name.
     #
     COLORS = {
       :black      => 0,
@@ -57,15 +74,24 @@ module CLAide
       :white      => 7,
     }
 
-    # Return [String]
+    # Return [String] The escape sequence for the default foreground color.
     #
     DEFAULT_FOREGROUND_COLOR = "\e[39m"
 
-    # Return [String]
+    # Return [String] The escape sequence for the default background color.
     #
     DEFAULT_BACKGROUND_COLOR = "\e[49m"
 
-    # Return [Fixnum]
+    # @return [Fixnum] The code of a key given the map.
+    #
+    # @param  [Symbol] key
+    #         The key for which the code is needed.
+    #
+    # @param  [Hash{Symbol => Fixnum}] map
+    #         A hash which associates each code to each key.
+    #
+    # @raise  If the key is not provided.
+    # @raise  If the key is not present in the map.
     #
     def self.code_for_key(key, map)
       unless key
@@ -77,5 +103,24 @@ module CLAide
       end
       code
     end
+  end
+end
+
+#-- String mixin -------------------------------------------------------------#
+
+require 'claide/ansi/string_escaper'
+
+class String
+  # @return [StringEscaper] An object which provides convenience methods to
+  #         wrap the receiver in ANSI sequences.
+  #
+  # @example
+  #
+  #   "example".ansi.yellow #=> "\e[33mexample\e[39m"
+  #   "example".ansi.on_red #=> "\e[41mexample\e[49m"
+  #   "example".ansi.bold   #=> "\e[1mexample\e[21m"
+  #
+  def ansi
+    CLAide::ANSI::StringEscaper.new(self)
   end
 end
