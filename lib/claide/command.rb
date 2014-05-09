@@ -489,11 +489,7 @@ module CLAide
     #         programmatically invoke another command with the output enabled.
     #
     def configure_ansi
-      if ansi_output?
-        load 'claide/ansi/string_mixin.rb'
-      else
-        load 'claide/ansi/string_mixin_disable.rb'
-      end
+      ANSI.disabled = !ansi_output?
     end
 
     # Returns a message for the given unknown arguments including a suggestion.
