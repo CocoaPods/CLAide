@@ -18,11 +18,6 @@ CyclomaticComplexity:
 Documentation:
   Enabled: false
 
-# Offense count: 1
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-DotPosition:
-  Enabled: false
-
 # Offense count: 54
 LineLength:
   Max: 115

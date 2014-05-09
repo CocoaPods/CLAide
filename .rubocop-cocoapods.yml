@@ -40,6 +40,8 @@ HashSyntax:
 Lambda:
   Enabled: false
 
+DotPosition:
+  EnforcedStyle: trailing
 
 #- CocoaPods specs -----------------------------------------------------------#
 
