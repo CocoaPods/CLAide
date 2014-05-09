@@ -22,7 +22,7 @@ module CLAide
     # @return [Bool] Whether the error message should use ANSI codes to
     #         prettify output.
     #
-    attr_reader  :ansi_output
+    attr_reader :ansi_output
     alias_method :ansi_output?, :ansi_output
 
     def colorize
