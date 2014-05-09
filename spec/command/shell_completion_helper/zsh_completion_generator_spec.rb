@@ -10,9 +10,6 @@ module CLAide
 
     describe '::generate' do
       it 'generates an auto-completion script' do
-        if Fixture::Command.const_defined?(:DemoPlugin)
-          Fixture::Command.send(:remove_const, :DemoPlugin)
-        end
         expected = <<-DOC.strip_margin('|')
           |#compdef bin
           |# setopt XTRACE VERBOSE
@@ -167,6 +164,13 @@ module CLAide
         result.lines.each_with_index do |line, index|
           "[#{index}]#{line}".should == "[#{index}]#{expected_lines[index]}"
         end
+      end
+
+      it 'generates an auto-completion script' do
+        command = Fixture::Command.dup
+        command.stubs(:options).returns([['--option', 'Some `code`']])
+        result = @subject.generate(command)
+        result.should.include?('\`')
       end
     end
   end

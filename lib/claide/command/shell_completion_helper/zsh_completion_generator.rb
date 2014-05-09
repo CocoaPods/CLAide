@@ -20,7 +20,8 @@ module CLAide
             |
             |#{case_statement_fragment(command)}
           DOC
-          result.gsub(/\n *\n/, "\n\n")
+
+          post_process(result)
         end
 
         # Returns a case statement for a given command with the given nesting
@@ -178,6 +179,12 @@ module CLAide
               "\"#{option[0]}:#{option[1]}\""
             end
           end
+        end
+
+        def self.post_process(string)
+          string.gsub!(/\n *\n/, "\n\n")
+          string.gsub!(/`/, '\\\`')
+          string
         end
       end
     end
