@@ -36,9 +36,3 @@ LineLength:
 # Configuration parameters: CountComments.
 MethodLength:
   Max: 24
-
-# Offense count: 1
-# Cop supports --auto-correct.
-RescueException:
-  Enabled: false
-

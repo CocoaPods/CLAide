@@ -297,19 +297,10 @@ module CLAide
       end
     end
 
-    # Load additional plugins via rubygems looking for:
+    # Load additional plugins via rubygems looking for files named:
+    # `PLUGIN_PREFIX_plugin`.
     #
-    # <command-path>/plugin.rb
-    #
-    # where <command-path> is the namespace of the Command converted to a
-    # path, for example:
-    #
-    # Pod::Command
-    #
-    # maps to
-    #
-    # pod/command
-    #
+    # rubocop:disable RescueException
     def self.load_plugins
       paths = PluginsHelper.plugin_load_paths(plugin_prefix)
       paths.each do |path|
@@ -329,6 +320,7 @@ module CLAide
         end
       end
     end
+    # rubocop:enable RescueException
 
     # Prints the version of the command optionally including plugins.
     #
