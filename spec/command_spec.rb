@@ -89,11 +89,6 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
-    # TODO might be more the task of the application?
-    # it "raises a Help exception when run without any subcommands" do
-    # lambda { Fixture::Command.run([]) }.should.raise Command::Help
-    # end
-
     describe 'validation' do
       it 'does not raise if one of the subcommands consumes arguments' do
         subcommand = Fixture::Command.parse(%w(spec-file create AFNetworking))

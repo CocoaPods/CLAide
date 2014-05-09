@@ -10,11 +10,6 @@
 ClassLength:
   Max: 208
 
-# Offense count: 1
-# Configuration parameters: Keywords.
-CommentAnnotation:
-  Enabled: false
-
 # Offense count: 2
 CyclomaticComplexity:
   Max: 9
