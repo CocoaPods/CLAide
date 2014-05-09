@@ -53,7 +53,7 @@ module CLAide
       #
       def formatted_usage_description
         if message = command.description || command.summary
-          message_lines = strip_heredoc(message).split("\n")
+          message_lines = Helper.strip_heredoc(message).split("\n")
           message_lines = message_lines.map { |l| l.insert(0, ' ' * 6) }
           formatted_message = message_lines.join("\n")
 
@@ -124,7 +124,7 @@ module CLAide
         result << name
         result << ' ' * DESCRIPTION_SPACES
         result << ' ' * (max_name_width - name_width)
-        result << wrap_with_indent(description, desc_start)
+        result << Helper.wrap_with_indent(description, desc_start)
       end
 
       # @!group Subclasses overrides
@@ -177,53 +177,6 @@ module CLAide
           @max_name_width = widths.flatten.compact.max || 1
         end
         @max_name_width
-      end
-
-      # @return [String] Lifted straight from ActiveSupport. Thanks guys!
-      #
-      def strip_heredoc(string)
-        if min = string.scan(/^[ \t]*(?=\S)/).min
-          string.gsub(/^[ \t]{#{min.size}}/, '')
-        else
-          string
-        end
-      end
-
-      # @return [String] Wraps a string to the terminal width taking into
-      #         account the given indentation.
-      #
-      # @param  [String] string
-      #         The string to indent.
-      #
-      # @param  [Fixnum] indent
-      #         The number of spaces to insert before the string.
-      #
-      def wrap_with_indent(string, indent)
-        if terminal_width == 0
-          string
-        else
-          width = terminal_width - indent
-          space = ' ' * indent
-          word_wrap(string, width).split("\n").join("\n#{space}")
-        end
-      end
-
-      # @return [String] Lifted straight from ActionView. Thanks guys!
-      #
-      def word_wrap(line, line_width)
-        line.gsub(/(.{1,#{line_width}})(\s+|$)/, "\\1\n").strip
-      end
-
-      # @return [Fixnum] The width of the current terminal, unless being piped.
-      #
-      def terminal_width
-        @terminal_width ||= begin
-          if STDOUT.tty? && system('which tput > /dev/null 2>&1')
-            `tput cols`.to_i
-          else
-            0
-          end
-        end
       end
     end
   end
