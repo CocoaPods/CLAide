@@ -19,8 +19,6 @@ LineLength:
   Max: 117
 MethodLength:
   Max: 24
-PercentLiteralDelimiters:
-  Enabled: false
 PredicateName:
   Enabled: false
 RedundantSelf:

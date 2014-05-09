@@ -31,7 +31,7 @@ class BeverageMaker < CLAide::Command
 
   def validate!
     super
-    if @sweetner && !%w{ sugar honey }.include?(@sweetner)
+    if @sweetner && !%w(sugar honey).include?(@sweetner)
       help! "`#{@sweetner}' is not a valid sweetner."
     end
   end
@@ -78,7 +78,7 @@ class BeverageMaker < CLAide::Command
       if @flavor.nil?
         help! "A flavor argument is required."
       end
-      unless %w{ black green oolong white }.include?(@flavor)
+      unless %w(black green oolong white).include?(@flavor)
         help! "`#{@flavor}' is not a valid flavor."
       end
     end

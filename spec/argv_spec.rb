@@ -12,17 +12,17 @@ module CLAide
       it "converts objects into strings while parsing" do
         flag = stub(:to_s => '--flag')
         arg = stub(:to_s => 'ARG')
-        ARGV.new([flag, arg]).remainder.should == %w{ --flag ARG }
+        ARGV.new([flag, arg]).remainder.should == %w(--flag ARG)
       end
 
       it "only removes one entry when calling shift_argument" do
-        argv = ARGV.new(%w{ ARG ARG })
+        argv = ARGV.new(%w(ARG ARG))
         argv.shift_argument
-        argv.remainder.should == %w{ ARG }
+        argv.remainder.should == %w(ARG)
       end
 
       before do
-        @argv = ARGV.new(%w{ --flag --option=VALUE ARG1 ARG2 --no-other-flag })
+        @argv = ARGV.new(%w(--flag --option=VALUE ARG1 ARG2 --no-other-flag))
       end
 
       it "returns the options as a hash" do
@@ -34,14 +34,14 @@ module CLAide
       end
 
       it "returns the arguments" do
-        @argv.arguments.should == %w{ ARG1 ARG2 }
+        @argv.arguments.should == %w(ARG1 ARG2)
       end
 
       it "returns a flag and deletes it" do
         @argv.flag?('flag').should == true
         @argv.flag?('other-flag').should == false
         @argv.flag?('option').should.nil?
-        @argv.remainder.should == %w{ --option=VALUE ARG1 ARG2 }
+        @argv.remainder.should == %w(--option=VALUE ARG1 ARG2)
       end
 
       it "returns a default value if a flag does not exist" do
@@ -53,7 +53,7 @@ module CLAide
         @argv.option('flag').should.nil?
         @argv.option('other-flag').should.nil?
         @argv.option('option').should == 'VALUE'
-        @argv.remainder.should == %w{ --flag ARG1 ARG2 --no-other-flag }
+        @argv.remainder.should == %w(--flag ARG1 ARG2 --no-other-flag)
       end
 
       it "returns a default value if an option does not exist" do
@@ -62,12 +62,12 @@ module CLAide
 
       it "returns the first argument and deletes it" do
         @argv.shift_argument.should == 'ARG1'
-        @argv.remainder.should == %w{ --flag --option=VALUE ARG2 --no-other-flag }
+        @argv.remainder.should == %w(--flag --option=VALUE ARG2 --no-other-flag)
       end
 
       it "returns and deletes all arguments" do
-        @argv.arguments!.should == %w{ ARG1 ARG2 }
-        @argv.remainder.should == %w{ --flag --option=VALUE --no-other-flag }
+        @argv.arguments!.should == %w(ARG1 ARG2)
+        @argv.remainder.should == %w(--flag --option=VALUE --no-other-flag)
       end
     end
 
