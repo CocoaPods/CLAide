@@ -90,9 +90,9 @@ module CLAide
     #-------------------------------------------------------------------------#
 
     # TODO might be more the task of the application?
-    #it "raises a Help exception when run without any subcommands" do
-    #lambda { Fixture::Command.run([]) }.should.raise Command::Help
-    #end
+    # it "raises a Help exception when run without any subcommands" do
+    # lambda { Fixture::Command.run([]) }.should.raise Command::Help
+    # end
 
     describe "validation" do
       it "does not raise if one of the subcommands consumes arguments" do
@@ -231,11 +231,11 @@ module CLAide
         Fixture::Command.run(%w{ --help })
       end
 
-      #it "exits with a failure status when any other type of exception occurs" do
-      #Fixture::Command.expects(:exit).with(1)
-      #Fixture::Command.any_instance.stubs(:validate!).raises(ArgumentError.new)
-      #Fixture::Command.run([])
-      #end
+      # it "exits with a failure status when any other type of exception occurs" do
+      # Fixture::Command.expects(:exit).with(1)
+      # Fixture::Command.any_instance.stubs(:validate!).raises(ArgumentError.new)
+      # Fixture::Command.run([])
+      # end
     end
 
     #-------------------------------------------------------------------------#
