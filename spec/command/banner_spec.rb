@@ -5,23 +5,6 @@ require File.expand_path('../../spec_helper', __FILE__)
 module CLAide
   describe Command::Banner do
     describe 'in general' do
-
-      it 'does not include a usage banner for an abstract command' do
-        banner = Command::Banner.new(Fixture::Command::SpecFile)
-        banner.formatted_banner.should ==
-          <<-BANNER.strip_margin('|').rstrip
-            |Manage spec files.
-            |
-            |Commands:
-            |
-            |#{banner.send(:formatted_subcommand_summaries)}
-            |
-            |Options:
-            |
-            |#{banner.send(:formatted_options_description)}
-        BANNER
-      end
-
       it 'combines the summary/description, commands, and options' do
         banner = Command::Banner.new(Fixture::Command::SpecFile::Create)
         banner.formatted_banner.should ==
@@ -36,8 +19,6 @@ module CLAide
         BANNER
       end
     end
-
-    #-------------------------------------------------------------------------#
 
     describe 'banner components' do
       it "returns a usage description based on the command's description" do

@@ -19,18 +19,14 @@ module CLAide
       # @return [String] The banner for the command.
       #
       def formatted_banner
-        banner = []
-        banner << banner_head
-
-        if commands = formatted_subcommand_summaries
-          banner << "Commands:\n\n#{commands}"
-        end
-
-        if options = formatted_options_description
-          banner << "Options:\n\n#{options}"
-        end
-
-        banner.compact.join("\n\n")
+        sections = [
+          ['Usage',    formatted_usage_description],
+          ['Commands', formatted_subcommand_summaries],
+          ['Options',  formatted_options_description]
+        ]
+        sections.map do |(title, body)|
+          ["#{title}:", body] if body
+        end.compact.join("\n\n")
       end
 
       private
@@ -38,16 +34,9 @@ module CLAide
       # @!group Banner sections
       #-----------------------------------------------------------------------#
 
-      # @return [String] The head section describing the usage or
-      #         the description for abstract commands.
+      # @return [String] The indentation of the subcommands and of the options
+      #         names.
       #
-      def banner_head
-        if command.abstract_command?
-          command.description if command.description
-        elsif usage = formatted_usage_description
-          "Usage:\n\n#{usage}"
-        end
-      end
       NAME_INDENTATION = 4
 
       # @return [String] The minimum between a name and its description.
