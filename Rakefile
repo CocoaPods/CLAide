@@ -1,110 +1,48 @@
-# Bootstrap
-#-----------------------------------------------------------------------------#
+# encoding: utf-8
 
-desc "Initializes your working copy to run the specs"
+#-- Bootstrap --------------------------------------------------------------#
+
+desc 'Initializes your working copy to run the specs'
 task :bootstrap do
-  puts "Installing gems"
-  `bundle install`
+  title 'Installing gems'
+  sh 'gem install bundler'
+  sh 'bundle install'
 end
 
-#-----------------------------------------------------------------------------#
+begin
+  require 'bundler/gem_tasks'
+  task :default => :spec
 
-desc 'Run specs'
-task :spec do
-  sh "bundle exec bacon #{specs('**')}"
-end
+  #-- Specs ------------------------------------------------------------------#
 
-task :default => :spec
+  desc 'Run specs'
+  task :spec do
+    title 'Running Unit Tests'
+    files = FileList['spec/**/*_spec.rb'].shuffle.join(' ')
+    sh "bundle exec bacon #{files}"
 
-#-----------------------------------------------------------------------------#
-
-desc 'Generate yardoc'
-task :doc do
-  sh "rm -rf yardoc"
-  sh "yardoc"
-end
-
-#-----------------------------------------------------------------------------#
-
-namespace :bundler do
-  require "bundler/gem_tasks"
-end
-
-#-----------------------------------------------------------------------------#
-
-namespace :gem do
-  desc "Run all specs, build and install gem, commit version change, tag version change, and push everything"
-  task :release do
-
-    unless ENV['SKIP_CHECKS']
-      if `git symbolic-ref HEAD 2>/dev/null`.strip.split('/').last != 'master'
-        $stderr.puts "[!] You need to be on the `master' branch in order to be able to do a release."
-        exit 1
-      end
-
-      if `git tag`.strip.split("\n").include?(gem_version)
-        $stderr.puts "[!] A tag for version `#{gem_version}' already exists. Change the version in lib/claide.rb"
-        exit 1
-      end
-
-      puts "You are about to release `#{gem_version}', is that correct? [y/n]"
-      exit if $stdin.gets.strip.downcase != 'y'
-
-      diff_lines = `git diff --name-only`.strip.split("\n")
-
-      diff_lines.delete('Gemfile.lock')
-      diff_lines.delete('CHANGELOG.md')
-      if diff_lines != ['lib/claide.rb']
-        $stderr.puts "[!] Only change the version number in a release commit!"
-        $stderr.puts diff_lines
-        exit 1
-      end
-    end
-
-    require 'date'
-
-    # Ensure that the branches are up to date with the remote
-    sh "git pull"
-
-    puts "* Running specs"
-    silent_sh('rake spec')
-
-    tmp = File.expand_path('../tmp', __FILE__)
-    tmp_gems = File.join(tmp, 'gems')
-
-    Rake::Task['bundler:build'].invoke
-
-    puts "* Testing gem installation (tmp/gems)"
-    silent_sh "rm -rf '#{tmp}'"
-    silent_sh "gem install --install-dir='#{tmp_gems}' #{gem_pkg_path}"
-
-    # Then release
-    sh "git commit lib/claide.rb CHANGELOG.md Gemfile.lock -m 'Release #{gem_version}'"
-    Rake::Task['bundler:release'].invoke
+    Rake::Task['rubocop'].invoke if RUBY_VERSION >= '1.9.3'
   end
-end
 
-#-----------------------------------------------------------------------------#
+  #-- Rubocop ----------------------------------------------------------------#
 
-def gem_version
-  require File.expand_path('../lib/claide', __FILE__)
-  CLAide::VERSION
-end
-
-def gem_pkg_path
-  "pkg/claide-#{gem_version}.gem"
-end
-
-def silent_sh(command)
-  output = `#{command} 2>&1`
-  unless $?.success?
-    puts output
-    exit 1
+  if RUBY_VERSION >= '1.9.3'
+    require 'rubocop/rake_task'
+    Rubocop::RakeTask.new
   end
-  output
+
+rescue LoadError
+  $stderr.puts '[!] Some Rake tasks haven been disabled because the ' \
+    'environment couldn’t be loaded. Be sure to run `rake bootstrap` first.'
 end
 
-def specs(dir)
-  FileList["spec/#{dir}/*_spec.rb"].shuffle.join(' ')
-end
+#-- Helpers ------------------------------------------------------------------#
 
+def title(title)
+  cyan_title = "\033[0;36m#{title}\033[0m"
+  puts
+  puts '-' * 80
+  puts cyan_title
+  puts '-' * 80
+  puts
+end

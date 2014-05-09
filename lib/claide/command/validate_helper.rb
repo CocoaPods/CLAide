@@ -3,19 +3,18 @@
 module CLAide
   class Command
     module ValidateHelper
-
       # Returns a message for the given unknown arguments including a suggestion.
       #
       # @param  [Array<String>] The unknown arguments.
       #
       # @return [String] The message.
       #
-      def self.unknown_arguments_message(unknown, suggestions, type, ansi_output = false)
+      def self.unknown_arguments_message(unknown, suggestions, type)
         sorted = suggestions.sort_by do |suggestion|
           levenshtein_distance(suggestion, unknown)
         end
         suggestion = sorted.first
-        pretty_suggestion = prettify_validation_suggestion(suggestion, type, ansi_output)
+        pretty_suggestion = prettify_validation_suggestion(suggestion, type)
         "Unknown #{type}: `#{unknown}`\n" \
           "Did you mean: #{pretty_suggestion}"
       end
@@ -30,18 +29,18 @@ module CLAide
       #
       # @return [String] A handsome suggestion.
       #
-      def self.prettify_validation_suggestion(suggestion, type, ansi_output)
+      def self.prettify_validation_suggestion(suggestion, type)
         if type == :option
           suggestion = "--#{suggestion}"
         end
-        return suggestion unless ansi_output
+
         case type
         when :option
-          suggestion.blue
+          suggestion.ansi.blue
         when :command
-          suggestion.green
+          suggestion.ansi.green
         else
-          suggestion.red
+          suggestion.ansi.red
         end
       end
 
@@ -62,13 +61,11 @@ module CLAide
         (1..a.length).each do |i|
           costs[0], nw = i, i - 1
           (1..b.length).each do |j|
-            costs[j], nw = [costs[j] + 1, costs[j-1] + 1, a[i-1] == b[j-1] ? nw : nw + 1].min, costs[j]
+            costs[j], nw = [costs[j] + 1, costs[j - 1] + 1, a[i - 1] == b[j - 1] ? nw : nw + 1].min, costs[j]
           end
         end
         costs[b.length]
       end
-
     end
   end
 end
-

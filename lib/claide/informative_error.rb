@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 module CLAide
-
   # Including this module into an exception class will ensure that when raised,
   # while running {Command.run}, only the message of the exception will be
   # shown to the user. Unless disabled with the `--verbose` flag.
@@ -10,7 +9,6 @@ module CLAide
   # is set to `true`.
   #
   module InformativeError
-
     # @return [Numeric] The exist status code that should be used to terminate
     #         the program with. Defaults to `1`.
     #

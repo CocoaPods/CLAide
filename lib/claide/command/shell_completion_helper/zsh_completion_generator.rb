@@ -4,22 +4,21 @@ module CLAide
       # Generates a completion script for the Z shell.
       #
       module ZSHCompletionGenerator
-
         # @return [String] The completion script.
         #
         # @param  [Class] command
         #         The command to generate the script for.
         #
         def self.generate(command)
-          result = <<-DOC
-#compdef #{command.command}
-# setopt XTRACE VERBOSE
-# vim: ft=zsh sw=2 ts=2 et
-
-local -a _subcommands
-local -a _options
-
-#{case_statement_fragment(command)}
+          result = <<-DOC.strip_margin('|')
+            |#compdef #{command.command}
+            |# setopt XTRACE VERBOSE
+            |# vim: ft=zsh sw=2 ts=2 et
+            |
+            |local -a _subcommands
+            |local -a _options
+            |
+            |#{case_statement_fragment(command)}
           DOC
           result.gsub(/\n *\n/, "\n\n")
         end
@@ -56,18 +55,18 @@ local -a _options
         #   esac
         #
         def self.case_statement_fragment(command, nest_level = 0)
-          entries = case_statement_entries_fragment(command, nest_level+1)
+          entries = case_statement_entries_fragment(command, nest_level + 1)
           subcommands = subcommands_fragment(command)
           options = options_fragment(command)
 
-          result = <<-DOC
-case "$words[#{nest_level + 2}]" in
-  #{ShellCompletionHelper.indent(entries,1)}
-  *) # #{command.full_command}
-    #{ShellCompletionHelper.indent(subcommands, 2)}
-    #{ShellCompletionHelper.indent(options, 2)}
-  ;;
-esac
+          result = <<-DOC.strip_margin('|')
+            |case "$words[#{nest_level + 2}]" in
+            |  #{ShellCompletionHelper.indent(entries, 1)}
+            |  *) # #{command.full_command}
+            |    #{ShellCompletionHelper.indent(subcommands, 2)}
+            |    #{ShellCompletionHelper.indent(options, 2)}
+            |  ;;
+            |esac
           DOC
           result.gsub(/\n *\n/, "\n").chomp
         end
@@ -99,12 +98,12 @@ esac
         #
         def self.case_statement_entries_fragment(command, nest_level)
           subcommands = command.subcommands_for_command_lookup
-          result = subcommands.sort_by(&:name).map do |subcommand|
+          subcommands.sort_by(&:name).map do |subcommand|
             subcase = case_statement_fragment(subcommand, nest_level)
-            value = <<-DOC
-#{subcommand.command})
-  #{ShellCompletionHelper.indent(subcase, 1)}
-;;
+            <<-DOC.strip_margin('|')
+              |#{subcommand.command})
+              |  #{ShellCompletionHelper.indent(subcase, 1)}
+              |;;
             DOC
           end.join("\n")
         end
@@ -118,17 +117,16 @@ esac
         #
         def self.subcommands_fragment(command)
           if subcommands_list = subcommands_completions(command)
-            <<-DOC
-_subcommands=(
-  #{ShellCompletionHelper.indent(subcommands_list.join("\n"), 1)}
-)
-_describe -t commands "#{command.full_command} subcommands" _subcommands
+            <<-DOC.strip_margin('|')
+              |_subcommands=(
+              |  #{ShellCompletionHelper.indent(subcommands_list.join("\n"), 1)}
+              |)
+              |_describe -t commands "#{command.full_command} subcommands" _subcommands
             DOC
           else
             ''
-            end
+          end
         end
-
 
         # Returns the fragment of the entries of the subcommands array.
         #
@@ -155,15 +153,15 @@ _describe -t commands "#{command.full_command} subcommands" _subcommands
         #
         def self.options_fragment(command)
           if options_list = option_completions(command)
-            <<-DOC
-_options=(
-  #{ShellCompletionHelper.indent(options_list.join("\n"), 1)}
-)
-_describe -t options "#{command.full_command} options" _options
+            <<-DOC.strip_margin('|')
+              |_options=(
+              |  #{ShellCompletionHelper.indent(options_list.join("\n"), 1)}
+              |)
+              |_describe -t options "#{command.full_command} options" _options
             DOC
           else
             ''
-            end
+          end
         end
 
         # Returns the fragment of the entries of the options array.
