@@ -1,39 +1,39 @@
-require 'bundler/gem_tasks'
+# encoding: utf-8
 
-task :default => :spec
-
-#-- Bootstrap ----------------------------------------------------------------#
+#-- Bootstrap --------------------------------------------------------------#
 
 desc 'Initializes your working copy to run the specs'
 task :bootstrap do
-  puts 'Installing gems'
-  `bundle install`
+  title 'Installing gems'
+  sh 'gem install bundler'
+  sh 'bundle install'
 end
 
-#-- Specs --------------------------------------------------------------------#
+begin
+  require 'bundler/gem_tasks'
+  task :default => :spec
 
-desc 'Run specs'
-task :spec do
-  title 'Running Unit Tests'
-  files = FileList['spec/**/*_spec.rb'].shuffle.join(' ')
-  sh "bundle exec bacon #{files}"
+  #-- Specs ------------------------------------------------------------------#
 
-  Rake::Task['rubocop'].invoke
-end
+  desc 'Run specs'
+  task :spec do
+    title 'Running Unit Tests'
+    files = FileList['spec/**/*_spec.rb'].shuffle.join(' ')
+    sh "bundle exec bacon #{files}"
 
-#-- Rubocop ------------------------------------------------------------------#
-
-desc 'Checks code style'
-task :rubocop do
-  title 'Checking code style'
-  if RUBY_VERSION >= '1.9.3'
-    require 'rubocop'
-    cli = Rubocop::CLI.new
-    result = cli.run
-    abort('RuboCop failed!') unless result == 0
-  else
-    puts '[!] Ruby > 1.9 is required to run style checks'
+    Rake::Task['rubocop'].invoke if RUBY_VERSION >= '1.9.3'
   end
+
+  #-- Rubocop ----------------------------------------------------------------#
+
+  if RUBY_VERSION >= '1.9.3'
+    require 'rubocop/rake_task'
+    Rubocop::RakeTask.new
+  end
+
+rescue LoadError
+  $stderr.puts '[!] Some Rake tasks haven been disabled because the ' \
+    'environment couldn’t be loaded. Be sure to run `rake bootstrap` first.'
 end
 
 #-- Helpers ------------------------------------------------------------------#
