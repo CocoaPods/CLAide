@@ -87,7 +87,7 @@ module CLAide
       # @return [String]
       #
       def prettify_option_name(name)
-        ansi_output? ? name.blue : name
+        ansi_output? ? name.ansi.blue : name
       end
 
       # @return [String]
@@ -106,8 +106,8 @@ module CLAide
       #
       def prettify_command_in_usage_description(command, args)
         if ansi_output?
-          result = "#{command.green}"
-          result << "#{args.magenta}" if args
+          result = "#{command.ansi.green}"
+          result << "#{args.ansi.magenta}" if args
           result
         else
           result = "#{command}"
@@ -141,7 +141,7 @@ module CLAide
       # @return [String]
       #
       def prettify_subcommand_name(name)
-        ansi_output? ? name.green : name
+        ansi_output? ? name.ansi.green : name
       end
 
       private

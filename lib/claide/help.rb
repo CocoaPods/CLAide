@@ -60,7 +60,7 @@ module CLAide
     # @return [String]
     #
     def prettify_error_message(message)
-      ansi_output? ? message.red : message
+      ansi_output? ? message.ansi.red : message
     end
 
     # @return [String] The optional error message, combined with the help

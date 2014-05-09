@@ -36,11 +36,11 @@ module CLAide
         return suggestion unless ansi_output
         case type
         when :option
-          suggestion.blue
+          suggestion.ansi.blue
         when :command
-          suggestion.green
+          suggestion.ansi.green
         else
-          suggestion.red
+          suggestion.ansi.red
         end
       end
 

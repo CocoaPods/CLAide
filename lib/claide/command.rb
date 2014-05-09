@@ -336,7 +336,7 @@ module CLAide
             message << "\n#{exception.backtrace.join("\n")}"
             message << "\n---------------------------------------------\n"
             if ansi_output?
-              puts message.yellow
+              puts message.ansi.yellow
             else
               puts message
             end
