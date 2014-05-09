@@ -98,9 +98,9 @@ module CLAide
         #
         def self.case_statement_entries_fragment(command, nest_level)
           subcommands = command.subcommands_for_command_lookup
-          result = subcommands.sort_by(&:name).map do |subcommand|
+          subcommands.sort_by(&:name).map do |subcommand|
             subcase = case_statement_fragment(subcommand, nest_level)
-            value = <<-DOC.strip_margin('|')
+            <<-DOC.strip_margin('|')
               |#{subcommand.command})
               |  #{ShellCompletionHelper.indent(subcase, 1)}
               |;;

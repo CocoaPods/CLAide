@@ -42,6 +42,3 @@ MethodLength:
 RescueException:
   Enabled: false
 
-# Offense count: 5
-UselessAssignment:
-  Enabled: false

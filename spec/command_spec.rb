@@ -266,9 +266,9 @@ module CLAide
 
       it 'raises if unable to find the default subcommand' do
         command_class = Fixture::Command::SpecFile.dup
-        @command_class.default_subcommand = 'find-me'
+        command_class.default_subcommand = 'find-me'
         should.raise do
-          cmd = @command_class.parse([])
+          command_class.parse([])
         end.message.should.match /Unable to find the default subcommand/
       end
 

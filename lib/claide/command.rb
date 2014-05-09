@@ -538,7 +538,7 @@ module CLAide
       else
         command = self.class
       end
-      command = command.help!(error_message, ansi_output?)
+      command.help!(error_message, ansi_output?)
     end
 
     #-------------------------------------------------------------------------#
