@@ -48,6 +48,15 @@ module CLAide
           "Usage:\n\n#{usage}"
         end
       end
+      NAME_INDENTATION = 4
+
+      # @return [String] The minimum between a name and its description.
+      #
+      DESCRIPTION_SPACES = 3
+
+      # @return [String] The minimum between a name and its description.
+      #
+      SUBCOMMAND_BULLET_SIZE = 2
 
       # @return [String] The section describing the usage of the command.
       #
@@ -58,22 +67,10 @@ module CLAide
           formatted_message = message_lines.join("\n")
 
           signature = prettify_signature(command)
-          "$ #{signature}\n\n#{formatted_message}".insert(0, ' ' * 4)
+          result = "$ #{signature}\n\n#{formatted_message}"
+          result.insert(0, ' ' * NAME_INDENTATION)
         end
       end
-
-      # @return [String] The indentation of the subcommands and of the options
-      #         names.
-      #
-      NAME_INDENTATION = 4
-
-      # @return [String] The minimum between a name and its description.
-      #
-      DESCRIPTION_SPACES = 3
-
-      # @return [String] The minimum between a name and its description.
-      #
-      SUBCOMMAND_BULLET_SIZE = 2
 
       # @return [String] The section describing the subcommands of the command.
       #
