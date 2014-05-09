@@ -6,27 +6,22 @@ module CLAide
   # parameters.
   #
   class ARGV
-    # @param [Array<String>] argv
-    #
-    #   A list of parameters. Each entry is ensured to be a string by calling
-    #   `#to_s` on it.
+    # @param [Array<#to_s>] argv
+    #        A list of parameters.
     #
     def initialize(argv)
       @entries = self.class.parse(argv)
     end
 
-    # @return [Boolean]
-    #
-    #   Returns whether or not there are any remaining unhandled parameters.
+    # @return [Boolean] Whether or not there are any remaining unhandled
+    #         parameters.
     #
     def empty?
       @entries.empty?
     end
 
-    # @return [Array<String>]
-    #
-    #   A list of the remaining unhandled parameters, in the same format a user
-    #   specifies it in.
+    # @return [Array<String>] A list of the remaining unhandled parameters, in
+    #         the same format a user specifies it in.
     #
     # @example
     #
@@ -47,10 +42,8 @@ module CLAide
       end
     end
 
-    # @return [Hash]
-    #
-    #   A hash that consists of the remaining flags and options and their
-    #   values.
+    # @return [Hash] A hash that consists of the remaining flags and options
+    #         and their values.
     #
     # @example
     #
@@ -65,9 +58,7 @@ module CLAide
       options
     end
 
-    # @return [Array<String>]
-    #
-    #   A list of the remaining arguments.
+    # @return [Array<String>] A list of the remaining arguments.
     #
     # @example
     #
@@ -79,13 +70,10 @@ module CLAide
       @entries.map { |type, value| value if type == :arg }.compact
     end
 
-    # @return [Array<String>]
+    # @return [Array<String>] A list of the remaining arguments.
     #
-    #   A list of the remaining arguments.
-    #
-    # @note
-    #
-    #   This version also removes the arguments from the remaining parameters.
+    # @note   This version also removes the arguments from the remaining
+    #         parameters.
     #
     # @example
     #
@@ -102,13 +90,9 @@ module CLAide
       arguments
     end
 
-    # @return [String]
+    # @return [String] The first argument in the remaining parameters.
     #
-    #   The first argument in the remaining parameters.
-    #
-    # @note
-    #
-    #   This will remove the argument from the remaining parameters.
+    # @note   This will remove the argument from the remaining parameters.
     #
     # @example
     #
@@ -124,23 +108,17 @@ module CLAide
       end
     end
 
-    # @return [Boolean, nil]
+    # @return [Boolean, nil] Returns `true` if the flag by the specified `name`
+    #         is among the remaining parameters and is not negated.
     #
-    #   Returns `true` if the flag by the specified `name` is among the
-    #   remaining parameters and is not negated.
+    # @param  [String] name
+    #         The name of the flag to look for among the remaining parameters.
     #
-    # @param [String] name
+    # @param  [Boolean] default
+    #         The value that is returned in case the flag is not among the
+    #         remaining parameters.
     #
-    #   The name of the flag to look for among the remaining parameters.
-    #
-    # @param [Boolean] default
-    #
-    #   The value that is returned in case the flag is not among the remaining
-    #   parameters.
-    #
-    # @note
-    #
-    #   This will remove the flag from the remaining parameters.
+    # @note   This will remove the flag from the remaining parameters.
     #
     # @example
     #
@@ -154,23 +132,18 @@ module CLAide
       delete_entry(:flag, name, default)
     end
 
-    # @return [String, nil]
+    # @return [String, nil] Returns the value of the option by the specified
+    #         `name` is among the remaining parameters.
     #
-    #   Returns the value of the option by the specified `name` is among the
-    #   remaining parameters.
+    # @param  [String] name
+    #         The name of the option to look for among the remaining
+    #         parameters.
     #
-    # @param [String] name
+    # @param  [String] default
+    #         The value that is returned in case the option is not among the
+    #         remaining parameters.
     #
-    #   The name of the option to look for among the remaining parameters.
-    #
-    # @param [String] default
-    #
-    #   The value that is returned in case the option is not among the
-    #   remaining parameters.
-    #
-    # @note
-    #
-    #   This will remove the option from the remaining parameters.
+    # @note   This will remove the option from the remaining parameters.
     #
     # @example
     #
@@ -186,8 +159,25 @@ module CLAide
 
     private
 
+    # @return [Array<Array<Symbol, String, Array>>] A list of tuples for each
+    #         non consumed parameter, where the first entry is the `type` and
+    #         the second entry the actual parsed parameter.
+    #
     attr_reader :entries
 
+    # @return [Bool, String, Nil] Removes an entry from the entries list and
+    #         returns its value or the default value if the entry was not
+    #         present.
+    #
+    # @param  [Symbol] requested_type
+    #         The type of the entry.
+    #
+    # @param  [String] requested_key
+    #         The key of the entry.
+    #
+    # @param  [Bool, String, Nil] default
+    #         The value which should be returned if the entry is not present.
+    #
     def delete_entry(requested_type, requested_key, default)
       result = nil
       @entries.delete_if do |type, (key, value)|
@@ -199,10 +189,9 @@ module CLAide
       result.nil? ? default : result
     end
 
-    # @return [Array<Array>]
-    #
-    #   A list of tuples for each parameter, where the first entry is the
-    #   `type` and the second entry the actual parsed parameter.
+    # @return [Array<Array<Symbol, String, Array>>] A list of tuples for each
+    #         parameter, where the first entry is the `type` and the second
+    #         entry the actual parsed parameter.
     #
     # @example
     #

@@ -4,10 +4,11 @@ require File.expand_path('../spec_helper', __FILE__)
 
 module CLAide
   describe ARGV do
-
-    #-------------------------------------------------------------------------#
-
     describe 'in general' do
+      before do
+        parameters = %w(--flag --option=VALUE ARG1 ARG2 --no-other-flag)
+        @subject = ARGV.new(parameters)
+      end
 
       it 'converts objects into strings while parsing' do
         flag = stub(:to_s => '--flag')
@@ -21,12 +22,8 @@ module CLAide
         argv.remainder.should == %w(ARG)
       end
 
-      before do
-        @argv = ARGV.new(%w(--flag --option=VALUE ARG1 ARG2 --no-other-flag))
-      end
-
       it 'returns the options as a hash' do
-        @argv.options.should == {
+        @subject.options.should == {
           'flag' => true,
           'other-flag' => false,
           'option' => 'VALUE'
@@ -34,44 +31,42 @@ module CLAide
       end
 
       it 'returns the arguments' do
-        @argv.arguments.should == %w(ARG1 ARG2)
+        @subject.arguments.should == %w(ARG1 ARG2)
       end
 
       it 'returns a flag and deletes it' do
-        @argv.flag?('flag').should == true
-        @argv.flag?('other-flag').should == false
-        @argv.flag?('option').should.nil?
-        @argv.remainder.should == %w(--option=VALUE ARG1 ARG2)
+        @subject.flag?('flag').should == true
+        @subject.flag?('other-flag').should == false
+        @subject.flag?('option').should.nil?
+        @subject.remainder.should == %w(--option=VALUE ARG1 ARG2)
       end
 
       it 'returns a default value if a flag does not exist' do
-        @argv.flag?('option', true).should == true
-        @argv.flag?('option', false).should == false
+        @subject.flag?('option', true).should == true
+        @subject.flag?('option', false).should == false
       end
 
       it 'returns an option and deletes it' do
-        @argv.option('flag').should.nil?
-        @argv.option('other-flag').should.nil?
-        @argv.option('option').should == 'VALUE'
-        @argv.remainder.should == %w(--flag ARG1 ARG2 --no-other-flag)
+        @subject.option('flag').should.nil?
+        @subject.option('other-flag').should.nil?
+        @subject.option('option').should == 'VALUE'
+        @subject.remainder.should == %w(--flag ARG1 ARG2 --no-other-flag)
       end
 
       it 'returns a default value if an option does not exist' do
-        @argv.option('flag', 'value').should == 'value'
+        @subject.option('flag', 'value').should == 'value'
       end
 
       it 'returns the first argument and deletes it' do
-        @argv.shift_argument.should == 'ARG1'
-        @argv.remainder.should == %w(--flag --option=VALUE ARG2 --no-other-flag)
+        @subject.shift_argument.should == 'ARG1'
+        @subject.remainder.should ==
+          %w(--flag --option=VALUE ARG2 --no-other-flag)
       end
 
       it 'returns and deletes all arguments' do
-        @argv.arguments!.should == %w(ARG1 ARG2)
-        @argv.remainder.should == %w(--flag --option=VALUE --no-other-flag)
+        @subject.arguments!.should == %w(ARG1 ARG2)
+        @subject.remainder.should == %w(--flag --option=VALUE --no-other-flag)
       end
     end
-
-    #-------------------------------------------------------------------------#
-
   end
 end
