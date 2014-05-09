@@ -1,29 +1,55 @@
 require 'claide/ansi'
 
+class String
+  # @return [StringDisabledEscaper] An object which provides convenience
+  #         methods to disable the methods of the StringEscaper. It is intended
+  #         to allow clients to disable ANSI output from a central location.
+  #
+  # @example
+  #   "example".ansi.yellow #=> "example"
+  #   "example".ansi.on_red #=> "example"
+  #   "example".ansi.bold   #=> "example"
+  #
+  def ansi
+    CLAide::ANSI::StringDisabledEscaper.new(self)
+  end
+end
+
+#-----------------------------------------------------------------------------#
+
 module CLAide
   module ANSI
-    # Mixin which adds stubs methods for the `StringMixin`. It is intended to
-    # disable ANSI support for a client in a single place.
+    # Provides support to wrap strings in ANSI sequences.
     #
-    module StringMixinDisable
-      # Defines stubs for the methods related to foreground and background
-      # colors.
+    class StringDisabledEscaper
+      # @param  [String] The string to wrap.
       #
+      def initialize(string)
+        @string = string
+      end
+
       ANSI::COLORS.each_key do |key|
-        String.send(:define_method, key) do
-          self
+        # @return [String] Defines stubs for the methods related to
+        # foreground colors.
+        #
+        define_method key do
+          @string
         end
 
-        String.send(:define_method, "on_#{key}") do
-          self
+        # @return [String] Defines stubs for the methods related to
+        # background colors.
+        #
+        define_method "on_#{key}" do
+          @string
         end
       end
 
-      # Defines stubs for the methods related to text attributes.
-      #
       ANSI::TEXT_ATTRIBUTES.each_key do |key|
-        String.send(:define_method, key) do
-          self
+        # @return [String] Defines stubs for the methods related to
+        # text attributes.
+        #
+        define_method key do
+          @string
         end
       end
     end
