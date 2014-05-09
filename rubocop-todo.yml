@@ -15,8 +15,6 @@ DotPosition:
   Enabled: false
 EndAlignment:
   Enabled: false
-IndentationWidth:
-  Enabled: false
 LeadingCommentSpace:
   Enabled: false
 LineLength:
