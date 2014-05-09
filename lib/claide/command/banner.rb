@@ -72,13 +72,11 @@ module CLAide
       def formatted_subcommand_summaries
         subcommands = subcommands_for_banner
         unless subcommands.empty?
-          max_width = subcommands.map { |cmd| cmd.command.size }.max
-          max_width += SUBCOMMAND_BULLET_SIZE
           subcommands.map do |subcommand|
             name = annotated_subcommand_name(subcommand.command)
             description = subcommand.summary
             pretty_name = prettify_subcommand(name)
-            entry_description(pretty_name, description, name.size, max_width)
+            entry_description(pretty_name, description, name.size)
           end.join("\n")
         end
       end
@@ -102,17 +100,16 @@ module CLAide
       #
       def formatted_options_description
         options = command.options
-        max_key_size = options.map { |option| option.first.size }.max
         options.map do |name, description|
           pretty_name = prettify_option_name(name)
-          entry_description(pretty_name, description, name.size, max_key_size)
+          entry_description(pretty_name, description, name.size)
         end.join("\n")
       end
 
       # @return [String] The line describing a single entry (subcommand or
       #         option).
       #
-      def entry_description(name, description, name_width, max_name_width)
+      def entry_description(name, description, name_width)
         desc_start = max_name_width + NAME_INDENTATION + DESCRIPTION_SPACES
         result = ''
         result << ' ' * NAME_INDENTATION
@@ -150,12 +147,28 @@ module CLAide
       # @!group Private helpers
       #-----------------------------------------------------------------------#
 
-      # @return [String]
+      # @return [Array<String>] The list of the subcommands to use in the
+      #         banner.
       #
       def subcommands_for_banner
         command.subcommands_for_command_lookup.reject do |subcommand|
           subcommand.summary.nil?
         end.sort_by(&:command)
+      end
+
+      # @return [Fixnum] The width of the largest command name or of the
+      #         largest option name. Used to align all the descriptions.
+      #
+      def max_name_width
+        unless @max_name_width
+          widths = []
+          widths << command.options.map { |option| option.first.size }
+          widths << command.subcommands.map do
+            |cmd| cmd.command.size + SUBCOMMAND_BULLET_SIZE
+          end.max
+          @max_name_width = widths.flatten.compact.max || 1
+        end
+        @max_name_width
       end
 
       # @return [String] Lifted straight from ActiveSupport. Thanks guys!
