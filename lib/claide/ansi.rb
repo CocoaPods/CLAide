@@ -27,7 +27,7 @@ module CLAide
       :underline  => 4,
       :blink      => 5,
       :reverse    => 7,
-      :hidden     => 8,
+      :hidden     => 8
     }
 
     # Return [String]
@@ -41,7 +41,7 @@ module CLAide
       :underline  => 24,
       :blink      => 25,
       :reverse    => 27,
-      :hidden     => 28,
+      :hidden     => 28
     }
 
     # @return [Hash]
@@ -54,7 +54,7 @@ module CLAide
       :blue       => 4,
       :magenta    => 5,
       :cyan       => 6,
-      :white      => 7,
+      :white      => 7
     }
 
     # Return [String]

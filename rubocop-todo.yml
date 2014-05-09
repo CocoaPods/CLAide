@@ -42,11 +42,6 @@ MethodLength:
 RescueException:
   Enabled: false
 
-# Offense count: 3
-# Configuration parameters: EnforcedStyleForMultiline, SupportedStyles.
-TrailingComma:
-  Enabled: false
-
 # Offense count: 5
 UselessAssignment:
   Enabled: false
