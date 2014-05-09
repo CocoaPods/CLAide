@@ -2,6 +2,11 @@
 
 if RUBY_VERSION >= '1.9.3'
   require "codeclimate-test-reporter"
+
+  CodeClimate::TestReporter.configure do |config|
+    config.logger.level = Logger::WARN
+  end
+
   CodeClimate::TestReporter.start
 end
 
