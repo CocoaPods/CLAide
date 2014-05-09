@@ -4,7 +4,6 @@
 # {CLAide::InformativeError}
 #
 module CLAide
-
   # @return [String]
   #
   #   CLAide’s version, following [semver](http://semver.org).
@@ -18,5 +17,4 @@ module CLAide
   require 'claide/help'
   require 'claide/informative_error'
   require 'claide/mixins'
-
 end

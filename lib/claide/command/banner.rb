@@ -2,12 +2,10 @@
 
 module CLAide
   class Command
-
     # Creates the formatted banner to present as help of the provided command
     # class.
     #
     class Banner
-
       # @return [Class]
       #
       attr_accessor :command
@@ -179,7 +177,6 @@ module CLAide
           end
         end
       end
-
     end
   end
 end

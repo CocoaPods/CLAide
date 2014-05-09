@@ -4,7 +4,6 @@ module CLAide
       # Generates a completion script for the Z shell.
       #
       module ZSHCompletionGenerator
-
         # @return [String] The completion script.
         #
         # @param  [Class] command

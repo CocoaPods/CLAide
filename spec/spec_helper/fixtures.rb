@@ -49,5 +49,4 @@ module Fixture
   class CommandPluginable < CLAide::Command
     self.plugin_prefix = 'fixture'
   end
-
 end

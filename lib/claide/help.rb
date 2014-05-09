@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 module CLAide
-
   require 'claide/informative_error'
 
   # The exception class that is raised to indicate a help banner should be

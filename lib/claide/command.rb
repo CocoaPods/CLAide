@@ -6,7 +6,6 @@ require 'claide/command/validate_helper'
 require 'claide/command/shell_completion_helper'
 
 module CLAide
-
   # This class is used to build a command-line interface
   #
   # Each command is represented by a subclass of this class, which may be
@@ -47,11 +46,9 @@ module CLAide
   # defaults to {Command.summary}.
   #
   class Command
-
     #-------------------------------------------------------------------------#
 
     class << self
-
       # @return [Boolean] Indicates whether or not this command can actually
       #         perform work of itself, or that it only contains subcommands.
       #
@@ -577,6 +574,5 @@ module CLAide
     end
 
     #-------------------------------------------------------------------------#
-
   end
 end

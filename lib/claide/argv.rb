@@ -1,13 +1,11 @@
 # encoding: utf-8
 
 module CLAide
-
   # This class is responsible for parsing the parameters specified by the user,
   # accessing individual parameters, and keep state by removing handled
   # parameters.
   #
   class ARGV
-
     # @param [Array<String>] argv
     #
     #   A list of parameters. Each entry is ensured to be a string by calling
@@ -247,6 +245,5 @@ module CLAide
     def self.is_arg?(x)
       x[0,2] != '--'
     end
-
   end
 end

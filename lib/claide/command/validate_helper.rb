@@ -3,7 +3,6 @@
 module CLAide
   class Command
     module ValidateHelper
-
       # Returns a message for the given unknown arguments including a suggestion.
       #
       # @param  [Array<String>] The unknown arguments.
@@ -67,7 +66,6 @@ module CLAide
         end
         costs[b.length]
       end
-
     end
   end
 end

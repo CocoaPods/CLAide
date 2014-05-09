@@ -17,7 +17,6 @@ module CLAide
   # - colorize
   #
   module ANSI
-
     extend Cursor
     extend Graphics
 
@@ -78,6 +77,5 @@ module CLAide
       end
       code
     end
-
   end
 end
