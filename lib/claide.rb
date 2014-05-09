@@ -12,10 +12,11 @@ module CLAide
   VERSION = '0.5.0'
 
   require 'claide/ansi'
+  require 'claide/ansi/string_mixin_disable'
   require 'claide/argv'
   require 'claide/command'
   require 'claide/help'
   require 'claide/informative_error'
-  require 'claide/ansi/string_mixin_disable'
+  require 'claide/mixins'
 
 end
