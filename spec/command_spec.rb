@@ -49,7 +49,8 @@ module CLAide
 
           it 'is available for help' do
             Fixture::CommandPluginable.load_plugins
-            CLAide::Command::Banner.new(Fixture::CommandPluginable, false).formatted_banner.should =~ /demo-plugin/
+            banner = CLAide::Command::Banner.new(Fixture::CommandPluginable)
+            banner.formatted_banner.should =~ /demo-plugin/
           end
         end
 
