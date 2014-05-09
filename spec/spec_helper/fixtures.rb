@@ -7,6 +7,7 @@ module Fixture
 
   class Command < CLAide::Command
     self.command = 'bin'
+    self.ansi_output = false
 
     class SpecFile < Command
       self.abstract_command = true
@@ -48,5 +49,6 @@ module Fixture
 
   class CommandPluginable < CLAide::Command
     self.plugin_prefix = 'fixture'
+    self.ansi_output = false
   end
 end
