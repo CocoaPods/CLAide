@@ -19,6 +19,11 @@ require 'pretty_bacon'
 require 'claide'
 require 'spec_helper/fixtures'
 
+# Specs should produce the same output regardless whether they are called from
+# a TTY or not.
+#
+CLAide::Command.ansi_output = false
+
 #-----------------------------------------------------------------------------#
 
 def should_raise_help(error_message)

@@ -104,10 +104,7 @@ module CLAide
       #
       def ansi_output
         if @ansi_output.nil?
-          @ansi_output = STDOUT.tty? &&
-                           String.method_defined?(:red) &&
-                             String.method_defined?(:green) &&
-                               String.method_defined?(:yellow)
+          @ansi_output = STDOUT.tty?
         end
         @ansi_output
       end

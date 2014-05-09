@@ -16,5 +16,6 @@ module CLAide
   require 'claide/command'
   require 'claide/help'
   require 'claide/informative_error'
+  require 'claide/ansi/string_mixin_disable'
 
 end
