@@ -125,7 +125,7 @@ module CLAide
             DOC
           else
             ''
-            end
+          end
         end
 
         # Returns the fragment of the entries of the subcommands array.
@@ -161,7 +161,7 @@ module CLAide
             DOC
           else
             ''
-            end
+          end
         end
 
         # Returns the fragment of the entries of the options array.

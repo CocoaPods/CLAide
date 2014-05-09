@@ -23,11 +23,6 @@ Documentation:
 DotPosition:
   Enabled: false
 
-# Offense count: 3
-# Configuration parameters: AlignWith, SupportedStyles.
-EndAlignment:
-  Enabled: false
-
 # Offense count: 54
 LineLength:
   Max: 115

@@ -114,7 +114,7 @@ module CLAide
           result << args if args
           result
         end
-        end
+      end
 
       # @return [String]
       #
