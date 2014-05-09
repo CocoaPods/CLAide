@@ -9,6 +9,7 @@ module CLAide
         # @param  [Class] command
         #         The command to generate the script for.
         #
+        # rubocop:disable MethodLength
         def self.generate(command)
           result = <<-DOC.strip_margin('|')
             |#compdef #{command.command}
@@ -23,6 +24,7 @@ module CLAide
 
           post_process(result)
         end
+        # rubocop:enable MethodLength
 
         # Returns a case statement for a given command with the given nesting
         # level.
@@ -55,6 +57,7 @@ module CLAide
         #     ;;
         #   esac
         #
+        # rubocop:disable MethodLength
         def self.case_statement_fragment(command, nest_level = 0)
           entries = case_statement_entries_fragment(command, nest_level + 1)
           subcommands = subcommands_fragment(command)
@@ -71,6 +74,7 @@ module CLAide
           DOC
           result.gsub(/\n *\n/, "\n").chomp
         end
+        # rubocop:enable MethodLength
 
         # Returns a case statement for a given command with the given nesting
         # level.
@@ -86,13 +90,13 @@ module CLAide
         # @example
         #   repo)
         #     case "$words[5]" in
-        #       *) # bin spec-file lint repo
+        #       *) # bin spec-file lint
         #         _options=(
         #           "--help:Show help banner of specified command"
         #           "--only-errors:Skip warnings"
         #           "--verbose:Show more debugging information"
         #         )
-        #         _describe -t options "bin spec-file lint repo options" _options
+        #         _describe -t options "bin spec-file lint options" _options
         #       ;;
         #     esac
         #   ;;
@@ -117,32 +121,11 @@ module CLAide
         # @return [String] The fragment.
         #
         def self.subcommands_fragment(command)
-          if subcommands_list = subcommands_completions(command)
-            <<-DOC.strip_margin('|')
-              |_subcommands=(
-              |  #{ShellCompletionHelper.indent(subcommands_list.join("\n"), 1)}
-              |)
-              |_describe -t commands "#{command.full_command} subcommands" _subcommands
-            DOC
-          else
-            ''
-          end
-        end
-
-        # Returns the fragment of the entries of the subcommands array.
-        #
-        # @param  [Class] command
-        #         The command to generate the fragment for.
-        #
-        # @return [Array<String>] The entries.
-        #
-        def self.subcommands_completions(command)
           subcommands = command.subcommands_for_command_lookup
-          unless subcommands.empty?
-            subcommands.sort_by(&:name).map do |subcommand|
-              "\"#{subcommand.command}:#{subcommand.summary}\""
-            end
+          list = subcommands.sort_by(&:name).map do |subcommand|
+            "\"#{subcommand.command}:#{subcommand.summary}\""
           end
+          describe_fragment(command, 'subcommands', 'commands', list)
         end
 
         # Returns the fragment of the options array.
@@ -153,34 +136,50 @@ module CLAide
         # @return [String] The fragment.
         #
         def self.options_fragment(command)
-          if options_list = option_completions(command)
+          list = command.options.sort_by(&:first).map do |option|
+            "\"#{option[0]}:#{option[1]}\""
+          end
+          describe_fragment(command, 'options', 'options', list)
+        end
+
+        # Returns the fragment for a list of completions and the ZSH
+        # `_describe` function.
+        #
+        # @param  [Class] command
+        #         The command to generate the fragment for.
+        #
+        # @param  [String] name
+        #         The name of the list.
+        #
+        # @param  [Class] tag
+        #         The ZSH tag to use (e.g. command or option).
+        #
+        # @param  [Array<String>] list
+        #         The list of the entries.
+        #
+        # @return [String] The fragment.
+        #
+        def self.describe_fragment(command, name, tag, list)
+          if list && !list.empty?
             <<-DOC.strip_margin('|')
-              |_options=(
-              |  #{ShellCompletionHelper.indent(options_list.join("\n"), 1)}
+              |_#{name}=(
+              |  #{ShellCompletionHelper.indent(list.join("\n"), 1)}
               |)
-              |_describe -t options "#{command.full_command} options" _options
+              |_describe -t #{tag} "#{command.full_command} #{name}" _#{name}
             DOC
           else
             ''
           end
         end
 
-        # Returns the fragment of the entries of the options array.
+        # Post processes a script to remove any artifact and escape any needed
+        # character.
         #
-        # @param  [Class] command
-        #         The command to generate the fragment for.
+        # @param  [String] string
+        #         The string to post process.
         #
-        # @return [Array<String>] The entries.
+        # @return [String] The post processed script.
         #
-        def self.option_completions(command)
-          options = command.options
-          unless options.empty?
-            options.sort_by(&:first).map do |option|
-              "\"#{option[0]}:#{option[1]}\""
-            end
-          end
-        end
-
         def self.post_process(string)
           string.gsub!(/\n *\n/, "\n\n")
           string.gsub!(/`/, '\\\`')
