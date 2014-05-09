@@ -10,32 +10,10 @@ module CLAide
       #
       attr_accessor :command
 
-      # @return [Bool]
-      #
-      attr_accessor :ansi_output
-      alias_method :ansi_output?, :ansi_output
-
-      def colorize_output
-        warn '[!] The use of `CLAide::Command::Banner#colorize_output` has ' \
-             'been deprecated. Use `CLAide::Command::Banner#ansi_output` ' \
-             "instead. (Called from: #{caller.first})"
-        ansi_output
-      end
-      alias_method :colorize_output?, :colorize_output
-
-      def colorize_output=(flag)
-        warn '[!] The use of `CLAide::Command::Banner#colorize_output=` has ' \
-             'been deprecated. Use `CLAide::Command::Banner#ansi_output=` ' \
-             "instead. (Called from: #{caller.first})"
-        self.ansi_output = flag
-      end
-
       # @param [Class] command @see command
-      # @param [Class] ansi_output @see ansi_output
       #
-      def initialize(command, ansi_output = false)
+      def initialize(command)
         @command = command
-        @ansi_output = ansi_output
       end
 
       # @return [String]
@@ -87,7 +65,7 @@ module CLAide
       # @return [String]
       #
       def prettify_option_name(name)
-        ansi_output? ? name.ansi.blue : name
+        name.ansi.blue
       end
 
       # @return [String]
@@ -105,15 +83,9 @@ module CLAide
       # @return [String]
       #
       def prettify_command_in_usage_description(command, args)
-        if ansi_output?
-          result = "#{command.ansi.green}"
-          result << "#{args.ansi.magenta}" if args
-          result
-        else
-          result = "#{command}"
-          result << args if args
-          result
-        end
+        result = "#{command.ansi.green}"
+        result << "#{args.ansi.magenta}" if args
+        result
       end
 
       # @return [String]
@@ -141,7 +113,7 @@ module CLAide
       # @return [String]
       #
       def prettify_subcommand_name(name)
-        ansi_output? ? name.ansi.green : name
+        name.ansi.green
       end
 
       private

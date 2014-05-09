@@ -9,12 +9,12 @@ module CLAide
       #
       # @return [String] The message.
       #
-      def self.unknown_arguments_message(unknown, suggestions, type, ansi_output = false)
+      def self.unknown_arguments_message(unknown, suggestions, type)
         sorted = suggestions.sort_by do |suggestion|
           levenshtein_distance(suggestion, unknown)
         end
         suggestion = sorted.first
-        pretty_suggestion = prettify_validation_suggestion(suggestion, type, ansi_output)
+        pretty_suggestion = prettify_validation_suggestion(suggestion, type)
         "Unknown #{type}: `#{unknown}`\n" \
           "Did you mean: #{pretty_suggestion}"
       end
@@ -29,11 +29,11 @@ module CLAide
       #
       # @return [String] A handsome suggestion.
       #
-      def self.prettify_validation_suggestion(suggestion, type, ansi_output)
+      def self.prettify_validation_suggestion(suggestion, type)
         if type == :option
           suggestion = "--#{suggestion}"
         end
-        return suggestion unless ansi_output
+
         case type
         when :option
           suggestion.ansi.blue

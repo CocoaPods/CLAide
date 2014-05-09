@@ -28,6 +28,7 @@ require 'spec_helper/fixtures'
 # a TTY or not.
 #
 CLAide::Command.ansi_output = false
+require 'claide/ansi/string_mixin_disable'
 
 #-----------------------------------------------------------------------------#
 

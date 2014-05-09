@@ -25,4 +25,5 @@ LineLength:
 # Offense count: 14
 # Configuration parameters: CountComments.
 MethodLength:
-  Max: 24
+  Max: 25
+

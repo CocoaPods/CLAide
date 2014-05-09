@@ -275,11 +275,12 @@ module CLAide
       complete_flag = argv.flag?('completion-script')
       load_plugins
       command = parse(argv)
-      if  root_command? && version_flag
+      if root_command? && version_flag
         print_version(command.verbose?)
       elsif root_command? && complete_flag
         print_autocompletion_script
       else
+        command.configure_ansi
         command.validate!
         command.run
       end
@@ -312,11 +313,7 @@ module CLAide
           message << "\n#{exception.class} - #{exception.message}"
           message << "\n#{exception.backtrace.join("\n")}"
           message << "\n---------------------------------------------\n"
-          if ansi_output?
-            puts message.ansi.yellow
-          else
-            puts message
-          end
+          puts message.ansi.yellow
         end
       end
     end
@@ -369,9 +366,6 @@ module CLAide
     # @param  [String] error_message
     #         The error message to show to the user.
     #
-    # @param  [Boolean] ansi_output
-    #         Whether or not to use ANSI codes to prettify output.
-    #
     # @param  [Class] help_class
     #         The class to use to raise a ‘help’ error.
     #
@@ -382,8 +376,8 @@ module CLAide
     #
     # @return [void]
     #
-    def self.help!(error_message = nil, ansi_output = false, help_class = Help)
-      raise help_class.new(banner(ansi_output), error_message, ansi_output)
+    def self.help!(error_message = nil, help_class = Help)
+      raise help_class.new(banner, error_message)
     end
 
     # @visibility private
@@ -398,8 +392,8 @@ module CLAide
     #
     # @return [String] The banner for the command.
     #
-    def self.banner(ansi_output = false, banner_class = Banner)
-      banner_class.new(self, ansi_output).formatted_banner
+    def self.banner(banner_class = Banner)
+      banner_class.new(self).formatted_banner
     end
 
     #-------------------------------------------------------------------------#
@@ -450,14 +444,6 @@ module CLAide
       argv = ARGV.new(argv) unless argv.is_a?(ARGV)
       @verbose = argv.flag?('verbose')
       @ansi_output = argv.flag?('ansi', Command.ansi_output?)
-
-      color = argv.flag?('color')
-      unless color.nil?
-        warn '[!] The use of the `--color`/`--no-color` flag has been ' \
-          'deprecated. Use `--ansi`/`--no-ansi` instead.'
-        @ansi_output = color
-      end
-
       @argv = argv
     end
 
@@ -485,6 +471,23 @@ module CLAide
       help! if self.class.abstract_command?
     end
 
+    # @return [void] Disables or enables ANSI support according to the default
+    #         setting and to whether a preference was expressed via the
+    #         argument flag.
+    #
+    # @note   The support is configured before running a command to allow the
+    #         same process to run multiple commands with different settings.
+    #         For example a process with ANSI output enabled might want to
+    #         programmatically invoke another command with the output enabled.
+    #
+    def configure_ansi
+      if ansi_output?
+        load 'claide/ansi/string_mixin.rb'
+      else
+        load 'claide/ansi/string_mixin_disable.rb'
+      end
+    end
+
     # Returns a message for the given unknown arguments including a suggestion.
     #
     # @param  [Array<String>] The unknown arguments.
@@ -502,8 +505,7 @@ module CLAide
         type = :command
         suggestions = self.class.subcommands_for_command_lookup.map(&:command)
       end
-      ValidateHelper.unknown_arguments_message(
-        unknown, suggestions, type, ansi_output?)
+      ValidateHelper.unknown_arguments_message(unknown, suggestions, type)
     end
 
     # This method should be overridden by the command class to perform its work.
@@ -530,7 +532,7 @@ module CLAide
       else
         command = self.class
       end
-      command.help!(error_message, ansi_output?)
+      command.help!(error_message)
     end
 
     #-------------------------------------------------------------------------#
