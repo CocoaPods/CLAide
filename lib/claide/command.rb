@@ -46,8 +46,6 @@ module CLAide
   # defaults to {Command.summary}.
   #
   class Command
-    #-------------------------------------------------------------------------#
-
     class << self
       # @return [Boolean] Indicates whether or not this command can actually
       #         perform work of itself, or that it only contains subcommands.
@@ -122,292 +120,294 @@ module CLAide
       #         by the `--version` flag if used for the root command.
       #
       attr_accessor :version
+    end
 
-      # @return [String] The full command up-to this command, as it would be
-      #         looked up during parsing.
-      #
-      # @note (see #ignore_in_command_lookup)
-      #
-      # @example
-      #
-      #   BevarageMaker::Tea.full_command # => "beverage-maker tea"
-      #
-      def full_command
-        if superclass == Command
-          ignore_in_command_lookup? ? '' : command
+    #-------------------------------------------------------------------------#
+
+    # @return [String] The full command up-to this command, as it would be
+    #         looked up during parsing.
+    #
+    # @note (see #ignore_in_command_lookup)
+    #
+    # @example
+    #
+    #   BevarageMaker::Tea.full_command # => "beverage-maker tea"
+    #
+    def self.full_command
+      if superclass == Command
+        ignore_in_command_lookup? ? '' : command
+      else
+        if ignore_in_command_lookup?
+          superclass.full_command
         else
-          if ignore_in_command_lookup?
-            superclass.full_command
+          "#{superclass.full_command} #{command}"
+        end
+      end
+    end
+
+    # @return [Bool] Whether this is the root command class
+    #
+    def self.root_command?
+      superclass == CLAide::Command
+    end
+
+    # @return [Array<Class>] A list of all command classes that are nested
+    #         under this command.
+    #
+    def self.subcommands
+      @subcommands ||= []
+    end
+
+    # @return [Array<Class>] A list of command classes that are nested under
+    #         this command _or_ the subcommands of those command classes in
+    #         case the command class should be ignored in command lookup.
+    #
+    def self.subcommands_for_command_lookup
+      subcommands.map do |subcommand|
+        if subcommand.ignore_in_command_lookup?
+          subcommand.subcommands_for_command_lookup
+        else
+          subcommand
+        end
+      end.flatten
+    end
+
+    # Searches the list of subcommands that should not be ignored for command
+    # lookup for a subcommand with the given `name`.
+    #
+    # @param  [String] name
+    #         The name of the subcommand to be found.
+    #
+    # @return [CLAide::Command, nil] The subcommand, if found.
+    #
+    def self.find_subcommand(name)
+      subcommands_for_command_lookup.find { |sc| sc.command == name }
+    end
+
+    # @visibility private
+    #
+    # Automatically registers a subclass as a subcommand.
+    #
+    def self.inherited(subcommand)
+      subcommands << subcommand
+    end
+
+    # Should be overridden by a subclass if it handles any options.
+    #
+    # The subclass has to combine the result of calling `super` and its own
+    # list of options. The recommended way of doing this is by concatenating
+    # concatenating to this classes’ own options.
+    #
+    # @return [Array<Array>]
+    #
+    #   A list of option name and description tuples.
+    #
+    # @example
+    #
+    #   def self.options
+    #     [
+    #       ['--verbose', 'Print more info'],
+    #       ['--help',    'Print help banner'],
+    #     ].concat(super)
+    #   end
+    #
+    def self.options
+      options = [
+        ['--verbose', 'Show more debugging information'],
+        ['--no-ansi', 'Show output without ANSI codes'],
+        ['--help',    'Show help banner of specified command']
+      ]
+
+      if root_command?
+        options.unshift(
+          ['--completion-script',  'Print the auto-completion script'],
+          ['--version',            'Show the version of the tool'])
+      end
+
+      options
+    end
+
+    # @param  [Array, ARGV] argv
+    #         A list of (remaining) parameters.
+    #
+    # @return [Command] An instance of the command class that was matched by
+    #         going through the arguments in the parameters and drilling down
+    #         command classes.
+    #
+    def self.parse(argv)
+      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+      cmd = argv.arguments.first
+      if cmd && subcommand = find_subcommand(cmd)
+        argv.shift_argument
+        subcommand.parse(argv)
+      elsif abstract_command? && default_subcommand
+        subcommand = find_subcommand(default_subcommand)
+        unless subcommand
+          raise 'Unable to find the default subcommand ' \
+            "`#{default_subcommand}` for command `#{self}`."
+        end
+        result = subcommand.parse(argv)
+        result.invoked_as_default = true
+        result
+      else
+        new(argv)
+      end
+    end
+
+    # Instantiates the command class matching the parameters through
+    # {Command.parse}, validates it through {Command#validate!}, and runs it
+    # through {Command#run}.
+    #
+    # @note
+    #
+    #   You should normally call this on
+    #
+    # @param [Array, ARGV] argv
+    #
+    #   A list of parameters. For instance, the standard `ARGV` constant,
+    #   which contains the parameters passed to the program.
+    #
+    # @return [void]
+    #
+    def self.run(argv)
+      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+      version_flag = argv.flag?('version')
+      complete_flag = argv.flag?('completion-script')
+      load_plugins
+      command = parse(argv)
+      if  root_command? && version_flag
+        print_version(command.verbose?)
+      elsif root_command? && complete_flag
+        print_autocompletion_script
+      else
+        command.validate!
+        command.run
+      end
+
+    rescue Object => exception
+      if exception.is_a?(InformativeError)
+        puts exception.message
+        if command.verbose?
+          puts
+          puts(*exception.backtrace)
+        end
+        exit exception.exit_status
+      else
+        report_error(exception)
+      end
+    end
+
+    # Load additional plugins via rubygems looking for:
+    #
+    # <command-path>/plugin.rb
+    #
+    # where <command-path> is the namespace of the Command converted to a
+    # path, for example:
+    #
+    # Pod::Command
+    #
+    # maps to
+    #
+    # pod/command
+    #
+    def self.load_plugins
+      paths = PluginsHelper.plugin_load_paths(plugin_prefix)
+      paths.each do |path|
+        begin
+          require path
+        rescue Exception => exception
+          message = "\n---------------------------------------------"
+          message << "\nError loading the plugin with path `#{path}`.\n"
+          message << "\n#{exception.class} - #{exception.message}"
+          message << "\n#{exception.backtrace.join("\n")}"
+          message << "\n---------------------------------------------\n"
+          if ansi_output?
+            puts message.ansi.yellow
           else
-            "#{superclass.full_command} #{command}"
+            puts message
           end
         end
       end
+    end
 
-      # @return [Bool] Whether this is the root command class
-      #
-      def root_command?
-        superclass == CLAide::Command
-      end
-
-      # @return [Array<Class>] A list of all command classes that are nested
-      #         under this command.
-      #
-      def subcommands
-        @subcommands ||= []
-      end
-
-      # @return [Array<Class>] A list of command classes that are nested under
-      #         this command _or_ the subcommands of those command classes in
-      #         case the command class should be ignored in command lookup.
-      #
-      def subcommands_for_command_lookup
-        subcommands.map do |subcommand|
-          if subcommand.ignore_in_command_lookup?
-            subcommand.subcommands_for_command_lookup
-          else
-            subcommand
-          end
-        end.flatten
-      end
-
-      # Searches the list of subcommands that should not be ignored for command
-      # lookup for a subcommand with the given `name`.
-      #
-      # @param  [String] name
-      #         The name of the subcommand to be found.
-      #
-      # @return [CLAide::Command, nil] The subcommand, if found.
-      #
-      def find_subcommand(name)
-        subcommands_for_command_lookup.find { |sc| sc.command == name }
-      end
-
-      # @visibility private
-      #
-      # Automatically registers a subclass as a subcommand.
-      #
-      def inherited(subcommand)
-        subcommands << subcommand
-      end
-
-      # Should be overridden by a subclass if it handles any options.
-      #
-      # The subclass has to combine the result of calling `super` and its own
-      # list of options. The recommended way of doing this is by concatenating
-      # concatenating to this classes’ own options.
-      #
-      # @return [Array<Array>]
-      #
-      #   A list of option name and description tuples.
-      #
-      # @example
-      #
-      #   def self.options
-      #     [
-      #       ['--verbose', 'Print more info'],
-      #       ['--help',    'Print help banner'],
-      #     ].concat(super)
-      #   end
-      #
-      def options
-        options = [
-          ['--verbose', 'Show more debugging information'],
-          ['--no-ansi', 'Show output without ANSI codes'],
-          ['--help',    'Show help banner of specified command']
-        ]
-
-        if root_command?
-          options.unshift(
-            ['--completion-script',  'Print the auto-completion script'],
-            ['--version',            'Show the version of the tool'])
-        end
-
-        options
-      end
-
-      # @param  [Array, ARGV] argv
-      #         A list of (remaining) parameters.
-      #
-      # @return [Command] An instance of the command class that was matched by
-      #         going through the arguments in the parameters and drilling down
-      #         command classes.
-      #
-      def parse(argv)
-        argv = ARGV.new(argv) unless argv.is_a?(ARGV)
-        cmd = argv.arguments.first
-        if cmd && subcommand = find_subcommand(cmd)
-          argv.shift_argument
-          subcommand.parse(argv)
-        elsif abstract_command? && default_subcommand
-          subcommand = find_subcommand(default_subcommand)
-          unless subcommand
-            raise 'Unable to find the default subcommand ' \
-                  "`#{default_subcommand}` for command `#{self}`."
-          end
-          result = subcommand.parse(argv)
-          result.invoked_as_default = true
-          result
-        else
-          new(argv)
+    # Prints the version of the command optionally including plugins.
+    #
+    # @param  [Boolean] include_plugins
+    #         Whether the version of the found plugins should be printed.
+    #
+    # @return [void]
+    #
+    def self.print_version(include_plugins = false)
+      puts version
+      if include_plugins
+        PluginsHelper.plugin_load_paths(plugin_prefix).each do |path|
+          puts PluginsHelper.plugin_info(path)
         end
       end
+    end
 
-      # Instantiates the command class matching the parameters through
-      # {Command.parse}, validates it through {Command#validate!}, and runs it
-      # through {Command#run}.
-      #
-      # @note
-      #
-      #   You should normally call this on
-      #
-      # @param [Array, ARGV] argv
-      #
-      #   A list of parameters. For instance, the standard `ARGV` constant,
-      #   which contains the parameters passed to the program.
-      #
-      # @return [void]
-      #
-      def run(argv)
-        argv = ARGV.new(argv) unless argv.is_a?(ARGV)
-        version_flag = argv.flag?('version')
-        complete_flag = argv.flag?('completion-script')
-        load_plugins
-        command = parse(argv)
-        if  root_command? && version_flag
-          print_version(command.verbose?)
-        elsif root_command? && complete_flag
-          print_autocompletion_script
-        else
-          command.validate!
-          command.run
-        end
+    # Prints an auto-completion script according to the user shell.
+    #
+    # @return [void]
+    #
+    def self.print_autocompletion_script
+      puts ShellCompletionHelper.completion_template(self)
+    end
 
-      rescue Object => exception
-        if exception.is_a?(InformativeError)
-          puts exception.message
-          if command.verbose?
-            puts
-            puts(*exception.backtrace)
-          end
-          exit exception.exit_status
-        else
-          report_error(exception)
-        end
-      end
+    # Allows the application to perform custom error reporting, by overriding
+    # this method.
+    #
+    # @param [Exception] exception
+    #
+    #   An exception that occurred while running a command through
+    #   {Command.run}.
+    #
+    # @raise
+    #
+    #   By default re-raises the specified exception.
+    #
+    # @return [void]
+    #
+    def self.report_error(exception)
+      raise exception
+    end
 
-      # Load additional plugins via rubygems looking for:
-      #
-      # <command-path>/plugin.rb
-      #
-      # where <command-path> is the namespace of the Command converted to a
-      # path, for example:
-      #
-      # Pod::Command
-      #
-      # maps to
-      #
-      # pod/command
-      #
-      def load_plugins
-        paths = PluginsHelper.plugin_load_paths(plugin_prefix)
-        paths.each do |path|
-          begin
-            require path
-          rescue Exception => exception
-            message = "\n---------------------------------------------"
-            message << "\nError loading the plugin with path `#{path}`.\n"
-            message << "\n#{exception.class} - #{exception.message}"
-            message << "\n#{exception.backtrace.join("\n")}"
-            message << "\n---------------------------------------------\n"
-            if ansi_output?
-              puts message.ansi.yellow
-            else
-              puts message
-            end
-          end
-        end
-      end
+    # @visibility private
+    #
+    # @param  [String] error_message
+    #         The error message to show to the user.
+    #
+    # @param  [Boolean] ansi_output
+    #         Whether or not to use ANSI codes to prettify output.
+    #
+    # @param  [Class] help_class
+    #         The class to use to raise a ‘help’ error.
+    #
+    # @raise  [Help]
+    #
+    #   Signals CLAide that a help banner for this command should be shown,
+    #   with an optional error message.
+    #
+    # @return [void]
+    #
+    def self.help!(error_message = nil, ansi_output = false, help_class = Help)
+      raise help_class.new(banner(ansi_output), error_message, ansi_output)
+    end
 
-      # Prints the version of the command optionally including plugins.
-      #
-      # @param  [Boolean] include_plugins
-      #         Whether the version of the found plugins should be printed.
-      #
-      # @return [void]
-      #
-      def print_version(include_plugins = false)
-        puts version
-        if include_plugins
-          PluginsHelper.plugin_load_paths(plugin_prefix).each do |path|
-            puts PluginsHelper.plugin_info(path)
-          end
-        end
-      end
-
-      # Prints an auto-completion script according to the user shell.
-      #
-      # @return [void]
-      #
-      def print_autocompletion_script
-        puts ShellCompletionHelper.completion_template(self)
-      end
-
-      # Allows the application to perform custom error reporting, by overriding
-      # this method.
-      #
-      # @param [Exception] exception
-      #
-      #   An exception that occurred while running a command through
-      #   {Command.run}.
-      #
-      # @raise
-      #
-      #   By default re-raises the specified exception.
-      #
-      # @return [void]
-      #
-      def report_error(exception)
-        raise exception
-      end
-
-      # @visibility private
-      #
-      # @param  [String] error_message
-      #         The error message to show to the user.
-      #
-      # @param  [Boolean] ansi_output
-      #         Whether or not to use ANSI codes to prettify output.
-      #
-      # @param  [Class] help_class
-      #         The class to use to raise a ‘help’ error.
-      #
-      # @raise  [Help]
-      #
-      #   Signals CLAide that a help banner for this command should be shown,
-      #   with an optional error message.
-      #
-      # @return [void]
-      #
-      def help!(error_message = nil, ansi_output = false, help_class = Help)
-        raise help_class.new(banner(ansi_output), error_message, ansi_output)
-      end
-
-      # @visibility private
-      #
-      # Returns the banner for the command.
-      #
-      # @param  [Boolean] ansi
-      #         Whether the banner should use ANSI codes to prettify output.
-      #
-      # @param  [Class] banner_class
-      #         The class to use to format help banners.
-      #
-      # @return [String] The banner for the command.
-      #
-      def banner(ansi_output = false, banner_class = Banner)
-        banner_class.new(self, ansi_output).formatted_banner
-      end
+    # @visibility private
+    #
+    # Returns the banner for the command.
+    #
+    # @param  [Boolean] ansi
+    #         Whether the banner should use ANSI codes to prettify output.
+    #
+    # @param  [Class] banner_class
+    #         The class to use to format help banners.
+    #
+    # @return [String] The banner for the command.
+    #
+    def self.banner(ansi_output = false, banner_class = Banner)
+      banner_class.new(self, ansi_output).formatted_banner
     end
 
     #-------------------------------------------------------------------------#
@@ -442,12 +442,6 @@ module CLAide
     attr_accessor :ansi_output
     alias_method :ansi_output?, :ansi_output
 
-    # @return [Bool] Whether the command was invoked by an abstract command by
-    #         default.
-    #
-    attr_accessor :invoked_as_default
-    alias_method :invoked_as_default?, :invoked_as_default
-
     # Subclasses should override this method to remove the arguments/options
     # they support from `argv` _before_ calling `super`.
     #
@@ -468,12 +462,18 @@ module CLAide
       color = argv.flag?('color')
       unless color.nil?
         warn '[!] The use of the `--color`/`--no-color` flag has been ' \
-             'deprecated. Use `--ansi`/`--no-ansi` instead.'
+          'deprecated. Use `--ansi`/`--no-ansi` instead.'
         @ansi_output = color
       end
 
       @argv = argv
     end
+
+    # @return [Bool] Whether the command was invoked by an abstract command by
+    #         default.
+    #
+    attr_accessor :invoked_as_default
+    alias_method :invoked_as_default?, :invoked_as_default
 
     # Raises a Help exception if the `--help` option is specified, if `argv`
     # still contains remaining arguments/options by the time it reaches this
@@ -520,7 +520,7 @@ module CLAide
     #
     def run
       raise 'A subclass should override the `CLAide::Command#run` method to ' \
-            'actually perform some work.'
+        'actually perform some work.'
     end
 
     protected
