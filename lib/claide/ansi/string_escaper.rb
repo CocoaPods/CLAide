@@ -2,7 +2,8 @@ require 'claide/ansi'
 
 module CLAide
   class ANSI
-    # Provides support to wrap strings in ANSI sequences.
+    # Provides support to wrap strings in ANSI sequences according to the
+    # `ANSI.disabled` setting.
     #
     class StringEscaper
       # @param  [String] The string to wrap.
