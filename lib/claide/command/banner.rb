@@ -68,25 +68,25 @@ module CLAide
       def formatted_subcommand_summaries
         subcommands = subcommands_for_banner
         unless subcommands.empty?
-          command_size = subcommands.map { |cmd| cmd.command.size }.max
+          max_width = subcommands.map { |cmd| cmd.command.size }.max
           subcommands.map do |subcommand|
-            subcommand_summary(subcommand, command_size)
+            # subcommand_summary(subcommand, command_size)
+            name = annotated_subcommand_name(subcommand.command)
+            description = subcommand.summary
+            pretty_name = prettify_subcommand(name)
+            entry_description(pretty_name, description, name.size, max_width + 2)
           end.join("\n")
         end
       end
 
       # @return [String] The line describing a single subcommand.
       #
-      def subcommand_summary(subcommand, command_size)
-        subcommand_string = subcommand.command.ljust(command_size)
-        subcommand_string = prettify_subcommand(subcommand_string)
-        is_default = subcommand.command == command.default_subcommand
-        if is_default
-          bullet_point = '>'
+      def annotated_subcommand_name(name)
+        if name == command.default_subcommand
+          "> #{name}"
         else
-          bullet_point = '*'
+          "* #{name}"
         end
-        "    #{bullet_point} #{subcommand_string}   #{subcommand.summary}"
       end
 
       # @return [String] The section describing the options of the command.
@@ -95,29 +95,26 @@ module CLAide
         options = command.options
         max_key_size = options.map { |option| option.first.size }.max
         options.map do |name, description|
-          option_description(name, description, max_key_size)
+          pretty_name = prettify_option_name(name)
+          entry_description(pretty_name, description, name.size, max_key_size)
         end.join("\n")
       end
 
-      # @return [String] The line describing a single option.
+      # @return [String] The line describing a single entry (subcommand or
+      #         option).
       #
-      def option_description(name, description, max_name_width)
-        result = prettify_option_name(name).ljust(max_name_width)
-        result.insert(0, ' ' * NAME_INDENTATION)
-        result.insert(-1, ' ' * DESCRIPTION_SPACES)
+      def entry_description(name, description, name_width, max_name_width)
         desc_start = max_name_width + NAME_INDENTATION + DESCRIPTION_SPACES
+        result = ''
+        result << ' ' * NAME_INDENTATION
+        result << name
+        result << ' ' * DESCRIPTION_SPACES
+        result << ' ' * (max_name_width - name_width)
         result << wrap_with_indent(description, desc_start)
       end
 
       # @!group Subclasses overrides
       #-----------------------------------------------------------------------#
-
-      # @return [String] A decorated textual representation of the option name.
-      #
-      #
-      def prettify_option_name(name)
-        name.ansi.blue
-      end
 
       # @return [String] A decorated textual representation of the command.
       #
@@ -131,7 +128,14 @@ module CLAide
       #         name.
       #
       def prettify_subcommand(name)
-        name.ansi.green
+        name.chomp.ansi.green
+      end
+
+      # @return [String] A decorated textual representation of the option name.
+      #
+      #
+      def prettify_option_name(name)
+        name.chomp.ansi.blue
       end
 
       # @!group Private helpers
