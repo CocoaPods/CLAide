@@ -29,5 +29,3 @@ TrailingComma:
   Enabled: false
 UselessAssignment:
   Enabled: false
-WordArray:
-  MinSize: 3

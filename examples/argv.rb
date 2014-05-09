@@ -14,7 +14,7 @@ p argv.option('sweetner') # => nil
 
 puts
 
-argv = CLAide::ARGV.new(['tea', 'coffee'])
+argv = CLAide::ARGV.new(%w(tea coffee))
 p argv.arguments  # => ['tea', 'coffee']
 p argv.arguments! # => ['tea', 'coffee']
 p argv.arguments  # => []

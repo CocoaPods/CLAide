@@ -206,7 +206,7 @@ module CLAide
           error = Fixture::Error.new
           Fixture::Command.any_instance.stubs(:validate!).raises(error)
           error.stubs(:message).returns('the message')
-          error.stubs(:backtrace).returns(['the', 'backtrace'])
+          error.stubs(:backtrace).returns(%w(the backtrace))
 
           printed = states('printed').starts_as(:nothing)
           Fixture::Command.expects(:puts).with('the message').when(printed.is(:nothing)).then(printed.is(:message))
