@@ -13,8 +13,6 @@ Documentation:
   Enabled: false
 DotPosition:
   Enabled: false
-EmptyLines:
-  Enabled: false
 EmptyLinesAroundBody:
   Enabled: false
 EndAlignment:

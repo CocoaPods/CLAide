@@ -141,7 +141,6 @@ module CLAide
       #
       attr_accessor :version
 
-
       # @return [String] The full command up-to this command, as it would be
       #         looked up during parsing.
       #
@@ -373,7 +372,6 @@ module CLAide
       def print_autocompletion_script
         puts ShellCompletionHelper.completion_template(self)
       end
-
 
       # Allows the application to perform custom error reporting, by overriding
       # this method.

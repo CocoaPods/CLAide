@@ -129,7 +129,6 @@ module CLAide
             end
         end
 
-
         # Returns the fragment of the entries of the subcommands array.
         #
         # @param  [Class] command
