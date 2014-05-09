@@ -108,21 +108,6 @@ module CLAide
       attr_writer :ansi_output
       alias_method :ansi_output?, :ansi_output
 
-      def colorize_output
-        warn '[!] The use of `CLAide::Command.colorize_output` has been ' \
-             'deprecated. Use `CLAide::Command.ansi_output` instead. ' \
-             "(Called from: #{caller.first})"
-        ansi_output
-      end
-      alias_method :colorize_output?, :colorize_output
-
-      def colorize_output=(flag)
-        warn '[!] The use of `CLAide::Command.colorize_output=` has been ' \
-             'deprecated. Use `CLAide::Command.ansi_output=` instead. ' \
-             "(Called from: #{caller.first})"
-        self.ansi_output = flag
-      end
-
       # @return [String] The name of the command. Defaults to a snake-cased
       #         version of the class’ name.
       #
@@ -456,21 +441,6 @@ module CLAide
     #
     attr_accessor :ansi_output
     alias_method :ansi_output?, :ansi_output
-
-    def colorize_output
-      warn '[!] The use of `CLAide::Command#colorize_output` has been ' \
-           'deprecated. Use `CLAide::Command#ansi_output` instead. ' \
-           "(Called from: #{caller.first})"
-      ansi_output
-    end
-    alias_method :colorize_output?, :colorize_output
-
-    def colorize_output=(flag)
-      warn '[!] The use of `CLAide::Command#colorize_output=` has been ' \
-           'deprecated. Use `CLAide::Command#ansi_output=` instead. ' \
-           "(Called from: #{caller.first})"
-      self.ansi_output = flag
-    end
 
     # @return [Bool] Whether the command was invoked by an abstract command by
     #         default.
