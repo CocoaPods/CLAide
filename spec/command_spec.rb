@@ -84,23 +84,16 @@ module CLAide
       end
 
       describe 'failing plugins' do
-        before do
-          path = ROOT + 'spec/fixture/command/load_error_plugin_fixture.rb'
-          Gem.stubs(:find_latest_files).returns([path])
-        end
-
         it 'rescues exceptions raised during the load of the plugin' do
-          command = @subject
-          command.plugin_prefix = 'fixture_failing'
-          def command.puts(text)
-            (@fixture_output ||= '') << text
+          path = ROOT + 'spec/fixture/command/load_error_plugin_fixture.rb'
+          should.raise LoadError do
+            require path
           end
+
+          Gem.stubs(:find_latest_files).returns([path])
           should.not.raise do
             @subject.load_plugins
           end
-          output = command.instance_variable_get(:@fixture_output)
-          output.should.include('Error loading the plugin')
-          output.should.include('LoadError')
         end
       end
 

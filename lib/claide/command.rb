@@ -291,9 +291,7 @@ module CLAide
       load_plugins
       command = parse(argv)
 
-      handled = handle_root_command_option(command, argv)
-
-      unless handled
+      unless handle_root_option(command, argv)
         command.configure_ansi
         command.validate!
         command.run
@@ -312,7 +310,7 @@ module CLAide
     #
     # @return [Bool] Whether any root command option was handled.
     #
-    def self.handle_root_command_option(command, argv)
+    def self.handle_root_option(command, argv)
       if command.class.root_command?
         if argv.flag?('version')
           print_version(command.verbose?)
@@ -350,23 +348,12 @@ module CLAide
     # Load additional plugins via rubygems looking for files named:
     # `PLUGIN_PREFIX_plugin`.
     #
-    # rubocop:disable RescueException
     def self.load_plugins
       paths = PluginsHelper.plugin_load_paths(plugin_prefix)
       paths.each do |path|
-        begin
-          require path
-        rescue Exception => exception
-          message = "\n---------------------------------------------"
-          message << "\nError loading the plugin with path `#{path}`.\n"
-          message << "\n#{exception.class} - #{exception.message}"
-          message << "\n#{exception.backtrace.join("\n")}"
-          message << "\n---------------------------------------------\n"
-          puts message.ansi.yellow
-        end
+        PluginsHelper.safe_require(path)
       end
     end
-    # rubocop:enable RescueException
 
     # Prints the version of the command optionally including plugins.
     #
