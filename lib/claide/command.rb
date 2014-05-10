@@ -504,7 +504,8 @@ module CLAide
       ValidateHelper.unknown_arguments_message(unknown, suggestions, type)
     end
 
-    # This method should be overridden by the command class to perform its work.
+    # This method should be overridden by the command class to perform its
+    # work.
     #
     # @return [void
     #

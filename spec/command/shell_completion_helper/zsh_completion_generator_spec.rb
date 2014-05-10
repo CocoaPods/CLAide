@@ -1,4 +1,5 @@
 # encoding: utf-8
+# rubocop:disable LineLength
 
 require File.expand_path('../../../spec_helper', __FILE__)
 

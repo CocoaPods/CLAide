@@ -14,11 +14,7 @@ ClassLength:
 CyclomaticComplexity:
   Max: 9
 
-# Offense count: 42
-LineLength:
-  Max: 115
-
-# Offense count: 8
+# Offense count: 9
 # Configuration parameters: CountComments.
 MethodLength:
   Max: 25

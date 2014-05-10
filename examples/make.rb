@@ -11,7 +11,8 @@ require 'colored'
 class BeverageMaker < CLAide::Command
   self.abstract_command = true
 
-  self.description = 'Make delicious beverages from the comfort of your terminal.'
+  self.description = 'Make delicious beverages from the comfort of your' \
+    'terminal.'
 
   # This would normally default to `beverage-make`, based on the class’ name.
   self.command = 'make'
@@ -95,7 +96,8 @@ class BeverageMaker < CLAide::Command
     end
   end
 
-  # Unlike the Tea command, this command uses subcommands to specify the flavor.
+  # Unlike the Tea command, this command uses subcommands to specify the
+  # flavor.
   #
   # Which one makes more sense is up to you.
   class Coffee < BeverageMaker
@@ -118,7 +120,8 @@ class BeverageMaker < CLAide::Command
     end
 
     class BlackEye < Coffee
-      self.summary = 'A Black Eye is dripped coffee with a double shot of espresso'
+      self.summary = 'A Black Eye is dripped coffee with a double shot of ' \
+        'espresso'
     end
 
     class Affogato < Coffee
