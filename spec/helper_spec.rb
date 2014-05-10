@@ -71,6 +71,11 @@ module CLAide
         DOC
         @subject.strip_heredoc(string).should == "  word 1\nword 2\n"
       end
+
+      it 'is robust against whitespace only strings' do
+        string = "  \n"
+        @subject.strip_heredoc(string).should == string
+      end
     end
 
     describe '::levenshtein_distance' do
