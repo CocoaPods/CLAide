@@ -11,7 +11,7 @@ module CLAide
       #
       def self.unknown_arguments_message(unknown, suggestions, type)
         sorted = suggestions.sort_by do |suggestion|
-          levenshtein_distance(suggestion, unknown)
+          Helper.levenshtein_distance(suggestion, unknown)
         end
         suggestion = sorted.first
         pretty_suggestion = prettify_validation_suggestion(suggestion, type)
@@ -32,39 +32,10 @@ module CLAide
       def self.prettify_validation_suggestion(suggestion, type)
         if type == :option
           suggestion = "--#{suggestion}"
-        end
-
-        case type
-        when :option
           suggestion.ansi.blue
-        when :command
-          suggestion.ansi.green
         else
-          suggestion.ansi.red
+          suggestion.ansi.green
         end
-      end
-
-      # Returns the Levenshtein distance between the given strings.
-      # From: http://rosettacode.org/wiki/Levenshtein_distance#Ruby
-      #
-      # @param  [String] a
-      #         The first string to compare.
-      #
-      # @param  [String] b
-      #         The second string to compare.
-      #
-      # @return [Fixnum] The distance between the strings.
-      #
-      def self.levenshtein_distance(a, b)
-        a, b = a.downcase, b.downcase
-        costs = Array(0..b.length)
-        (1..a.length).each do |i|
-          costs[0], nw = i, i - 1
-          (1..b.length).each do |j|
-            costs[j], nw = [costs[j] + 1, costs[j - 1] + 1, a[i - 1] == b[j - 1] ? nw : nw + 1].min, costs[j]
-          end
-        end
-        costs[b.length]
       end
     end
   end
