@@ -212,20 +212,30 @@ module CLAide
     #   end
     #
     def self.options
-      options = [
-        ['--verbose', 'Show more debugging information'],
-        ['--no-ansi', 'Show output without ANSI codes'],
-        ['--help',    'Show help banner of specified command']
-      ]
-
       if root_command?
-        options.unshift(
-          ['--completion-script',  'Print the auto-completion script'],
-          ['--version',            'Show the version of the tool'])
+        options = ROOT_COMMAND_OPTIONS + DEFAULT_OPTIONS
+      else
+        options = DEFAULT_OPTIONS
       end
-
       options
     end
+
+    # @return [Array<Array<String, String>>] The default options for a root
+    #         command implemented by CLAide.
+    #
+    ROOT_COMMAND_OPTIONS = [
+      ['--completion-script', 'Print the auto-completion script'],
+      ['--version',           'Show the version of the tool']
+    ]
+
+    # @return [Array<Array<String, String>>] The default options implemented by
+    #         CLAide.
+    #
+    DEFAULT_OPTIONS = [
+      ['--verbose', 'Show more debugging information'],
+      ['--no-ansi', 'Show output without ANSI codes'],
+      ['--help',    'Show help banner of specified command']
+    ]
 
     # @param  [Array, ARGV] argv
     #         A list of (remaining) parameters.
