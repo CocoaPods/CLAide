@@ -184,10 +184,8 @@ module CLAide
       end
 
       it "doesn't include the version flag for non root commands" do
-        command = @subject::SpecFile
-        should.raise CLAide::Help do
-          command.parse(%w(--version)).validate!
-        end.message.should.include?('Unknown option: `--version`')
+        @subject.expects(:exit).with(1)
+        @subject.run((%w(spec-file --version)))
       end
 
       it 'handles the completion-script flag' do
@@ -204,10 +202,8 @@ module CLAide
       end
 
       it "doesn't include the completion-script flag for non root commands" do
-        command = @subject::SpecFile
-        should.raise CLAide::Help do
-          command.parse(%w(--completion-script)).validate!
-        end.message.should.include?('Unknown option: `--completion-script`')
+        @subject.expects(:exit).with(1)
+        @subject.run((%w(spec-file --completion-script)))
       end
     end
 

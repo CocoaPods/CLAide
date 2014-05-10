@@ -288,22 +288,40 @@ module CLAide
     #
     def self.run(argv = [])
       argv = ARGV.coherce(argv)
-      version_flag = argv.flag?('version')
-      complete_flag = argv.flag?('completion-script')
       load_plugins
       command = parse(argv)
 
-      if root_command? && version_flag
-        print_version(command.verbose?)
-      elsif root_command? && complete_flag
-        print_autocompletion_script
-      else
+      handled = handle_root_command_option(command, argv)
+
+      unless handled
         command.configure_ansi
         command.validate!
         command.run
       end
     rescue Object => exception
       handle_exception(command, exception)
+    end
+
+    # Handles root commands options if appropriately.
+    #
+    # @param  [Command] command
+    #         The invoked command.
+    #
+    # @param  [ARGV] argv
+    #         The parameters of the command.
+    #
+    # @return [Bool] Whether any root command option was handled.
+    #
+    def self.handle_root_command_option(command, argv)
+      if command.class.root_command?
+        if argv.flag?('version')
+          print_version(command.verbose?)
+          true
+        elsif argv.flag?('completion-script')
+          print_autocompletion_script
+          true
+        end
+      end
     end
 
     # Presents an exception to the user according to class of the .
