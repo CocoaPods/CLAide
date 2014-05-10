@@ -24,7 +24,7 @@ module CLAide
     # @param  [Fixnum] indent
     #         The number of spaces to insert before the string.
     #
-    def self.wrap_with_indent(string, indent)
+    def self.wrap_with_indent(string, indent = 0)
       if terminal_width == 0
         string
       else
