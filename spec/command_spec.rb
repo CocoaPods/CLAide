@@ -31,74 +31,74 @@ module CLAide
         parsed = Fixture::Command.parse(%w(spec-file --verbose lint))
         parsed.should.be.instance_of Fixture::Command::SpecFile::Lint
       end
+    end
 
-      describe 'plugins' do
-        describe 'when the plugin is at <command-prefix>_plugin.rb' do
-          PLUGIN_FIXTURE = ROOT + 'spec/fixture/command/plugin_fixture.rb'
-          PLUGIN = ROOT + 'spec/fixture_plugin.rb'
+    describe 'plugins' do
+      describe 'when the plugin is at <command-prefix>_plugin.rb' do
+        PLUGIN_FIXTURE = ROOT + 'spec/fixture/command/plugin_fixture.rb'
+        PLUGIN = ROOT + 'spec/fixture_plugin.rb'
 
-          before do
-            FileUtils.copy PLUGIN_FIXTURE, PLUGIN
-          end
-
-          after do
-            FileUtils.remove_file PLUGIN
-          end
-
-          it 'loads the plugin' do
-            Fixture::CommandPluginable.subcommands.find do |cmd|
-              cmd.command == 'demo-plugin'
-            end.should.be.nil
-
-            Fixture::CommandPluginable.load_plugins
-            plugin_class = Fixture::CommandPluginable.subcommands.find do |cmd|
-              cmd.command == 'demo-plugin'
-            end
-            plugin_class.ancestors.should.include Fixture::CommandPluginable
-            plugin_class.description.should =~ /plugins/
-          end
-
-          it 'is available for help' do
-            Fixture::CommandPluginable.load_plugins
-            banner = CLAide::Command::Banner.new(Fixture::CommandPluginable)
-            banner.formatted_banner.should =~ /demo-plugin/
-          end
+        before do
+          FileUtils.copy PLUGIN_FIXTURE, PLUGIN
         end
 
-        describe 'failing plugins' do
-          LOAD_ERROR_PLUGIN_FIXTURE = ROOT +
-            'spec/fixture/command/load_error_plugin_fixture.rb'
-          LOAD_ERROR_PLUGIN = ROOT + 'spec/fixture_failing_plugin.rb'
-
-          before do
-            FileUtils.copy LOAD_ERROR_PLUGIN_FIXTURE, LOAD_ERROR_PLUGIN
-          end
-
-          after do
-            FileUtils.remove_file LOAD_ERROR_PLUGIN
-          end
-
-          it 'rescues exceptions raised during the load of the plugin' do
-            command = Fixture::Command
-            command.plugin_prefix = 'fixture_failing'
-            def command.puts(text)
-              (@fixture_output ||= '') << text
-            end
-            should.not.raise do
-              Fixture::Command.load_plugins
-            end
-            output = command.instance_variable_get(:@fixture_output)
-            output.should.include('Error loading the plugin')
-            output.should.include('LoadError')
-          end
+        after do
+          FileUtils.remove_file PLUGIN
         end
 
-        it 'fails normally if there is no plugin' do
-          Fixture::Command.load_plugins
-          Fixture::Command.subcommands.find do
-            |cmd| cmd.name == 'demo-plugin'
+        it 'loads the plugin' do
+          Fixture::CommandPluginable.subcommands.find do |cmd|
+            cmd.command == 'demo-plugin'
           end.should.be.nil
+
+          Fixture::CommandPluginable.load_plugins
+          plugin_class = Fixture::CommandPluginable.subcommands.find do |cmd|
+            cmd.command == 'demo-plugin'
+          end
+          plugin_class.ancestors.should.include Fixture::CommandPluginable
+          plugin_class.description.should =~ /plugins/
         end
+
+        it 'is available for help' do
+          Fixture::CommandPluginable.load_plugins
+          banner = CLAide::Command::Banner.new(Fixture::CommandPluginable)
+          banner.formatted_banner.should =~ /demo-plugin/
+        end
+      end
+
+      describe 'failing plugins' do
+        LOAD_ERROR_PLUGIN_FIXTURE = ROOT +
+          'spec/fixture/command/load_error_plugin_fixture.rb'
+        LOAD_ERROR_PLUGIN = ROOT + 'spec/fixture_failing_plugin.rb'
+
+        before do
+          FileUtils.copy LOAD_ERROR_PLUGIN_FIXTURE, LOAD_ERROR_PLUGIN
+        end
+
+        after do
+          FileUtils.remove_file LOAD_ERROR_PLUGIN
+        end
+
+        it 'rescues exceptions raised during the load of the plugin' do
+          command = Fixture::Command
+          command.plugin_prefix = 'fixture_failing'
+          def command.puts(text)
+            (@fixture_output ||= '') << text
+          end
+          should.not.raise do
+            Fixture::Command.load_plugins
+          end
+          output = command.instance_variable_get(:@fixture_output)
+          output.should.include('Error loading the plugin')
+          output.should.include('LoadError')
+        end
+      end
+
+      it 'fails normally if there is no plugin' do
+        Fixture::Command.load_plugins
+        Fixture::Command.subcommands.find do
+          |cmd| cmd.name == 'demo-plugin'
+        end.should.be.nil
       end
     end
 
