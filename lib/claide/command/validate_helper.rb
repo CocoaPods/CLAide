@@ -3,7 +3,8 @@
 module CLAide
   class Command
     module ValidateHelper
-      # Returns a message for the given unknown arguments including a suggestion.
+      # Returns a message for the given unknown arguments including a
+      # suggestion.
       #
       # @param  [Array<String>] The unknown arguments.
       #

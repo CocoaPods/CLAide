@@ -22,7 +22,8 @@ module CLAide
         suggestions = %w(help verbose silent)
         type = :option
         result = @subject.unknown_arguments_message(unknown, suggestions, type)
-        result.should == "Unknown option: `--verbosea`\nDid you mean: --verbose"
+        result.should ==
+          "Unknown option: `--verbosea`\nDid you mean: --verbose"
       end
     end
   end

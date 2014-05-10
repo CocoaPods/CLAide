@@ -20,6 +20,13 @@ module CLAide
         @subject.plugin_load_paths(nil).should == []
         @subject.plugin_load_paths('').should == []
       end
+
+      it 'is compatible with older versions of Ruby Gems' do
+        Gem.expects(:respond_to?).returns(false)
+        paths = ['path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb']
+        Gem.expects(:find_files).with('cocoapods_plugin').returns(paths)
+        @subject.plugin_load_paths('cocoapods').should == paths
+      end
     end
 
     describe '::plugin_info' do
