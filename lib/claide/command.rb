@@ -235,46 +235,54 @@ module CLAide
     #         command classes.
     #
     def self.parse(argv)
-      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+      argv = ARGV.coherce(argv)
       cmd = argv.arguments.first
       if cmd && subcommand = find_subcommand(cmd)
         argv.shift_argument
         subcommand.parse(argv)
       elsif abstract_command? && default_subcommand
-        subcommand = find_subcommand(default_subcommand)
-        unless subcommand
-          raise 'Unable to find the default subcommand ' \
-            "`#{default_subcommand}` for command `#{self}`."
-        end
-        result = subcommand.parse(argv)
-        result.invoked_as_default = true
-        result
+        load_default_subcommand(argv)
       else
         new(argv)
       end
+    end
+
+    # @param  [Array, ARGV] argv
+    #         A list of (remaining) parameters.#
+    #
+    # @return [Command] Returns the default subcommand initialized with the
+    #         given arguments.
+    #
+    def self.load_default_subcommand(argv)
+      subcommand = find_subcommand(default_subcommand)
+      unless subcommand
+        raise 'Unable to find the default subcommand ' \
+          "`#{default_subcommand}` for command `#{self}`."
+      end
+      result = subcommand.parse(argv)
+      result.invoked_as_default = true
+      result
     end
 
     # Instantiates the command class matching the parameters through
     # {Command.parse}, validates it through {Command#validate!}, and runs it
     # through {Command#run}.
     #
-    # @note
-    #
-    #   You should normally call this on
+    # @note   You should normally call this on
     #
     # @param [Array, ARGV] argv
-    #
-    #   A list of parameters. For instance, the standard `ARGV` constant,
-    #   which contains the parameters passed to the program.
+    #        A list of parameters. For instance, the standard `ARGV` constant,
+    #        which contains the parameters passed to the program.
     #
     # @return [void]
     #
     def self.run(argv)
-      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+      argv = ARGV.coherce(argv)
       version_flag = argv.flag?('version')
       complete_flag = argv.flag?('completion-script')
       load_plugins
       command = parse(argv)
+
       if root_command? && version_flag
         print_version(command.verbose?)
       elsif root_command? && complete_flag
@@ -284,8 +292,21 @@ module CLAide
         command.validate!
         command.run
       end
-
     rescue Object => exception
+      handle_exception(command, exception)
+    end
+
+    # Presents an exception to the user according to class of the .
+    #
+    # @param  [Command] command
+    #         The command which originated the exception.
+    #
+    # @param  [Object] exception
+    #         The exception to present.
+    #
+    # @return [void]
+    #
+    def self.handle_exception(command, exception)
       if exception.is_a?(InformativeError)
         puts exception.message
         if command.verbose?

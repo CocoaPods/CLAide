@@ -61,6 +61,7 @@ module CLAide
     #
     # @return [Fixnum] The distance between the strings.
     #
+    # rubocop:disable all
     def self.levenshtein_distance(a, b)
       a, b = a.downcase, b.downcase
       costs = Array(0..b.length)
@@ -74,5 +75,6 @@ module CLAide
       end
       costs[b.length]
     end
+    # rubocop:enable all
   end
 end
