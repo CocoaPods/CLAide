@@ -270,6 +270,12 @@ module CLAide
         @subject.expects(:report_error).with(exception)
         @subject.run
       end
+
+      it 'raises by default' do
+        should.raise do
+          @subject.run
+        end.message.should.match /subclass should override/
+      end
     end
 
     #-------------------------------------------------------------------------#

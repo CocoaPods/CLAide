@@ -86,6 +86,14 @@ module CLAide
         result.should.include('    + create    Creates a spec file stub.')
         result.should.include('    --verbose   Show more debugging')
       end
+
+      it 'highlights the default subcommand' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:default_subcommand).returns('create')
+        result = banner.formatted_banner
+        result.should.include('> create    Creates a spec file stub')
+        result.should.include('+ lint      Checks the validity of a spec file')
+      end
     end
   end
 end
