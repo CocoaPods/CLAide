@@ -6,6 +6,11 @@ AllCops:
   Exclude:
     - spec/fixtures/**/*
 
+# At the moment not ready to be used
+# https://github.com/bbatsov/rubocop/issues/947
+Documentation:
+  Enabled: false
+
 #- CocoaPods -----------------------------------------------------------------#
 
 # We adopted raise instead of fail.
