@@ -5,45 +5,61 @@ require File.expand_path('../spec_helper', __FILE__)
 module CLAide
   describe Command do
 
+    before do
+      @subject = Fixture::Command
+    end
+
     describe 'in general' do
       it 'registers the subcommand classes' do
-        Fixture::Command.subcommands.map(&:command).should ==
+        @subject.subcommands.map(&:command).should ==
           %w(spec-file)
-        Fixture::Command::SpecFile.subcommands.map(&:command).should ==
+        @subject::SpecFile.subcommands.map(&:command).should ==
           %w(common-invisible-command)
-        Fixture::Command::SpecFile::Create.subcommands.map(&:command).should ==
+        @subject::SpecFile::Create.subcommands.map(&:command).should ==
           []
-        Fixture::Command::SpecFile::Lint.subcommands.map(&:command).should ==
+        @subject::SpecFile::Lint.subcommands.map(&:command).should ==
           %w(repo)
       end
 
       it 'returns subcommands for look up' do
-        subcommands = Fixture::Command::SpecFile.subcommands_for_command_lookup
+        subcommands = @subject::SpecFile.subcommands_for_command_lookup
         subcommands.map(&:command).should == %w(lint create)
       end
 
       it 'returns whether it is the root command' do
-        Fixture::Command.should.be.root_command?
-        Fixture::Command::SpecFile.should.not.be.root_command?
+        @subject.should.be.root_command?
+        @subject::SpecFile.should.not.be.root_command?
       end
 
       it 'tries to match a subclass for each of the subcommands' do
-        parsed = Fixture::Command.parse(%w(spec-file --verbose lint))
-        parsed.should.be.instance_of Fixture::Command::SpecFile::Lint
+        parsed = @subject.parse(%w(spec-file --verbose lint))
+        parsed.should.be.instance_of @subject::SpecFile::Lint
       end
     end
 
+    #-------------------------------------------------------------------------#
+
+    describe 'class methods' do
+      it 'returns that ANSI output should be used if a TTY is present' do
+        @subject.ansi_output = nil
+        STDOUT.expects(:tty?).returns(true)
+        @subject.ansi_output.should.be.true
+      end
+
+      it 'returns that ANSI output should be used if a TTY is not present' do
+        @subject.ansi_output = nil
+        STDOUT.expects(:tty?).returns(false)
+        @subject.ansi_output.should.be.false
+      end
+    end
+
+    #-------------------------------------------------------------------------#
+
     describe 'plugins' do
       describe 'when the plugin is at <command-prefix>_plugin.rb' do
-        PLUGIN_FIXTURE = ROOT + 'spec/fixture/command/plugin_fixture.rb'
-        PLUGIN = ROOT + 'spec/fixture_plugin.rb'
-
         before do
-          FileUtils.copy PLUGIN_FIXTURE, PLUGIN
-        end
-
-        after do
-          FileUtils.remove_file PLUGIN
+          path = ROOT + 'spec/fixture/command/plugin_fixture.rb'
+          Gem.stubs(:find_latest_files).returns([path])
         end
 
         it 'loads the plugin' do
@@ -52,11 +68,12 @@ module CLAide
           end.should.be.nil
 
           Fixture::CommandPluginable.load_plugins
-          plugin_class = Fixture::CommandPluginable.subcommands.find do |cmd|
+          plugin_command = Fixture::CommandPluginable.subcommands.find do |cmd|
             cmd.command == 'demo-plugin'
           end
-          plugin_class.ancestors.should.include Fixture::CommandPluginable
-          plugin_class.description.should =~ /plugins/
+          plugin_command.should.not.be.nil
+          plugin_command.ancestors.should.include Fixture::CommandPluginable
+          plugin_command.description.should =~ /plugins/
         end
 
         it 'is available for help' do
@@ -67,26 +84,19 @@ module CLAide
       end
 
       describe 'failing plugins' do
-        LOAD_ERROR_PLUGIN_FIXTURE = ROOT +
-          'spec/fixture/command/load_error_plugin_fixture.rb'
-        LOAD_ERROR_PLUGIN = ROOT + 'spec/fixture_failing_plugin.rb'
-
         before do
-          FileUtils.copy LOAD_ERROR_PLUGIN_FIXTURE, LOAD_ERROR_PLUGIN
-        end
-
-        after do
-          FileUtils.remove_file LOAD_ERROR_PLUGIN
+          path = ROOT + 'spec/fixture/command/load_error_plugin_fixture.rb'
+          Gem.stubs(:find_latest_files).returns([path])
         end
 
         it 'rescues exceptions raised during the load of the plugin' do
-          command = Fixture::Command
+          command = @subject
           command.plugin_prefix = 'fixture_failing'
           def command.puts(text)
             (@fixture_output ||= '') << text
           end
           should.not.raise do
-            Fixture::Command.load_plugins
+            @subject.load_plugins
           end
           output = command.instance_variable_get(:@fixture_output)
           output.should.include('Error loading the plugin')
@@ -95,8 +105,8 @@ module CLAide
       end
 
       it 'fails normally if there is no plugin' do
-        Fixture::Command.load_plugins
-        Fixture::Command.subcommands.find do
+        @subject.load_plugins
+        @subject.subcommands.find do
           |cmd| cmd.name == 'demo-plugin'
         end.should.be.nil
       end
@@ -106,24 +116,24 @@ module CLAide
 
     describe 'validation' do
       it 'does not raise if one of the subcommands consumes arguments' do
-        subcommand = Fixture::Command.parse(%w(spec-file create AFNetworking))
+        subcommand = @subject.parse(%w(spec-file create AFNetworking))
         subcommand.spec.should == 'AFNetworking'
       end
 
       it 'raises a Help exception when created with an invalid subcommand' do
         message = "Unknown command: `unknown`\nDid you mean: spec-file"
         should_raise_help message do
-          Fixture::Command.parse(%w(unknown)).validate!
+          @subject.parse(%w(unknown)).validate!
         end
 
         should_raise_help "Unknown command: `unknown`\nDid you mean: lint" do
-          Fixture::Command.parse(%w(spec-file unknown)).validate!
+          @subject.parse(%w(spec-file unknown)).validate!
         end
       end
 
       it 'raises an empty Help exception when called on an abstract command' do
         should_raise_help nil do
-          Fixture::Command.parse(%w(spec-file)).validate!
+          @subject.parse(%w(spec-file)).validate!
         end
       end
     end
@@ -133,19 +143,19 @@ module CLAide
     describe 'default options' do
       it 'raises a Help exception, without error message' do
         should_raise_help nil do
-          Fixture::Command.parse(%w(--help)).validate!
+          @subject.parse(%w(--help)).validate!
         end
       end
 
       it 'sets the verbose flag' do
-        command = Fixture::Command.parse([])
+        command = @subject.parse([])
         command.should.not.be.verbose
-        command = Fixture::Command.parse(%w(--verbose))
+        command = @subject.parse(%w(--verbose))
         command.should.be.verbose
       end
 
       it 'handles the version flag' do
-        command = Fixture::Command
+        command = @subject
         command.version = '1.0'
         command.instance_variable_set(:@fixture_output, '')
         def command.puts(text)
@@ -161,7 +171,7 @@ module CLAide
         Command::PluginsHelper.expects(:plugin_load_paths).returns([path])
         Command::PluginsHelper.expects(:plugin_info).
           returns('cocoapods_plugin: 1.0')
-        command = Fixture::Command
+        command = @subject
         command.stubs(:load_plugins)
         command.version = '1.0'
         command.instance_variable_set(:@fixture_output, '')
@@ -174,14 +184,14 @@ module CLAide
       end
 
       it "doesn't include the version flag for non root commands" do
-        command = Fixture::Command::SpecFile
+        command = @subject::SpecFile
         should.raise CLAide::Help do
           command.parse(%w(--version)).validate!
         end.message.should.include?('Unknown option: `--version`')
       end
 
       it 'handles the completion-script flag' do
-        command = Fixture::Command
+        command = @subject
         command.instance_variable_set(:@fixture_output, '')
         def command.puts(text)
           @fixture_output << text
@@ -194,7 +204,7 @@ module CLAide
       end
 
       it "doesn't include the completion-script flag for non root commands" do
-        command = Fixture::Command::SpecFile
+        command = @subject::SpecFile
         should.raise CLAide::Help do
           command.parse(%w(--completion-script)).validate!
         end.message.should.include?('Unknown option: `--completion-script`')
@@ -205,47 +215,60 @@ module CLAide
 
     describe 'when running' do
       before do
-        Fixture::Command.stubs(:puts)
-        Fixture::Command.stubs(:exit)
+        @subject.stubs(:puts)
+        @subject.stubs(:exit)
+      end
+
+      it 'invokes an instance of the parsed subcommand' do
+        @subject::SpecFile.any_instance.stubs(:validate!)
+        @subject::SpecFile.any_instance.expects(:run)
+        @subject.run(%w(spec-file))
       end
 
       it 'does not print the backtrace of an InformativeError by default' do
         ::CLAide::ANSI.disabled = true
-        expected = Help.new(Fixture::Command.banner).message
-        Fixture::Command.expects(:puts).with(expected)
-        Fixture::Command.run(%w(--help))
+        expected = Help.new(@subject.banner).message
+        @subject.expects(:puts).with(expected)
+        @subject.run(%w(--help))
       end
 
       it 'prints the backtrace of an InformativeError, if set to verbose' do
         error = Fixture::Error.new
-        Fixture::Command.any_instance.stubs(:validate!).raises(error)
+        @subject.any_instance.stubs(:validate!).raises(error)
         error.stubs(:message).returns('the message')
         error.stubs(:backtrace).returns(%w(the backtrace))
 
         printed = states('printed').starts_as(:nothing)
-        Fixture::Command.expects(:puts).with('the message').
+        @subject.expects(:puts).with('the message').
           when(printed.is(:nothing)).then(printed.is(:message))
-        Fixture::Command.expects(:puts).with('the', 'backtrace').
+        @subject.expects(:puts).with('the', 'backtrace').
           when(printed.is(:message)).then(printed.is(:done))
 
-        Fixture::Command.run(%w(--verbose))
+        @subject.run(%w(--verbose))
       end
 
       it 'exits with a failure status when an InformativeError occurs' do
-        Fixture::Command.expects(:exit).with(1)
-        Fixture::Command.any_instance.stubs(:validate!).
+        @subject.expects(:exit).with(1)
+        @subject.any_instance.stubs(:validate!).
           raises(Fixture::Error.new)
-        Fixture::Command.run([])
+        @subject.run([])
       end
 
       it 'exits with a failure status when a Help exception occurs' do
-        Fixture::Command.expects(:exit).with(1)
-        Fixture::Command.run(%w(unknown))
+        @subject.expects(:exit).with(1)
+        @subject.run(%w(unknown))
       end
 
       it 'exits with a success status when an empty Help exception occurs' do
-        Fixture::Command.expects(:exit).with(0)
-        Fixture::Command.run(%w(--help))
+        @subject.expects(:exit).with(0)
+        @subject.run(%w(--help))
+      end
+
+      it 'allows clients to customize how to report exceptions' do
+        exception = Exception.new('message')
+        @subject.any_instance.expects(:run).raises(exception)
+        @subject.expects(:report_error).with(exception)
+        @subject.run
       end
     end
 
@@ -254,18 +277,18 @@ module CLAide
     describe 'default_subcommand' do
 
       before do
-        @command_class = Fixture::Command::SpecFile.dup
+        @command_class = @subject::SpecFile.dup
         @command_class.default_subcommand = 'lint'
       end
 
       it 'returns the default subcommand if specified' do
         cmd = @command_class.parse([])
-        cmd.class.should == Fixture::Command::SpecFile::Lint
+        cmd.class.should == @subject::SpecFile::Lint
       end
 
       it "doesn't return a default subcommand if a command is given" do
         cmd = @command_class.parse(%w(create))
-        cmd.class.should == Fixture::Command::SpecFile::Create
+        cmd.class.should == @subject::SpecFile::Create
       end
 
       it "doesn't invoke a default subcommand by default" do
@@ -281,7 +304,7 @@ module CLAide
       end
 
       it 'raises if unable to find the default subcommand' do
-        command_class = Fixture::Command::SpecFile.dup
+        command_class = @subject::SpecFile.dup
         command_class.default_subcommand = 'find-me'
         should.raise do
           command_class.parse([])

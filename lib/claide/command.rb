@@ -276,7 +276,7 @@ module CLAide
     #
     # @return [void]
     #
-    def self.run(argv)
+    def self.run(argv = [])
       argv = ARGV.coherce(argv)
       version_flag = argv.flag?('version')
       complete_flag = argv.flag?('completion-script')
