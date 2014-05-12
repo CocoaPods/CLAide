@@ -119,9 +119,17 @@ module CLAide
       # @return [String] A decorated textual representation of the command.
       #
       def prettify_signature(command)
-        result = "#{command.full_command.ansi.green}"
-        result << " #{command.arguments.ansi.magenta}" if command.arguments
-        result
+        components = []
+        components << command.full_command.ansi.green
+        if command.subcommands.any?
+          if command.default_subcommand
+            components << '[COMMAND]'.ansi.green
+          else
+            components << 'COMMAND'.ansi.green
+          end
+        end
+        components << command.arguments.ansi.magenta if command.arguments
+        components.join(' ')
       end
 
       # @return [String] A decorated textual representation of the subcommand
