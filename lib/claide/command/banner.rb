@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'claide/command/banner/prettifier'
+
 module CLAide
   class Command
     # Creates the formatted banner to present as help of the provided command
@@ -25,7 +27,7 @@ module CLAide
           ['Options',  formatted_options_description]
         ]
         banner = sections.map do |(title, body)|
-          ["#{title.ansi.underline}:", body] if body
+          ["#{prettify_title(title)}:", body] unless body.empty?
         end.compact.join("\n\n")
         banner
       end
@@ -54,45 +56,55 @@ module CLAide
       # @return [String] The section describing the usage of the command.
       #
       def formatted_usage_description
-        if message = command.description || command.summary
-          signature = prettify_signature(command)
-          message = Helper.format_markdown(message, TEXT_INDENT, MAX_WIDTH)
-          message = prettify_message(command, message)
-          result = "#{signature}\n\n"
-          result.insert(0, '$ ')
-          result.insert(0, ' ' * (TEXT_INDENT - '$ '.size))
-          result << "#{message}"
-          result
+        message = command.description || command.summary || ''
+        message = Helper.format_markdown(message, TEXT_INDENT, MAX_WIDTH)
+        message = prettify_message(command, message)
+        "#{signature}\n\n#{message}"
+      end
+
+      # @return [String] The signature of the command.
+      #
+      def signature
+        result = prettify_signature(
+          command.full_command, signature_sub_command, signature_arguments)
+        result.insert(0, '$ ')
+        result.insert(0, ' ' * (TEXT_INDENT - '$ '.size))
+      end
+
+      # @return [String] The subcommand indicator of the signature.
+      #
+      def signature_sub_command
+        if command.subcommands.any?
+          command.default_subcommand ? '[COMMAND]' : 'COMMAND'
         end
+        ''
+      end
+
+      # @return [String] The arguments of the signature.
+      #
+      def signature_arguments
+        command.arguments.reduce('') do |memo, (name, type)|
+          name = "[#{name}]" if type == :optional
+          memo << ' ' << name
+        end.lstrip
       end
 
       # @return [String] The section describing the subcommands of the command.
       #
+      # @note   The plus sign emphasizes the that the subcommands are added to
+      #         the command. The square brackets conveys a sense of direction
+      #         and indicates the gravitational force towards the default
+      #         command.
+      #
       def formatted_subcommand_summaries
         subcommands = subcommands_for_banner
-        unless subcommands.empty?
-          subcommands.map do |subcommand|
-            name = annotated_subcommand_name(subcommand.command)
-            description = subcommand.summary
-            pretty_name = prettify_subcommand(name)
-            entry_description(pretty_name, description, name.size)
-          end.join("\n")
-        end
-      end
-
-      # @return [String] The subcommand name with a bullet point which
-      #         indicates whether it is the default subcommand.
-      #
-      # @note   The plus sing emphasizes the that the subcommands are added to
-      #         the command. The square brackets conveys a sense of direction
-      #         and thus indicates the gravity towards the default command.
-      #
-      def annotated_subcommand_name(name)
-        if name == command.default_subcommand
-          "> #{name}"
-        else
-          "+ #{name}"
-        end
+        subcommands.map do |subcommand|
+          name = subcommand.command
+          bullet = (name == command.default_subcommand) ? '>' : '+'
+          name = "#{bullet} #{name}"
+          pretty_name = prettify_subcommand(name)
+          entry_description(pretty_name, subcommand.summary, name.size)
+        end.join("\n")
       end
 
       # @return [String] The section describing the options of the command.
@@ -118,73 +130,39 @@ module CLAide
         result << Helper.wrap_with_indent(description, desc_start, MAX_WIDTH)
       end
 
-      # @!group Subclasses overrides
+      # @!group Overrides
       #-----------------------------------------------------------------------#
+
+      # @return [String] A decorated title.
+      #
+      def prettify_title(title)
+        Prettifier.prettify_title(title)
+      end
 
       # @return [String] A decorated textual representation of the command.
       #
-      def prettify_signature(command)
-        components = [
-          [command.full_command, :green],
-          [signature_sub_command(command), :green],
-          [signature_arguments(command), :magenta]
-        ]
-        components.reduce('') do |signature, (string, ansi_key)|
-          signature << ' ' << string.ansi.apply(ansi_key) unless string.empty?
-          signature
-        end.lstrip
+      def prettify_signature(command, subcommand, argument)
+        Prettifier.prettify_signature(command, subcommand, argument)
       end
 
-      # @return [String]
-      #
-      def signature_sub_command(command)
-        if command.subcommands.any?
-          if command.default_subcommand
-            return '[COMMAND]'
-          else
-            return 'COMMAND'
-          end
-        end
-        ''
-      end
-
-      # @return [String]
-      #
-      def signature_arguments(command)
-        command.arguments.map do |(name, type)|
-          if type == :optional
-            "[#{name}]"
-          else
-            name
-          end
-        end.join(' ')
-      end
-
-      # @return [String]
+      # @return [String] A decorated command description.
       #
       def prettify_message(command, message)
-        message = message.dup
-        [[command.arguments, :magenta],
-         [command.options, :blue]].each do |(list, ansi_key)|
-          list.map(&:first).each do |name|
-            message.gsub!(/`#{name}`/, "`#{name}`".ansi.apply(ansi_key))
-          end
-        end
-        message
+        Prettifier.prettify_message(command, message)
       end
 
       # @return [String] A decorated textual representation of the subcommand
       #         name.
       #
       def prettify_subcommand(name)
-        name.chomp.ansi.green
+        Prettifier.prettify_subcommand(name)
       end
 
       # @return [String] A decorated textual representation of the option name.
       #
       #
       def prettify_option_name(name)
-        name.chomp.ansi.blue
+        Prettifier.prettify_option_name(name)
       end
 
       # @!group Private helpers

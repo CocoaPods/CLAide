@@ -3,6 +3,20 @@
 module CLAide
   class Command
     module PluginsHelper
+      # Loads additional plugins via rubygems looking for files named after the
+      # `PLUGIN_PREFIX_plugin`.
+      #
+      def self.load_plugins(plugin_prefix)
+        paths = PluginsHelper.plugin_load_paths(plugin_prefix)
+        loaded_paths = []
+        paths.each do |path|
+          if PluginsHelper.safe_require(path)
+            loaded_paths << path
+          end
+        end
+        loaded_paths
+      end
+
       # Returns the name and the version of the plugin with the given path.
       #
       # @param  [String] path
@@ -82,6 +96,7 @@ module CLAide
       # rubocop:disable RescueException
       def self.safe_require(path)
         require path
+        true
       rescue Exception => exception
         message = "\n---------------------------------------------"
         message << "\nError loading the plugin with path `#{path}`.\n"
@@ -89,6 +104,7 @@ module CLAide
         message << "\n#{exception.backtrace.join("\n")}"
         message << "\n---------------------------------------------\n"
         puts message.ansi.yellow
+        false
       end
       # rubocop:enable RescueException
     end

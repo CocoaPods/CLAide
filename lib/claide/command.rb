@@ -261,7 +261,7 @@ module CLAide
     #
     def self.run(argv = [])
       argv = ARGV.coherce(argv)
-      load_plugins
+      PluginsHelper.load_plugins(plugin_prefix)
       command = parse(argv)
 
       unless Options.handle_root_option(command, argv)
@@ -297,16 +297,6 @@ module CLAide
         exit exception.exit_status
       else
         report_error(exception)
-      end
-    end
-
-    # Loads additional plugins via rubygems looking for files named after the
-    # `PLUGIN_PREFIX_plugin`.
-    #
-    def self.load_plugins
-      paths = PluginsHelper.plugin_load_paths(plugin_prefix)
-      paths.each do |path|
-        PluginsHelper.safe_require(path)
       end
     end
 
