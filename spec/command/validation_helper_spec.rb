@@ -8,22 +8,32 @@ module CLAide
       @subject = Command::ValidationHelper
     end
 
-    describe '::unknown_arguments_message' do
+    describe '::argument_suggestion' do
       it 'returns the message for a command' do
-        unknown = 'installs'
-        suggestions = %w(help update install)
-        type = :command
-        result = @subject.unknown_arguments_message(unknown, suggestions, type)
-        result.should == "Unknown command: `installs`\nDid you mean: install"
+        arguments = ['spec_file']
+        result = @subject.argument_suggestion(arguments, Fixture::Command)
+        result.should == "Unknown command: `spec_file`\n" \
+          'Did you mean: spec-file'
       end
 
       it 'returns the message for an option' do
-        unknown = '--verbosea'
-        suggestions = %w(help verbose silent)
-        type = :option
-        result = @subject.unknown_arguments_message(unknown, suggestions, type)
+        arguments = ['--verbosea']
+        result = @subject.argument_suggestion(arguments, Fixture::Command)
         result.should ==
           "Unknown option: `--verbosea`\nDid you mean: --verbose"
+      end
+    end
+
+    describe '::suggestion_list' do
+      it 'returns the list of valid options' do
+        expected = %w(--completion-script --version --verbose --no-ansi --help)
+        @subject.suggestion_list(Fixture::Command, :option).should == expected
+        @subject.suggestion_list(Fixture::Command, :flag).should == expected
+      end
+
+      it 'returns the list of valid subcommands' do
+        expected = %w(spec-file)
+        @subject.suggestion_list(Fixture::Command, :arg).should == expected
       end
     end
   end

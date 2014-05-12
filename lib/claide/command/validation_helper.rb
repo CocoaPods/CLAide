@@ -3,21 +3,59 @@
 module CLAide
   class Command
     module ValidationHelper
-      # Returns a message for the given unknown arguments including a
-      # suggestion.
+      # @return [String] Returns a message including a suggestion for the given
+      #         unrecognized arguments.
       #
-      # @param  [Array<String>] The unknown arguments.
+      # @param  [Array<String>] arguments
+      #         The unrecognized arguments.
       #
-      # @return [String] The message.
+      # @param  [Class] command_class
+      #         The class of the command which encountered the unrecognized
+      #         arguments.
       #
-      def self.unknown_arguments_message(unknown, suggestions, type)
-        sorted = suggestions.sort_by do |suggestion|
-          Helper.levenshtein_distance(suggestion, unknown)
-        end
-        suggestion = sorted.first
+      def self.argument_suggestion(arguments, command_class)
+        string = arguments.first
+        type = ARGV::Parser.argument_type(string)
+        list = suggestion_list(command_class, type)
+        suggestion = ValidationHelper.suggestion(string, list)
         pretty_suggestion = prettify_validation_suggestion(suggestion, type)
-        "Unknown #{type}: `#{unknown}`\n" \
+        string_type = type == :arg ? 'command' : 'option'
+        "Unknown #{string_type}: `#{string}`\n" \
           "Did you mean: #{pretty_suggestion}"
+      end
+
+      # @return [Array<String>] The list of the valid arguments for a command
+      #         according to the type of the argument.
+      #
+      # @param  [Command] command_class
+      #         The class of the command for which the list of arguments is
+      #         needed.
+      #
+      # @param  [Symbol] type
+      #         The type of the argument.
+      #
+      def self.suggestion_list(command_class, type)
+        case type
+        when :option, :flag
+          command_class.options.map(&:first)
+        when :arg
+          command_class.subcommands_for_command_lookup.map(&:command)
+        end
+      end
+
+      # Returns a suggestion for a string from a list of possible elements.
+      #
+      # @return [String] string
+      #         The string for which the suggestion is needed.
+      #
+      # @param  [Array<String>] list
+      #         The list of the valid elements
+      #
+      def self.suggestion(string, list)
+        sorted = list.sort_by do |element|
+          Helper.levenshtein_distance(string, element)
+        end
+        sorted.first
       end
 
       # Prettifies the given validation suggestion according to the type.
@@ -31,10 +69,11 @@ module CLAide
       # @return [String] A handsome suggestion.
       #
       def self.prettify_validation_suggestion(suggestion, type)
-        if type == :option
-          suggestion = "--#{suggestion}"
+        case type
+        when :option, :flag
+          suggestion = "#{suggestion}"
           suggestion.ansi.blue
-        else
+        when :arg
           suggestion.ansi.green
         end
       end
