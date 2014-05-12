@@ -22,12 +22,14 @@ module CLAide
 
     describe 'banner components' do
       it "returns a usage description based on the command's description" do
+        Helper.stubs(:terminal_width).returns(52)
         banner = Command::Banner.new(Fixture::Command::SpecFile::Create)
         banner.send(:formatted_usage_description).should ==
           <<-USAGE.strip_margin('|').rstrip
             |    $ bin spec-file create [NAME]
             |
-            |      Creates a spec file called NAME and populates it with defaults.
+            |      Creates a spec file called NAME and populates
+            |      it with defaults.
         USAGE
       end
 

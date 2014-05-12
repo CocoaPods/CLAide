@@ -24,9 +24,10 @@ module CLAide
           ['Commands', formatted_subcommand_summaries],
           ['Options',  formatted_options_description]
         ]
-        sections.map do |(title, body)|
-          ["#{title}:", body] if body
+        banner = sections.map do |(title, body)|
+          ["#{title.ansi.underline}:", body] if body
         end.compact.join("\n\n")
+        banner
       end
 
       private
@@ -38,11 +39,15 @@ module CLAide
       #
       TEXT_INDENT = 6
 
-      # @return [String] The minimum between a name and its description.
+      # @return [Fixnum] The maximum width of the text.
+      #
+      MAX_WIDTH = TEXT_INDENT + 80
+
+      # @return [Fixnum] The minimum between a name and its description.
       #
       DESCRIPTION_SPACES = 3
 
-      # @return [String] The minimum between a name and its description.
+      # @return [Fixnum] The minimum between a name and its description.
       #
       SUBCOMMAND_BULLET_SIZE = 2
 
@@ -51,9 +56,13 @@ module CLAide
       def formatted_usage_description
         if raw_message = command.description || command.summary
           signature = prettify_signature(command)
-          formatted_message = Helper.format_markdown(raw_message, TEXT_INDENT)
+          formatted_message = Helper.format_markdown(raw_message,
+                                                     TEXT_INDENT,
+                                                     MAX_WIDTH)
           message = prettify_message(command, formatted_message)
-          result = "$ #{signature}\n\n".insert(0, ' ' * (TEXT_INDENT - 2))
+          result = "#{signature}\n\n"
+          result.insert(0, '$ ')
+          result.insert(0, ' ' * (TEXT_INDENT - '$ '.size))
           result << "#{message}"
           result
         end
@@ -108,7 +117,7 @@ module CLAide
         result << name
         result << ' ' * DESCRIPTION_SPACES
         result << ' ' * (max_name_width - name_width)
-        result << Helper.wrap_with_indent(description, desc_start)
+        result << Helper.wrap_with_indent(description, desc_start, MAX_WIDTH)
       end
 
       # @!group Subclasses overrides
@@ -135,11 +144,11 @@ module CLAide
         if command.arguments
           command.arguments.split(' ').each do |name|
             name = name.sub('[', '').sub(']', '')
-            message.gsub!(/['`\w]#{name}['`\w]/, "`#{name.ansi.blue}`")
+            message.gsub!(/['`\w]#{name}['`\w]/, "`#{name}`".ansi.magenta)
           end
         end
         command.options.each do |(name, _description)|
-          message.gsub!(/['`\w]#{name}['`\w]/, "`#{name.ansi.blue}`")
+          message.gsub!(/['`\w]#{name}['`\w]/, "`#{name}`".ansi.blue)
         end
         message
       end

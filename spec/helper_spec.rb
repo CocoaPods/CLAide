@@ -35,6 +35,72 @@ module CLAide
       end
     end
 
+    describe '::format_markdown' do
+      it 'wraps a string by paragraph' do
+        @subject.stubs(:terminal_width).returns(20)
+        string = <<-DOC.strip_margin('|').rstrip
+          |Downloads all dependencies defined
+          |in `Podfile` and creates an Xcode Pods
+          |library project in `./Pods`.
+          |
+          |The Xcode project file should be specified
+          |in your `Podfile` like this:
+        DOC
+        result = <<-DOC.strip_margin('|').rstrip
+          |Downloads all
+          |dependencies defined
+          |in `Podfile` and
+          |creates an Xcode
+          |Pods library project
+          |in `./Pods`.
+          |
+          |The Xcode project
+          |file should be
+          |specified in your
+          |`Podfile` like this:
+        DOC
+        @subject.format_markdown(string).should == result
+      end
+
+      it 'supports an optional indentation' do
+        @subject.stubs(:terminal_width).returns(20)
+        string = <<-DOC.strip_margin('|').rstrip
+          |Downloads all dependencies defined
+          |in `Podfile` and creates an Xcode Pods
+          |library project in `./Pods`.
+        DOC
+        result = <<-DOC.strip_margin('|').rstrip
+          |  Downloads all
+          |  dependencies
+          |  defined in
+          |  `Podfile` and
+          |  creates an Xcode
+          |  Pods library
+          |  project in
+          |  `./Pods`.
+        DOC
+        @subject.format_markdown(string, 2).should == result
+      end
+
+      it 'supports an optional indentation' do
+        @subject.stubs(:terminal_width).returns(80)
+        string = <<-DOC.strip_margin('|').rstrip
+          |Downloads all dependencies defined
+          |in `Podfile` and creates an Xcode Pods
+          |library project in `./Pods`.
+        DOC
+        result = <<-DOC.strip_margin('|').rstrip
+          |Downloads all
+          |dependencies defined
+          |in `Podfile` and
+          |creates an Xcode
+          |Pods library project
+          |in `./Pods`.
+        DOC
+        @subject.format_markdown(string, 0, 20).should == result
+      end
+    end
+
     describe '::wrap_with_indent' do
       it 'wraps a string according to the terminal width' do
         @subject.stubs(:terminal_width).returns(10)
@@ -42,17 +108,25 @@ module CLAide
         @subject.wrap_with_indent(string).should == "1234567890\n1234567890"
       end
 
-      it 'does not wrap the string if the terminal width is not available' do
-        @subject.stubs(:terminal_width).returns(0)
-        string = '1234567890 1234567890'
-        @subject.wrap_with_indent(string).should == '1234567890 1234567890'
-      end
-
       it 'indents the lines except the first' do
         @subject.stubs(:terminal_width).returns(10)
         string = '1234567890 1234567890'
         @subject.wrap_with_indent(string, 2).should ==
           "1234567890\n  1234567890"
+      end
+
+      it 'supports a maximum width' do
+        @subject.stubs(:terminal_width).returns(20)
+        string = '1234567890 1234567890'
+        @subject.wrap_with_indent(string, 0, 10).should ==
+          "1234567890\n1234567890"
+      end
+
+      it 'wraps to the maximum width if the terminal one is not available' do
+        @subject.stubs(:terminal_width).returns(0)
+        string = '1234567890 1234567890'
+        @subject.wrap_with_indent(string, 0, 10).should ==
+          "1234567890\n1234567890"
       end
     end
 
