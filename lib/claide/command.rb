@@ -2,7 +2,7 @@
 
 require 'claide/command/banner'
 require 'claide/command/plugins_helper'
-require 'claide/command/validate_helper'
+require 'claide/command/validation_helper'
 require 'claide/command/shell_completion_helper'
 
 module CLAide
@@ -503,7 +503,9 @@ module CLAide
     #
     def validate!
       help! if @argv.flag?('help')
-      help! unknown_arguments_message(@argv.remainder) unless @argv.empty?
+      unless @argv.empty?
+        help! unknown_arguments_message(@argv.remainder)
+      end
       help! if self.class.abstract_command?
     end
 
@@ -537,7 +539,7 @@ module CLAide
         type = :command
         suggestions = self.class.subcommands_for_command_lookup.map(&:command)
       end
-      ValidateHelper.unknown_arguments_message(unknown, suggestions, type)
+      ValidationHelper.unknown_arguments_message(unknown, suggestions, type)
     end
 
     # This method should be overridden by the command class to perform its

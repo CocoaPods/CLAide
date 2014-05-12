@@ -3,9 +3,9 @@
 require File.expand_path('../../spec_helper', __FILE__)
 
 module CLAide
-  describe Command::ValidateHelper do
+  describe Command::ValidationHelper do
     before do
-      @subject = Command::ValidateHelper
+      @subject = Command::ValidationHelper
     end
 
     describe '::unknown_arguments_message' do

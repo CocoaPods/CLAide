@@ -2,7 +2,7 @@
 
 module CLAide
   class Command
-    module ValidateHelper
+    module ValidationHelper
       # Returns a message for the given unknown arguments including a
       # suggestion.
       #
