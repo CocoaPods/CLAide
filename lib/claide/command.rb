@@ -224,6 +224,12 @@ module CLAide
     #
     # @note   You should normally call this on
     #
+    # @note   The ANSI support is configured before running a command to allow
+    #         the same process to run multiple commands with different
+    #         settings.  For example a process with ANSI output enabled might
+    #         want to programmatically invoke another command with the output
+    #         enabled.
+    #
     # @param [Array, ARGV] argv
     #        A list of parameters. For instance, the standard `ARGV` constant,
     #        which contains the parameters passed to the program.
@@ -236,7 +242,7 @@ module CLAide
       command = parse(argv)
 
       unless Options.handle_root_option(command, argv)
-        command.configure_ansi
+        ANSI.disabled = !ansi_output?
         command.validate!
         command.run
       end
@@ -409,19 +415,6 @@ module CLAide
         help! ValidationHelper.argument_suggestion(@argv.remainder, self.class)
       end
       help! if self.class.abstract_command?
-    end
-
-    # @return [void] Disables or enables ANSI support according to the default
-    #         setting and to whether a preference was expressed via the
-    #         argument flag.
-    #
-    # @note   The support is configured before running a command to allow the
-    #         same process to run multiple commands with different settings.
-    #         For example a process with ANSI output enabled might want to
-    #         programmatically invoke another command with the output enabled.
-    #
-    def configure_ansi
-      ANSI.disabled = !ansi_output?
     end
 
     # This method should be overridden by the command class to perform its
