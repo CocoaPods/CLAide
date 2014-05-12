@@ -99,6 +99,22 @@ module CLAide
         DOC
         @subject.format_markdown(string, 0, 20).should == result
       end
+
+      it 'preserves the line formatting of code paragraphs' do
+        @subject.stubs(:terminal_width).returns(80)
+        string = <<-DOC.strip_margin('|').rstrip
+          |This is an example code block:
+          |
+          |    @subject.format_markdown(string, 0, 20)
+        DOC
+        result = <<-DOC.strip_margin('|').rstrip
+          |This is an example
+          |code block:
+          |
+          |    @subject.format_markdown(string, 0, 20)
+        DOC
+        @subject.format_markdown(string, 0, 20).should == result
+      end
     end
 
     describe '::wrap_with_indent' do
