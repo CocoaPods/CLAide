@@ -1,4 +1,3 @@
-# encoding: utf-8
 
 require File.expand_path('../../spec_helper', __FILE__)
 
@@ -14,19 +13,19 @@ module CLAide
     end
 
     it 'returns the escape sequence to move the cursor up' do
-      @subject.move_cursor(-2, 0).should == "\e[2A"
+      @subject.move_cursor(-2, 0).should == "\e[2A;0D"
     end
 
     it 'returns the escape sequence to move the cursor down' do
-      @subject.move_cursor(2, 0).should == "\e[2B"
+      @subject.move_cursor(2, 0).should == "\e[2B;0D"
     end
 
     it 'returns the escape sequence to move the cursor left' do
-      @subject.move_cursor(0, -2).should == "\e[2D"
+      @subject.move_cursor(0, -2).should == "\e[0B;2D"
     end
 
     it 'returns the escape sequence to move the cursor right' do
-      @subject.move_cursor(0, 2).should == "\e[2C"
+      @subject.move_cursor(0, 2).should == "\e[0B;2C"
     end
 
     it 'returns the escape sequence to move vertically and horizontally' do

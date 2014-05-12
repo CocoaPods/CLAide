@@ -32,28 +32,10 @@ module CLAide
       #         Negative values indicate left direction and positive ones
       #         right direction.
       #
-      def self.move_cursor(lines, columns)
-        result = "\e["
-        if lines.nonzero?
-          wants_coma = true
-          if lines < 0
-            result << "#{-lines}A"
-          else
-            result << "#{lines}B"
-          end
-        end
-
-        if columns.nonzero?
-          if wants_coma
-            result << ';'
-          end
-          if columns > 0
-            result << "#{columns}C"
-          else
-            result << "#{-columns}D"
-          end
-        end
-        result
+      def self.move_cursor(lines, columns = 0)
+        lines_code = lines < 0 ? 'A' : 'B'
+        columns_code = columns > 0 ? 'C' : 'D'
+        "\e[#{lines.abs}#{lines_code};#{columns.abs}#{columns_code}"
       end
 
       # @return [String] The escape sequence to save the cursor position.

@@ -33,13 +33,11 @@ module CLAide
     def self.format_markdown(string, indent = 0, max_width = 80)
       paragraphs = Helper.strip_heredoc(string).split("\n\n")
       paragraphs = paragraphs.map do |paragraph|
-        if paragraph.start_with?(' ' * 4)
-          result = paragraph
-        else
+        unless paragraph.start_with?(' ' * 4)
           full_line = paragraph.gsub("\n", ' ')
-          result = wrap_with_indent(full_line, indent, max_width)
+          paragraph = wrap_with_indent(full_line, indent, max_width)
         end
-        result.insert(0, ' ' * indent).rstrip
+        paragraph.insert(0, ' ' * indent).rstrip
       end
       paragraphs.join("\n\n")
     end

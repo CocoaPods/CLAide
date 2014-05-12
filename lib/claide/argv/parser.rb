@@ -45,6 +45,9 @@ module CLAide
       #         normal arguments (like commands) and a tuple with they key and
       #         the value for options and flags.
       #
+      # @param  [Symbol] type
+      #         The type of the argument.
+      #
       # @param  [String] argument
       #         The argument to check.
       #
@@ -53,18 +56,27 @@ module CLAide
         when :arg
           return argument
         when :flag
-          if argument.start_with?('--no-')
-            key = argument[5..-1]
-            value = false
-          else
-            key = argument[2..-1]
-            value = true
-          end
-          return [key, value]
+          return flag_paramenter(argument)
         when :option
-          key, value = argument[2..-1].split('=', 2)
-          return [key, value]
+          return argument[2..-1].split('=', 2)
         end
+      end
+
+      # @return [String, Array<String, String>] Returns the parameter
+      #         describing a flag arguments.
+      #
+      # @param  [String] argument
+      #         The flag argument to check.
+      #
+      def self.flag_paramenter(argument)
+        if argument.start_with?('--no-')
+          key = argument[5..-1]
+          value = false
+        else
+          key = argument[2..-1]
+          value = true
+        end
+        [key, value]
       end
     end
   end

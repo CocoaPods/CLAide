@@ -54,12 +54,10 @@ module CLAide
       # @return [String] The section describing the usage of the command.
       #
       def formatted_usage_description
-        if raw_message = command.description || command.summary
+        if message = command.description || command.summary
           signature = prettify_signature(command)
-          formatted_message = Helper.format_markdown(raw_message,
-                                                     TEXT_INDENT,
-                                                     MAX_WIDTH)
-          message = prettify_message(command, formatted_message)
+          message = Helper.format_markdown(message, TEXT_INDENT, MAX_WIDTH)
+          message = prettify_message(command, message)
           result = "#{signature}\n\n"
           result.insert(0, '$ ')
           result.insert(0, ' ' * (TEXT_INDENT - '$ '.size))
@@ -111,9 +109,9 @@ module CLAide
       #         option).
       #
       def entry_description(name, description, name_width)
+        max_name_width = compute_max_name_width
         desc_start = max_name_width + (TEXT_INDENT - 2) + DESCRIPTION_SPACES
-        result = ''
-        result << ' ' * (TEXT_INDENT - 2)
+        result = ' ' * (TEXT_INDENT - 2)
         result << name
         result << ' ' * DESCRIPTION_SPACES
         result << ' ' * (max_name_width - name_width)
@@ -182,16 +180,13 @@ module CLAide
       # @return [Fixnum] The width of the largest command name or of the
       #         largest option name. Used to align all the descriptions.
       #
-      def max_name_width
-        unless @max_name_width
-          widths = []
-          widths << command.options.map { |option| option.first.size }
-          widths << subcommands_for_banner.map do |cmd|
-            cmd.command.size + SUBCOMMAND_BULLET_SIZE
-          end.max
-          @max_name_width = widths.flatten.compact.max || 1
-        end
-        @max_name_width
+      def compute_max_name_width
+        widths = []
+        widths << command.options.map { |option| option.first.size }
+        widths << subcommands_for_banner.map do |cmd|
+          cmd.command.size + SUBCOMMAND_BULLET_SIZE
+        end.max
+        widths.flatten.compact.max || 1
       end
     end
   end
