@@ -34,10 +34,9 @@ module CLAide
       # @!group Banner sections
       #-----------------------------------------------------------------------#
 
-      # @return [String] The indentation of the subcommands and of the options
-      #         names.
+      # @return [String] The indentation of the text.
       #
-      NAME_INDENTATION = 4
+      TEXT_INDENT = 6
 
       # @return [String] The minimum between a name and its description.
       #
@@ -50,14 +49,13 @@ module CLAide
       # @return [String] The section describing the usage of the command.
       #
       def formatted_usage_description
-        if message = command.description || command.summary
-          message_lines = Helper.strip_heredoc(message).split("\n")
-          message_lines = message_lines.map { |l| l.insert(0, ' ' * 6) }
-          formatted_message = message_lines.join("\n")
-
+        if raw_message = command.description || command.summary
           signature = prettify_signature(command)
-          result = "$ #{signature}\n\n#{formatted_message}"
-          result.insert(0, ' ' * NAME_INDENTATION)
+          formatted_message = Helper.format_markdown(raw_message, TEXT_INDENT)
+          message = prettify_message(command, formatted_message)
+          result = "$ #{signature}\n\n".insert(0, ' ' * (TEXT_INDENT - 2))
+          result << "#{message}"
+          result
         end
       end
 
@@ -104,9 +102,9 @@ module CLAide
       #         option).
       #
       def entry_description(name, description, name_width)
-        desc_start = max_name_width + NAME_INDENTATION + DESCRIPTION_SPACES
+        desc_start = max_name_width + (TEXT_INDENT - 2) + DESCRIPTION_SPACES
         result = ''
-        result << ' ' * NAME_INDENTATION
+        result << ' ' * (TEXT_INDENT - 2)
         result << name
         result << ' ' * DESCRIPTION_SPACES
         result << ' ' * (max_name_width - name_width)
@@ -130,6 +128,20 @@ module CLAide
         end
         components << command.arguments.ansi.magenta if command.arguments
         components.join(' ')
+      end
+
+      def prettify_message(command, message)
+        message = message.dup
+        if command.arguments
+          command.arguments.split(' ').each do |name|
+            name = name.sub('[', '').sub(']', '')
+            message.gsub!(/['`\w]#{name}['`\w]/, "`#{name.ansi.blue}`")
+          end
+        end
+        command.options.each do |(name, _description)|
+          message.gsub!(/['`\w]#{name}['`\w]/, "`#{name.ansi.blue}`")
+        end
+        message
       end
 
       # @return [String] A decorated textual representation of the subcommand

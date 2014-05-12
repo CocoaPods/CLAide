@@ -15,6 +15,20 @@ module CLAide
       @terminal_width
     end
 
+    def self.format_markdown(string, indent = 0)
+      paragraphs = Helper.strip_heredoc(string).split("\n\n")
+      paragraphs = paragraphs.map do |paragraph|
+        if paragraph.start_with?(' ' * 4)
+          result = paragraph
+        else
+          full_line = paragraph.gsub("\n", ' ')
+          result = wrap_with_indent(full_line, indent)
+        end
+        result.insert(0, ' ' * indent).rstrip
+      end
+      paragraphs.join("\n\n")
+    end
+
     # @return [String] Wraps a string to the terminal width taking into
     #         account the given indentation.
     #

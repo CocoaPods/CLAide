@@ -27,8 +27,7 @@ module CLAide
           <<-USAGE.strip_margin('|').rstrip
             |    $ bin spec-file create [NAME]
             |
-            |      Creates a spec file called NAME
-            |      and populates it with defaults.
+            |      Creates a spec file called NAME and populates it with defaults.
         USAGE
       end
 
