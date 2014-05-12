@@ -147,56 +147,10 @@ module CLAide
         command.should.be.verbose
       end
 
-      it 'handles the version flag' do
-        command = @subject
-        command.version = '1.0'
-        command.instance_variable_set(:@fixture_output, '')
-        def command.puts(text)
-          @fixture_output << text
-        end
-        command.run(%w(--version))
-        output = command.instance_variable_get(:@fixture_output)
-        output.should == '1.0'
-      end
-
-      it 'handles the version flag in conjunction with the verbose flag' do
-        path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
-        Command::PluginsHelper.expects(:plugin_load_paths).returns([path])
-        Command::PluginsHelper.expects(:plugin_info).
-          returns('cocoapods_plugin: 1.0')
-        command = @subject
-        command.stubs(:load_plugins)
-        command.version = '1.0'
-        command.instance_variable_set(:@fixture_output, '')
-        def command.puts(text)
-          @fixture_output << "#{text}\n"
-        end
-        command.run(%w(--version --verbose))
-        output = command.instance_variable_get(:@fixture_output)
-        output.should == "1.0\ncocoapods_plugin: 1.0\n"
-      end
-
-      it "doesn't include the version flag for non root commands" do
-        @subject.expects(:exit).with(1)
-        @subject.run((%w(spec-file --version)))
-      end
-
-      it 'handles the completion-script flag' do
-        command = @subject
-        command.instance_variable_set(:@fixture_output, '')
-        def command.puts(text)
-          @fixture_output << text
-        end
-        Command::ShellCompletionHelper.
-          expects(:completion_template).returns('script')
-        command.run(%w(--completion-script))
-        output = command.instance_variable_get(:@fixture_output)
-        output.should == 'script'
-      end
-
-      it "doesn't include the completion-script flag for non root commands" do
-        @subject.expects(:exit).with(1)
-        @subject.run((%w(spec-file --completion-script)))
+      it 'does not runs the instance if root options have been specified' do
+        Command::Options.expects(:handle_root_option).returns(true)
+        @subject.any_instance.expects(:run).never
+        @subject.run(%w(--version))
       end
     end
 

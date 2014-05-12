@@ -3,6 +3,7 @@
 require 'claide/command/banner'
 require 'claide/command/parser'
 require 'claide/command/plugins_helper'
+require 'claide/command/options'
 require 'claide/command/shell_completion_helper'
 require 'claide/command/validation_helper'
 
@@ -59,6 +60,7 @@ module CLAide
       #         help banner or to show its subcommands instead.
       #
       #         Setting this to `true` implies it’s an abstract command.
+      #
       attr_reader :ignore_in_command_lookup
       alias_method :ignore_in_command_lookup?, :ignore_in_command_lookup
       def ignore_in_command_lookup=(flag)
@@ -213,30 +215,8 @@ module CLAide
     #   end
     #
     def self.options
-      if root_command?
-        options = ROOT_COMMAND_OPTIONS + DEFAULT_OPTIONS
-      else
-        options = DEFAULT_OPTIONS
-      end
-      options
+      Options.default_options(self)
     end
-
-    # @return [Array<Array<String, String>>] The default options for a root
-    #         command implemented by CLAide.
-    #
-    ROOT_COMMAND_OPTIONS = [
-      ['--completion-script', 'Print the auto-completion script'],
-      ['--version',           'Show the version of the tool']
-    ]
-
-    # @return [Array<Array<String, String>>] The default options implemented by
-    #         CLAide.
-    #
-    DEFAULT_OPTIONS = [
-      ['--verbose', 'Show more debugging information'],
-      ['--no-ansi', 'Show output without ANSI codes'],
-      ['--help',    'Show help banner of specified command']
-    ]
 
     # Instantiates the command class matching the parameters through
     # {Command.parse}, validates it through {Command#validate!}, and runs it
@@ -255,7 +235,7 @@ module CLAide
       load_plugins
       command = parse(argv)
 
-      unless handle_root_option(command, argv)
+      unless Options.handle_root_option(command, argv)
         command.configure_ansi
         command.validate!
         command.run
@@ -266,28 +246,6 @@ module CLAide
 
     def self.parse(argv)
       Parser.parse(self, argv)
-    end
-
-    # Handles root commands options if appropriately.
-    #
-    # @param  [Command] command
-    #         The invoked command.
-    #
-    # @param  [ARGV] argv
-    #         The parameters of the command.
-    #
-    # @return [Bool] Whether any root command option was handled.
-    #
-    def self.handle_root_option(command, argv)
-      if command.class.root_command?
-        if argv.flag?('version')
-          print_version(command.verbose?)
-          true
-        elsif argv.flag?('completion-script')
-          print_autocompletion_script
-          true
-        end
-      end
     end
 
     # Presents an exception to the user according to class of the .
@@ -313,7 +271,7 @@ module CLAide
       end
     end
 
-    # Load additional plugins via rubygems looking for files named:
+    # Loads additional plugins via rubygems looking for files named after the
     # `PLUGIN_PREFIX_plugin`.
     #
     def self.load_plugins
@@ -321,30 +279,6 @@ module CLAide
       paths.each do |path|
         PluginsHelper.safe_require(path)
       end
-    end
-
-    # Prints the version of the command optionally including plugins.
-    #
-    # @param  [Boolean] include_plugins
-    #         Whether the version of the found plugins should be printed.
-    #
-    # @return [void]
-    #
-    def self.print_version(include_plugins = false)
-      puts version
-      if include_plugins
-        PluginsHelper.plugin_load_paths(plugin_prefix).each do |path|
-          puts PluginsHelper.plugin_info(path)
-        end
-      end
-    end
-
-    # Prints an auto-completion script according to the user shell.
-    #
-    # @return [void]
-    #
-    def self.print_autocompletion_script
-      puts ShellCompletionHelper.completion_template(self)
     end
 
     # Allows the application to perform custom error reporting, by overriding
