@@ -83,6 +83,13 @@ module CLAide
         end
       end
 
+      it 'fails normally if there is no plugin' do
+        @subject.load_plugins
+        @subject.subcommands.find do
+          |cmd| cmd.name == 'demo-plugin'
+        end.should.be.nil
+      end
+
       describe 'failing plugins' do
         it 'rescues exceptions raised during the load of the plugin' do
           path = ROOT + 'spec/fixture/command/load_error_plugin_fixture.rb'
@@ -95,13 +102,6 @@ module CLAide
             @subject.load_plugins
           end
         end
-      end
-
-      it 'fails normally if there is no plugin' do
-        @subject.load_plugins
-        @subject.subcommands.find do
-          |cmd| cmd.name == 'demo-plugin'
-        end.should.be.nil
       end
     end
 
@@ -269,41 +269,10 @@ module CLAide
 
     #-------------------------------------------------------------------------#
 
-    describe 'default_subcommand' do
-
+    describe 'help' do
       before do
         @command_class = @subject::SpecFile.dup
         @command_class.default_subcommand = 'lint'
-      end
-
-      it 'returns the default subcommand if specified' do
-        cmd = @command_class.parse([])
-        cmd.class.should == @subject::SpecFile::Lint
-      end
-
-      it "doesn't return a default subcommand if a command is given" do
-        cmd = @command_class.parse(%w(create))
-        cmd.class.should == @subject::SpecFile::Create
-      end
-
-      it "doesn't invoke a default subcommand by default" do
-        @command_class.default_subcommand = nil
-        cmd = @command_class.parse([])
-        cmd.class.should == @command_class
-      end
-
-      it 'invokes the default subcommand only if abstract' do
-        @command_class.abstract_command = false
-        cmd = @command_class.parse([])
-        cmd.class.should == @command_class
-      end
-
-      it 'raises if unable to find the default subcommand' do
-        command_class = @subject::SpecFile.dup
-        command_class.default_subcommand = 'find-me'
-        should.raise do
-          command_class.parse([])
-        end.message.should.match /Unable to find the default subcommand/
       end
 
       it 'shows the help of the parent if a command was invoked by default' do
