@@ -15,6 +15,35 @@ module CLAide
       @terminal_width
     end
 
+    # @return [String] Formats a markdown string by stripping heredoc
+    #         indentation and wrapping by word to the terminal width taking
+    #         into account a maximum one, and indenting the string. Code lines
+    #         (i.e. indented by four spaces) are not word wrapped.
+    #
+    # @param  [String] string
+    #         The string to format.
+    #
+    # @param  [Fixnum] indent
+    #         The number of spaces to insert before the string.
+    #
+    # @param  [Fixnum] max_width
+    #         The maximum width to use to format the string if the terminal is
+    #         too wide.
+    #
+    def self.format_markdown(string, indent = 0, max_width = 80)
+      paragraphs = Helper.strip_heredoc(string).split("\n\n")
+      paragraphs = paragraphs.map do |paragraph|
+        if paragraph.start_with?(' ' * 4)
+          result = paragraph
+        else
+          full_line = paragraph.gsub("\n", ' ')
+          result = wrap_with_indent(full_line, indent, max_width)
+        end
+        result.insert(0, ' ' * indent).rstrip
+      end
+      paragraphs.join("\n\n")
+    end
+
     # @return [String] Wraps a string to the terminal width taking into
     #         account the given indentation.
     #
@@ -24,14 +53,20 @@ module CLAide
     # @param  [Fixnum] indent
     #         The number of spaces to insert before the string.
     #
-    def self.wrap_with_indent(string, indent = 0)
+    # @param  [Fixnum] max_width
+    #         The maximum width to use to format the string if the terminal is
+    #         too wide.
+    #
+    def self.wrap_with_indent(string, indent = 0, max_width = 80)
       if terminal_width == 0
-        string
+        width = max_width
       else
-        width = terminal_width - indent
-        space = ' ' * indent
-        word_wrap(string, width).split("\n").join("\n#{space}")
+        width = [terminal_width, max_width].min
       end
+
+      available_width = width - indent
+      space = ' ' * indent
+      word_wrap(string, available_width).split("\n").join("\n#{space}")
     end
 
     # @return [String] Lifted straight from ActionView. Thanks guys!

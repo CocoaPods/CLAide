@@ -19,18 +19,15 @@ module CLAide
       # @return [String] The banner for the command.
       #
       def formatted_banner
-        banner = []
-        banner << banner_head
-
-        if commands = formatted_subcommand_summaries
-          banner << "Commands:\n\n#{commands}"
-        end
-
-        if options = formatted_options_description
-          banner << "Options:\n\n#{options}"
-        end
-
-        banner.compact.join("\n\n")
+        sections = [
+          ['Usage',    formatted_usage_description],
+          ['Commands', formatted_subcommand_summaries],
+          ['Options',  formatted_options_description]
+        ]
+        banner = sections.map do |(title, body)|
+          ["#{title.ansi.underline}:", body] if body
+        end.compact.join("\n\n")
+        banner
       end
 
       private
@@ -38,37 +35,36 @@ module CLAide
       # @!group Banner sections
       #-----------------------------------------------------------------------#
 
-      # @return [String] The head section describing the usage or
-      #         the description for abstract commands.
+      # @return [String] The indentation of the text.
       #
-      def banner_head
-        if command.abstract_command?
-          command.description if command.description
-        elsif usage = formatted_usage_description
-          "Usage:\n\n#{usage}"
-        end
-      end
-      NAME_INDENTATION = 4
+      TEXT_INDENT = 6
 
-      # @return [String] The minimum between a name and its description.
+      # @return [Fixnum] The maximum width of the text.
+      #
+      MAX_WIDTH = TEXT_INDENT + 80
+
+      # @return [Fixnum] The minimum between a name and its description.
       #
       DESCRIPTION_SPACES = 3
 
-      # @return [String] The minimum between a name and its description.
+      # @return [Fixnum] The minimum between a name and its description.
       #
       SUBCOMMAND_BULLET_SIZE = 2
 
       # @return [String] The section describing the usage of the command.
       #
       def formatted_usage_description
-        if message = command.description || command.summary
-          message_lines = Helper.strip_heredoc(message).split("\n")
-          message_lines = message_lines.map { |l| l.insert(0, ' ' * 6) }
-          formatted_message = message_lines.join("\n")
-
+        if raw_message = command.description || command.summary
           signature = prettify_signature(command)
-          result = "$ #{signature}\n\n#{formatted_message}"
-          result.insert(0, ' ' * NAME_INDENTATION)
+          formatted_message = Helper.format_markdown(raw_message,
+                                                     TEXT_INDENT,
+                                                     MAX_WIDTH)
+          message = prettify_message(command, formatted_message)
+          result = "#{signature}\n\n"
+          result.insert(0, '$ ')
+          result.insert(0, ' ' * (TEXT_INDENT - '$ '.size))
+          result << "#{message}"
+          result
         end
       end
 
@@ -115,13 +111,13 @@ module CLAide
       #         option).
       #
       def entry_description(name, description, name_width)
-        desc_start = max_name_width + NAME_INDENTATION + DESCRIPTION_SPACES
+        desc_start = max_name_width + (TEXT_INDENT - 2) + DESCRIPTION_SPACES
         result = ''
-        result << ' ' * NAME_INDENTATION
+        result << ' ' * (TEXT_INDENT - 2)
         result << name
         result << ' ' * DESCRIPTION_SPACES
         result << ' ' * (max_name_width - name_width)
-        result << Helper.wrap_with_indent(description, desc_start)
+        result << Helper.wrap_with_indent(description, desc_start, MAX_WIDTH)
       end
 
       # @!group Subclasses overrides
@@ -130,9 +126,31 @@ module CLAide
       # @return [String] A decorated textual representation of the command.
       #
       def prettify_signature(command)
-        result = "#{command.full_command.ansi.green}"
-        result << " #{command.arguments.ansi.magenta}" if command.arguments
-        result
+        components = []
+        components << command.full_command.ansi.green
+        if command.subcommands.any?
+          if command.default_subcommand
+            components << '[COMMAND]'.ansi.green
+          else
+            components << 'COMMAND'.ansi.green
+          end
+        end
+        components << command.arguments.ansi.magenta if command.arguments
+        components.join(' ')
+      end
+
+      def prettify_message(command, message)
+        message = message.dup
+        if command.arguments
+          command.arguments.split(' ').each do |name|
+            name = name.sub('[', '').sub(']', '')
+            message.gsub!(/['`\w]#{name}['`\w]/, "`#{name}`".ansi.magenta)
+          end
+        end
+        command.options.each do |(name, _description)|
+          message.gsub!(/['`\w]#{name}['`\w]/, "`#{name}`".ansi.blue)
+        end
+        message
       end
 
       # @return [String] A decorated textual representation of the subcommand
