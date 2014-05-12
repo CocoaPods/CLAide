@@ -6,7 +6,9 @@ module Fixture
       self.description = <<-DESC
         Let’s add plugins to CLAide and CocoaPods.
       DESC
-      self.arguments = '[NAME]'
+      self.arguments = [
+        ['NAME', :optional]
+      ]
 
       attr_reader :name
       def initialize(argv)

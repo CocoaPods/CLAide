@@ -89,10 +89,33 @@ module CLAide
       #
       attr_accessor :plugin_prefix
 
-      # @return [String] A list of arguments the command handles. This is shown
-      #         in the usage section of the command’s help banner.
+      # @return [Array<String>] A list of arguments the command handles. This
+      #         is shown in the usage section of the command’s help banner.
       #
+      # @TODO   Remove deprecation
+      #
+      # rubocop:disable all
       attr_accessor :arguments
+      def arguments
+        @arguments ||= []
+      end
+
+      def arguments=(arguments)
+        if arguments.is_a?(Array)
+          @arguments = arguments
+        else
+          warn '[!] The specification of arguments as a string has been' \
+            "deprecated #{self}: `#{arguments}`"
+          @arguments = arguments.split(' ').map do |argument|
+            if argument.start_with?('[')
+              [argument.sub(/\[(.*)\]/, '\1'), :optional]
+            else
+              [argument, :required]
+            end
+          end
+        end
+      end
+      # rubocop:enable all
 
       # @return [Boolean] The default value for {Command#ansi_output}. This
       #         defaults to `true` if `STDOUT` is connected to a TTY and

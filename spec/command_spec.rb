@@ -35,6 +35,12 @@ module CLAide
         parsed = @subject.parse(%w(spec-file --verbose lint))
         parsed.should.be.instance_of @subject::SpecFile::Lint
       end
+
+      it 'returns the signature arguments' do
+        @subject::SpecFile::Lint.arguments.should == [
+          ['NAME', :optional]
+        ]
+      end
     end
 
     #-------------------------------------------------------------------------#

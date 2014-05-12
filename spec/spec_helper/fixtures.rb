@@ -19,7 +19,9 @@ module Fixture
 
       class Lint < CommonInvisibleCommand
         self.summary = 'Checks the validity of a spec file.'
-        self.arguments = '[NAME]'
+        self.arguments = [
+          ['NAME', :optional]
+        ]
 
         def self.options
           [['--only-errors', 'Skip warnings']].concat(super)
@@ -36,7 +38,9 @@ module Fixture
           Creates a spec file called NAME
           and populates it with defaults.
         DESC
-        self.arguments = '[NAME]'
+        self.arguments = [
+          ['NAME', :optional]
+        ]
 
         attr_reader :spec
         def initialize(argv)

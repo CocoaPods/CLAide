@@ -124,29 +124,51 @@ module CLAide
       # @return [String] A decorated textual representation of the command.
       #
       def prettify_signature(command)
-        components = []
-        components << command.full_command.ansi.green
-        if command.subcommands.any?
-          if command.default_subcommand
-            components << '[COMMAND]'.ansi.green
-          else
-            components << 'COMMAND'.ansi.green
-          end
-        end
-        components << command.arguments.ansi.magenta if command.arguments
-        components.join(' ')
+        components = [
+          [command.full_command, :green],
+          [signature_sub_command(command), :green],
+          [signature_arguments(command), :magenta]
+        ]
+        components.reduce('') do |signature, (string, ansi_key)|
+          signature << ' ' << string.ansi.apply(ansi_key) unless string.empty?
+          signature
+        end.lstrip
       end
 
-      def prettify_message(command, message)
-        message = message.dup
-        if command.arguments
-          command.arguments.split(' ').each do |name|
-            name = name.sub('[', '').sub(']', '')
-            message.gsub!(/['`\w]#{name}['`\w]/, "`#{name}`".ansi.magenta)
+      # @return [String]
+      #
+      def signature_sub_command(command)
+        if command.subcommands.any?
+          if command.default_subcommand
+            return '[COMMAND]'
+          else
+            return 'COMMAND'
           end
         end
-        command.options.each do |(name, _description)|
-          message.gsub!(/['`\w]#{name}['`\w]/, "`#{name}`".ansi.blue)
+        ''
+      end
+
+      # @return [String]
+      #
+      def signature_arguments(command)
+        command.arguments.map do |(name, type)|
+          if type == :optional
+            "[#{name}]"
+          else
+            name
+          end
+        end.join(' ')
+      end
+
+      # @return [String]
+      #
+      def prettify_message(command, message)
+        message = message.dup
+        [[command.arguments, :magenta],
+         [command.options, :blue]].each do |(list, ansi_key)|
+          list.map(&:first).each do |name|
+            message.gsub!(/`#{name}`/, "`#{name}`".ansi.apply(ansi_key))
+          end
         end
         message
       end
