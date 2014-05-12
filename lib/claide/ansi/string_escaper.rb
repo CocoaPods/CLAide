@@ -5,25 +5,38 @@ module CLAide
     # Provides support to wrap strings in ANSI sequences according to the
     # `ANSI.disabled` setting.
     #
-    class StringEscaper
+    class StringEscaper < String
       # @param  [String] The string to wrap.
       #
       def initialize(string)
-        @string = string
+        super
       end
 
-      # @return [String] Wraps a string in the given ANSI sequences,
+      # @return [StringEscaper] Wraps a string in the given ANSI sequences,
       #         taking care of handling existing sequences for the same
       #         family of attributes (i.e. attributes terminated by the
       #         same sequence).
       #
-      def wrap_in_ansi_sequence(string, open, close)
+      def wrap_in_ansi_sequence(open, close)
         if ANSI.disabled
-          string
+          self
         else
-          replaced = string.gsub(close, open)
-          "#{open}#{replaced}#{close}"
+          gsub!(close, open)
+          insert(0, open).insert(-1, close)
         end
+      end
+
+      # @return [StringEscaper]
+      #
+      # @param  [Array<Symbol>] keys
+      #         One or more keys corresponding to ANSI codes to apply to the
+      #         string.
+      #
+      def apply(*keys)
+        keys.flatten.each do |key|
+          send(key)
+        end
+        self
       end
 
       ANSI::COLORS.each_key do |key|
@@ -35,7 +48,7 @@ module CLAide
         define_method key do
           open = Graphics.foreground_color(key)
           close = ANSI::DEFAULT_FOREGROUND_COLOR
-          wrap_in_ansi_sequence(@string, open, close)
+          wrap_in_ansi_sequence(open, close)
         end
 
         # Defines a method returns a copy of the receiver wrapped in an ANSI
@@ -46,7 +59,7 @@ module CLAide
         define_method "on_#{key}" do
           open = Graphics.background_color(key)
           close = ANSI::DEFAULT_BACKGROUND_COLOR
-          wrap_in_ansi_sequence(@string, open, close)
+          wrap_in_ansi_sequence(open, close)
         end
       end
 
@@ -60,7 +73,7 @@ module CLAide
           open = Graphics.text_attribute(key)
           close_code = TEXT_DISABLE_ATTRIBUTES[key]
           close = Graphics.graphics_mode(close_code)
-          wrap_in_ansi_sequence(@string, open, close)
+          wrap_in_ansi_sequence(open, close)
         end
       end
     end

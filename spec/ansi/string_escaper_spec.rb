@@ -9,6 +9,28 @@ module CLAide
       @subject = 'test string'
     end
 
+    it "doesn't edit in place the original string" do
+      @subject.ansi.yellow.should == "\e[33mtest string\e[39m"
+      @subject.should == 'test string'
+    end
+
+    it 'supports chaining' do
+      @subject.ansi.yellow.bold.should ==
+        "\e[1m\e[33mtest string\e[39m\e[21m"
+    end
+
+    it 'allows to apply a single key' do
+      @subject.ansi.apply(:yellow).should == "\e[33mtest string\e[39m"
+    end
+
+    it 'allows to apply a multiple keys' do
+      @subject.ansi.apply(:yellow, :bold).should ==
+        "\e[1m\e[33mtest string\e[39m\e[21m"
+
+      @subject.ansi.apply([:yellow, :bold]).should ==
+        "\e[1m\e[33mtest string\e[39m\e[21m"
+    end
+
     it 'includes methods to set the foreground color' do
       @subject.ansi.yellow.should == "\e[33mtest string\e[39m"
     end
