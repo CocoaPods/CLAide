@@ -115,7 +115,7 @@ module CLAide
           @arguments = arguments
         else
           warn '[!] The specification of arguments as a string has been' \
-            " deprecated #{self}: `#{arguments}`"
+            " deprecated #{self}: `#{arguments}`".ansi.yellow
           @arguments = arguments.split(' ').map do |argument|
             if argument.start_with?('[')
               [argument.sub(/\[(.*)\]/, '\1'), :optional]
