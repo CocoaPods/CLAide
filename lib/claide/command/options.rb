@@ -67,9 +67,8 @@ module CLAide
       def self.print_version(command)
         puts command.class.version
         if command.verbose?
-          prefix = command.class.plugin_prefix
-          PluginsHelper.plugin_load_paths(prefix).each do |path|
-            puts PluginsHelper.plugin_info(path)
+          PluginsHelper.specifications.each do |spec|
+            puts "#{spec.name}: #{spec.version}"
           end
         end
       end

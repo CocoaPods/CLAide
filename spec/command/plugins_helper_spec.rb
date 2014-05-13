@@ -6,6 +6,71 @@ module CLAide
   describe Command::PluginsHelper do
     before do
       @subject = Command::PluginsHelper
+      @subject.instance_variable_set(:@plugin_paths, nil)
+      @subject.stubs(:require)
+      @path = ROOT + 'spec/fixture/command/plugin_fixture.rb'
+      Gem.stubs(:find_latest_files).returns([@path])
+    end
+
+    describe '::load_plugins' do
+      it 'requires the plugins paths' do
+        @subject.expects(:safe_require).with(@path.to_s)
+        @subject.load_plugins('fixture')
+      end
+
+      it 'requires the plugins paths' do
+        @subject.load_plugins('fixture')
+        @subject.plugin_paths.should == [
+          ROOT + 'spec/fixture'
+        ]
+      end
+
+      it 'requires the plugins only if they have not been already loaded' do
+        @subject.expects(:safe_require).with(@path.to_s).once
+        @subject.load_plugins('fixture')
+        @subject.load_plugins('fixture')
+      end
+    end
+
+    describe '::specifications' do
+      it 'returns the list of the specifications' do
+        spec = stub
+        @subject.load_plugins('fixture')
+        @subject.expects(:specification).with(@path + '../../').returns(spec)
+        @subject.specifications.should == [spec]
+      end
+    end
+
+    describe '::specification' do
+      it 'returns the list of the specifications' do
+        root = @path + '../../'
+        gemspec_glob = "#{root}/*.gemspec"
+        gemspec_path = @path + '../../fixtures.gemspec'
+        spec = stub
+        Dir.expects(:glob).with(gemspec_glob).returns([gemspec_path])
+        Gem::Specification.expects(:load).with(gemspec_path).returns(spec)
+        @subject.specification(root).should == spec
+      end
+
+      it 'warns if unable to load a specification' do
+        root = @path + '../../'
+        message = '[!] Unable to load a specification for the plugin ' \
+          "`#{root}`"
+        Dir.expects(:glob).returns([])
+        @subject.expects(:warn).with(message)
+        @subject.specification(root).should.nil?
+      end
+    end
+
+    describe '::plugins_involved_in_exception' do
+      it 'returns the list of the plugins involved in an exception' do
+        backtrace = [(@path + '../command.rb').to_s]
+        exception = stub(:backtrace => backtrace)
+        @subject.load_plugins('fixture')
+        @subject.plugins_involved_in_exception(exception).should == [
+          'fixture'
+        ]
+      end
     end
 
     describe '::plugin_load_paths' do
@@ -29,45 +94,9 @@ module CLAide
       end
     end
 
-    describe '::plugin_info' do
-      it 'returns the information for a given plugin' do
-        path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
-        gemspec = 'path/to/gems/cocoapods-plugins/cocoapods-plugins.gemspec'
-        spec = stub(:name => 'cocoapods-plugins', :version => '0.1.0')
-        @subject.stubs(:find_gemspec).returns(gemspec)
-        Gem::Specification.expects(:load).with(gemspec).returns(spec)
-        @subject.plugin_info(path).should == 'cocoapods-plugins: 0.1.0'
-      end
-
-      it 'returns an error message if the specification could not be loaded' do
-        path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
-        @subject.stubs(:find_gemspec).returns(nil)
-        result = @subject.plugin_info(path)
-        result.should.include('[!] Unable to load a specification for ')
-        result.should.include('path/to/gems/cocoapods-plugins')
-      end
-    end
-
-    describe '::find_gemspec' do
-      it 'returns the path of the gemspec of a path' do
-        path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
-        gemspec_glob = 'path/to/gems/cocoapods-plugins/*.gemspec'
-        gemspec = 'path/to/gems/cocoapods-plugins/cocoapods-plugins.gemspec'
-        Dir.stubs(:glob).returns([])
-        Dir.expects(:glob).with(gemspec_glob).returns([gemspec])
-        @subject.find_gemspec(path).should == gemspec
-      end
-    end
-
-    describe '::reverse_ascending_paths' do
-      it 'returns the parent paths of a path' do
-        @subject.reverse_ascending_paths('dir_1/dir_2/file').should ==
-        %w( dir_1/dir_2 dir_1 )
-      end
-    end
-
     describe '::safe_require' do
       it 'requires a path catching any exception' do
+        @subject.unstub(:require)
         path = ROOT + 'spec/fixture/command/load_error_plugin_fixture.rb'
 
         def @subject.puts(text)
