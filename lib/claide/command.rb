@@ -89,8 +89,12 @@ module CLAide
       #
       attr_accessor :plugin_prefix
 
-      # @return [Array<String>] A list of arguments the command handles. This
+      # @return [Array<Tuple>] A list of arguments the command handles. This
       #         is shown in the usage section of the command’s help banner.
+      #         Each tuple in the array represents an argument using
+      #         [name, type] where:
+      #          - name is a String containing the argument
+      #          - type is either :optional or :required
       #
       # @TODO   Remove deprecation
       #
@@ -100,6 +104,12 @@ module CLAide
         @arguments ||= []
       end
 
+      # @param [Array<Tuple>] arguments
+      #        An array containing arguments, each described by a tuple of
+      #        the form [name, type], where:
+      #          - name is a String containing the argument
+      #          - type is either :optional or :required
+      #
       def arguments=(arguments)
         if arguments.is_a?(Array)
           @arguments = arguments
