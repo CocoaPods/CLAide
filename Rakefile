@@ -4,9 +4,14 @@
 
 desc 'Initializes your working copy to run the specs'
 task :bootstrap do
-  title 'Installing gems'
-  sh 'gem install bundler'
-  sh 'bundle install'
+  if system('which bundle')
+    title 'Installing gems'
+    sh 'bundle install'
+  else
+  	$stderr.puts red("[!] Please install the bundler gem manually:\n" \
+	  '    $ [sudo] gem install bundler')
+	exit 1
+  end
 end
 
 begin
@@ -32,8 +37,8 @@ begin
   end
 
 rescue LoadError
-  $stderr.puts '[!] Some Rake tasks haven been disabled because the ' \
-    'environment couldn’t be loaded. Be sure to run `rake bootstrap` first.'
+  $stderr.puts red('[!] Some Rake tasks haven been disabled because the ' \
+    'environment couldn’t be loaded. Be sure to run `rake bootstrap` first.')
 end
 
 #-- Helpers ------------------------------------------------------------------#
@@ -45,4 +50,8 @@ def title(title)
   puts cyan_title
   puts '-' * 80
   puts
+end
+
+def red(string)
+  "\033[0;31m#{string}\e[0m"
 end
