@@ -21,7 +21,7 @@ module CLAide
       it 'requires the plugins paths' do
         @subject.load_plugins('fixture')
         @subject.plugin_paths.should == [
-          ROOT + 'spec/fixture'
+          ROOT + 'spec/fixture',
         ]
       end
 
@@ -68,7 +68,7 @@ module CLAide
         exception = stub(:backtrace => backtrace)
         @subject.load_plugins('fixture')
         @subject.plugins_involved_in_exception(exception).should == [
-          'fixture'
+          'fixture',
         ]
       end
     end

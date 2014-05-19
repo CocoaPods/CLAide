@@ -317,9 +317,10 @@ module CLAide
     #
     def self.report_error(exception)
       plugins = PluginsHelper.plugins_involved_in_exception(exception)
-      puts '[!] The exceptions involves the following plugins:' \
-        "\n -  #{plugins.join("\n -  ")}\n".ansi.yellow
-
+      unless plugins.empty?
+        puts '[!] The exceptions involves the following plugins:' \
+          "\n -  #{plugins.join("\n -  ")}\n".ansi.yellow
+      end
       raise exception
     end
 
