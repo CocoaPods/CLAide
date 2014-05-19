@@ -1,8 +1,30 @@
-## Master
+# CLAide Changelog
+
+## 0.6.0
+
+###### Enhancements
+
+* Use an array to describe arguments.  
+  [Fabio Pelosin][irrationalfab]
+  [#26](https://github.com/CocoaPods/CLAide/issues/26)
+
+* Improved layout and contents of help banner
+  [Fabio Pelosin][irrationalfab]
+  [#25](https://github.com/CocoaPods/CLAide/pull/25)
 
 * Colorize option, arguments, and example commands in the help banner.  
   [Fabio Pelosin][irrationalfab]
   [#12](https://github.com/CocoaPods/CLAide/issues/12)
+
+* Add support for ANSI escape sequences.  
+  [Fabio Pelosin][irrationalfab]
+  [#17](https://github.com/CocoaPods/CLAide/issues/17)
+  [#20](https://github.com/CocoaPods/CLAide/pull/20)
+  [#24](https://github.com/CocoaPods/CLAide/pull/24)
+
+* Add support for completion script
+  [Fabio Pelosin][irrationalfab]
+  [#19](https://github.com/CocoaPods/CLAide/pull/19)
 
 * Add support for version logic via the introduction of the `version` class
   attribute to the `CLAide::Commmand` class. If a value for the attribute is
