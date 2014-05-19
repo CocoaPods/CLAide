@@ -6,7 +6,7 @@ module CLAide
     # `ANSI.disabled` setting.
     #
     class StringEscaper < String
-      # @param  [String] The string to wrap.
+      # @param  [String] string The string to wrap.
       #
       def initialize(string)
         super

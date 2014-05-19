@@ -39,7 +39,7 @@ module CLAide
       # @return [String] The escape sequence for a foreground color using the
       #         xterm-256 format.
       #
-      # @param  [Fixnum] key
+      # @param  [Fixnum] color
       #         The value of the color.
       #
       def self.foreground_color_256(color)
@@ -50,7 +50,7 @@ module CLAide
       # @return [String] The escape sequence for a background color using the
       #         xterm-256 format.
       #
-      # @param  [Fixnum] key
+      # @param  [Fixnum] color
       #         The value of the color.
       #
       def self.background_color_256(color)

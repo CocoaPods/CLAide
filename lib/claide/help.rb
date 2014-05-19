@@ -33,7 +33,7 @@ module CLAide
     end
 
     # @return [String] The optional error message, colored in red if
-    #         {Command.colorize_output} is set to `true`.
+    #         {Command.ansi_output} is set to `true`.
     #
     def formatted_error_message
       if error_message

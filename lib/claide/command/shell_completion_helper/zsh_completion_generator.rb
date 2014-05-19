@@ -32,7 +32,7 @@ module CLAide
         # @param  [Class] command
         #         The command to generate the fragment for.
         #
-        # @param  [Fixnum] nesting_level
+        # @param  [Fixnum] nest_level
         #         The nesting level to detect the index of the words array.
         #
         # @return [String] the case statement fragment.
@@ -82,7 +82,7 @@ module CLAide
         # @param  [Class] command
         #         The command to generate the fragment for.
         #
-        # @param  [Fixnum] nesting_level
+        # @param  [Fixnum] nest_level
         #         The nesting level to detect the index of the words array.
         #
         # @return [String] the case statement fragment.

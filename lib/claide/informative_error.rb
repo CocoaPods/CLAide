@@ -5,7 +5,7 @@ module CLAide
   # while running {Command.run}, only the message of the exception will be
   # shown to the user. Unless disabled with the `--verbose` flag.
   #
-  # In addition, the message will be colored red, if {Command.colorize_output}
+  # In addition, the message will be colored red, if {Command.ansi_output}
   # is set to `true`.
   #
   module InformativeError

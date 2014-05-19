@@ -63,7 +63,7 @@ module CLAide
       # @param  [String] suggestion
       #         The suggestion to prettify.
       #
-      # @param  [Type]
+      # @param  [Type] type
       #         The type of the suggestion: either `:command` or `:option`.
       #
       # @return [String] A handsome suggestion.

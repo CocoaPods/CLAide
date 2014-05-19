@@ -89,22 +89,22 @@ module CLAide
       #
       attr_accessor :plugin_prefix
 
-      # @return [Array<Tuple>] A list of arguments the command handles. This
-      #         is shown in the usage section of the command’s help banner.
-      #         Each tuple in the array represents an argument using
-      #         [name, type] where:
+      # @return [Array<Array<String,Symbol>>]
+      #         A list of arguments the command handles. This is shown
+      #         in the usage section of the command’s help banner.
+      #         Each Array<String,Symbol> tuple in the array represents an
+      #         argument using the form [name, type] where:
       #          - name is a String containing the argument
       #          - type is either :optional or :required
       #
-      # @TODO   Remove deprecation
+      # @todo   Remove deprecation
       #
-      # rubocop:disable all
       attr_accessor :arguments
       def arguments
         @arguments ||= []
       end
 
-      # @param [Array<Tuple>] arguments
+      # @param [Array<Array<String,Symbol>>] arguments
       #        An array containing arguments, each described by a tuple of
       #        the form [name, type], where:
       #          - name is a String containing the argument
@@ -125,7 +125,6 @@ module CLAide
           end
         end
       end
-      # rubocop:enable all
 
       # @return [Boolean] The default value for {Command#ansi_output}. This
       #         defaults to `true` if `STDOUT` is connected to a TTY and
@@ -350,9 +349,6 @@ module CLAide
     # @visibility private
     #
     # Returns the banner for the command.
-    #
-    # @param  [Boolean] ansi
-    #         Whether the banner should use ANSI codes to prettify output.
     #
     # @param  [Class] banner_class
     #         The class to use to format help banners.
