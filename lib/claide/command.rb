@@ -110,6 +110,7 @@ module CLAide
       #          - name is a String containing the argument
       #          - type is either :optional or :required
       #
+      # rubocop:disable MethodLength
       def arguments=(arguments)
         if arguments.is_a?(Array)
           @arguments = arguments
@@ -125,6 +126,7 @@ module CLAide
           end
         end
       end
+      # rubocop:enable MethodLength
 
       # @return [Boolean] The default value for {Command#ansi_output}. This
       #         defaults to `true` if `STDOUT` is connected to a TTY and
