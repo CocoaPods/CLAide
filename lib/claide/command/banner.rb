@@ -27,7 +27,7 @@ module CLAide
           ['Options',  formatted_options_description]
         ]
         banner = sections.map do |(title, body)|
-          ["#{prettify_title(title)}:", body] unless body.empty?
+          [prettify_title("#{title}:"), body] unless body.empty?
         end.compact.join("\n\n")
         banner
       end
