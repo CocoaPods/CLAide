@@ -275,8 +275,8 @@ module CLAide
       PluginsHelper.load_plugins(plugin_prefix)
       command = parse(argv)
 
+      ANSI.disabled = !command.ansi_output?
       unless Options.handle_root_option(command, argv)
-        ANSI.disabled = !ansi_output?
         command.validate!
         command.run
       end

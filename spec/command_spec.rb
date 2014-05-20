@@ -148,6 +148,13 @@ module CLAide
         end
       end
 
+      it 'configures whether ANSI output is enabled' do
+        ANSI.expects(:disabled=).with(true)
+        @subject.any_instance.expects(:validate!)
+        @subject.any_instance.expects(:run)
+        @subject.run(%w(--help --no-ansi))
+      end
+
       it 'sets the verbose flag' do
         command = @subject.parse([])
         command.should.not.be.verbose
