@@ -1,5 +1,16 @@
 # CLAide Changelog
 
+## 0.6.1
+
+###### Bug Fixes
+
+* Respect the ANSI flag for the help banner.
+  [Fabio Pelosin][irrationalfab]
+  [#34](https://github.com/CocoaPods/CLAide/issues/34)
+
+* Underline the colon of the titles of the help banner.
+  [Fabio Pelosin][irrationalfab]
+
 ## 0.6.0
 
 ###### Enhancements
