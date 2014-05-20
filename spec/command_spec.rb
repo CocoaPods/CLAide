@@ -38,7 +38,7 @@ module CLAide
 
       it 'returns the signature arguments' do
         @subject::SpecFile::Lint.arguments.should == [
-          ['NAME', :optional]
+          CLAide::Argument['NAME', false]
         ]
       end
     end
