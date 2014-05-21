@@ -15,15 +15,6 @@ module CLAide
     attr_accessor :required
     alias_method :required?, :required
 
-    # @return [Boolean]
-    #         Indicates if the argument is optional (not required)
-    #
-    # @note This is a convenience accessor for !required?
-    #
-    def optional?
-      !@required
-    end
-
     # @param [String,Array<String>] names
     #        List of the names of each parameter alternatives.
     #        For convenience, if there is only one alternative for that
@@ -40,19 +31,6 @@ module CLAide
     def initialize(names, required)
       @names = Array(names)
       @required = required
-    end
-
-    # Convenience constructor
-    #
-    # @example
-    #
-    #   # A required parameter called 'NAME'
-    #   Argument['NAME', true]
-    #
-    # @see Argument#initialize
-    #
-    def self.[](*params)
-      new(*params)
     end
 
     # @return [Boolean] true on equality

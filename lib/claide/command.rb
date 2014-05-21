@@ -471,7 +471,7 @@ module CLAide
       @arguments = arguments.map do |(name_str, type)|
         names = name_str.split('|')
         required = (type == :required)
-        Argument[names, required]
+        Argument.new(names, required)
       end
     end
 
@@ -486,9 +486,9 @@ module CLAide
             " deprecated #{self}: `#{arguments}`".ansi.yellow
       @arguments = arguments.split(' ').map do |argument|
         if argument.start_with?('[')
-          Argument[argument.sub(/\[(.*)\]/, '\1').split('|'), false]
+          Argument.new(argument.sub(/\[(.*)\]/, '\1').split('|'), false)
         else
-          Argument[argument.split('|'), true]
+          Argument.new(argument.split('|'), true)
         end
       end
     end

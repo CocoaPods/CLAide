@@ -63,7 +63,7 @@ class BeverageMaker < CLAide::Command
     DESC
 
     self.arguments = [
-      CLAide::Argument[:FLAVOR, false]
+      CLAide::Argument.new(:FLAVOR, false)
     ]
 
     def self.options

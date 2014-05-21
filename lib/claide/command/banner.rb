@@ -85,7 +85,7 @@ module CLAide
       def signature_arguments
         command.arguments.map do |arg|
           names = arg.names.join('|')
-          arg.optional? ? "[#{names}]" : names
+          arg.required? ? names : "[#{names}]"
         end.join(' ')
       end
 
