@@ -32,7 +32,7 @@ module CLAide
           message = message.dup
           command.arguments.each do |arg|
             arg.names.each do |name|
-              message.gsub!("`#{name}`", '\0'.ansi.magenta)
+              message.gsub!("`#{name.gsub(/\.{3}$/, '')}`", '\0'.ansi.magenta)
             end
           end
           command.options.each do |(name, _description)|
