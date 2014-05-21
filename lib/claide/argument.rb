@@ -5,6 +5,10 @@ module CLAide
   # the command help banner
   #
   class Argument
+    # The string to use to represent ellipsis
+    #
+    ELLIPSIS = '...'
+
     # @return [Array<String>]
     #         List of alternate names for the parameters
     attr_reader :names
@@ -33,11 +37,25 @@ module CLAide
       @required = required
     end
 
+    # @return [Argument] a new instance representing
+    #         the special ellipsis (...) argument
+    #
+    def self.ellipsis
+      new ELLIPSIS, false
+    end
+
+    # @return [Boolean] true if this Argument is the special ellipsis argument
+    #
+    def ellipsis?
+      @names == [ELLIPSIS]
+    end
+
     # @return [Boolean] true on equality
     #
     # @param [Argument] other the Argument compared against
     #
     def ==(other)
+      other.is_a?(Argument) &&
       names == other.names && required == other.required
     end
   end
