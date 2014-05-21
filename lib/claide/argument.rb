@@ -25,9 +25,9 @@ module CLAide
     end
 
     # @param [String,Array<String>] names
-    #        List of the names of each parameter alternatives
-    #        For convenience, if there is only one alternative for that parameter
-    #        then we can directly use the String instead of a 1-item Array
+    #        List of the names of each parameter alternatives.
+    #        For convenience, if there is only one alternative for that
+    #        parameter, we can use a String instead of a 1-item Array
     #
     # @param [Boolean] required
     #        true if the parameter is required, false if it is optional
