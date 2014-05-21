@@ -18,7 +18,7 @@ module CLAide
     # @return [Boolean]
     #         Indicates if the argument is optional (not required)
     #
-    # @note This is a commodity accessor for !required?
+    # @note This is a convenience accessor for !required?
     #
     def optional?
       !@required
@@ -26,7 +26,7 @@ module CLAide
 
     # @param [String,Array<String>] names
     #        List of the names of each parameter alternatives
-    #        For commodity, if there is only one alternative for that parameter
+    #        For convenience, if there is only one alternative for that parameter
     #        then we can directly use the String instead of a 1-item Array
     #
     # @param [Boolean] required
@@ -42,7 +42,7 @@ module CLAide
       @required = required
     end
 
-    # Commodity constructor
+    # Convenience constructor
     #
     # @example
     #
