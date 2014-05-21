@@ -36,5 +36,18 @@ module CLAide
         @subject.suggestion_list(Fixture::Command, :arg).should == expected
       end
     end
+
+    describe '::suggestion_message' do
+      it 'returns the message for a suggestion' do
+        result = @subject.suggestion_message('spec-file', :arg, 'spec_file')
+        result.should == "Unknown command: `spec_file`\n" \
+          'Did you mean: spec-file'
+      end
+
+      it 'returns a different message if there is no suggestion' do
+        result = @subject.suggestion_message(nil, :arg, 'spec_file')
+        result.should == 'Unknown command: `spec_file`'
+      end
+    end
   end
 end

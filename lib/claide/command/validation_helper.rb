@@ -18,10 +18,7 @@ module CLAide
         type = ARGV::Parser.argument_type(string)
         list = suggestion_list(command_class, type)
         suggestion = ValidationHelper.suggestion(string, list)
-        pretty_suggestion = prettify_validation_suggestion(suggestion, type)
-        string_type = type == :arg ? 'command' : 'option'
-        "Unknown #{string_type}: `#{string}`\n" \
-          "Did you mean: #{pretty_suggestion}"
+        suggestion_message(suggestion, type, string)
       end
 
       # @return [Array<String>] The list of the valid arguments for a command
@@ -56,6 +53,29 @@ module CLAide
           Helper.levenshtein_distance(string, element)
         end
         sorted.first
+      end
+
+      # @return [String] Returns a message including a suggestion for the given
+      #         suggestion.
+      #
+      # @param  [String, Nil] suggestion
+      #         The suggestion.
+      #
+      # @param  [Symbol] type
+      #         The type of the suggestion.
+      #
+      # @param  [String] string
+      #         The unrecognized string.
+      #
+      def self.suggestion_message(suggestion, type, string)
+        string_type = type == :arg ? 'command' : 'option'
+        if suggestion
+          pretty_suggestion = prettify_validation_suggestion(suggestion, type)
+          "Unknown #{string_type}: `#{string}`\n" \
+            "Did you mean: #{pretty_suggestion}"
+        else
+          "Unknown #{string_type}: `#{string}`"
+        end
       end
 
       # Prettifies the given validation suggestion according to the type.
