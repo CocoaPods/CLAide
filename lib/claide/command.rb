@@ -6,7 +6,6 @@ require 'claide/command/plugins_helper'
 require 'claide/command/options'
 require 'claide/command/shell_completion_helper'
 require 'claide/command/validation_helper'
-require 'claide/argument'
 
 module CLAide
   # This class is used to build a command-line interface

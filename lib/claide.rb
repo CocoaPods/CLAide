@@ -11,6 +11,7 @@ module CLAide
   VERSION = '0.6.1'
 
   require 'claide/ansi'
+  require 'claide/argument'
   require 'claide/argv'
   require 'claide/command'
   require 'claide/help'
