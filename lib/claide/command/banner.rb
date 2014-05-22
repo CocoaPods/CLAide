@@ -85,6 +85,7 @@ module CLAide
       def signature_arguments
         command.arguments.map do |arg|
           names = arg.names.join('|')
+          names.concat(' ' + Argument::ELLIPSIS) if arg.repeatable?
           arg.required? ? names : "[#{names}]"
         end.join(' ')
       end

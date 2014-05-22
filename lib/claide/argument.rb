@@ -5,7 +5,7 @@ module CLAide
   # the command help banner
   #
   class Argument
-    # The string to use to represent ellipsis
+    # The string used for ellipsis / repeatable arguments in the banner
     #
     ELLIPSIS = '...'
 
@@ -19,6 +19,13 @@ module CLAide
     attr_accessor :required
     alias_method :required?, :required
 
+    # @return [Boolean]
+    #         Indicates if the argument is repeatable (= can appear multiple
+    #         times in the command, which is indicated by '...' in the banner)
+    #
+    attr_accessor :repeatable
+    alias_method :repeatable?, :repeatable
+
     # @param [String,Array<String>] names
     #        List of the names of each parameter alternatives.
     #        For convenience, if there is only one alternative for that
@@ -27,27 +34,20 @@ module CLAide
     # @param [Boolean] required
     #        true if the parameter is required, false if it is optional
     #
+    # @param [Boolean] repeatable
+    #        If true, the argument can appear multiple times in the command.
+    #        In that case, an ellipsis will be appended after the argument
+    #        in the help banner.
+    #
     # @example
     #
     #   # A required parameter that can be either a NAME or URL
     #   Argument.new(%(NAME URL), true)
     #
-    def initialize(names, required)
+    def initialize(names, required, repeatable = false)
       @names = Array(names)
       @required = required
-    end
-
-    # @return [Argument] a new instance representing
-    #         the special ellipsis (...) argument
-    #
-    def self.ellipsis
-      new ELLIPSIS, false
-    end
-
-    # @return [Boolean] true if this Argument is the special ellipsis argument
-    #
-    def ellipsis?
-      @names == [ELLIPSIS]
+      @repeatable = repeatable
     end
 
     # @return [Boolean] true on equality
