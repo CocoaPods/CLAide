@@ -466,7 +466,7 @@ module CLAide
     # @todo Remove deprecated format support
     #
     def self.arguments_array=(arguments)
-      warn '[!] The signature of CLAide#arguments as changed. ' \
+      warn '[!] The signature of CLAide#arguments has changed. ' \
         "Use CLAide::Argument (#{self}: `#{arguments}`)".ansi.yellow
       @arguments = arguments.map do |(name_str, type)|
         names = name_str.split('|')
