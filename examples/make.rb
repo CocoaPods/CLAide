@@ -62,7 +62,9 @@ class BeverageMaker < CLAide::Command
       The following flavors are available: black, green, oolong, and white.
     DESC
 
-    self.arguments = '[FLAVOR]'
+    self.arguments = [
+      CLAide::Argument.new(:FLAVOR, false)
+    ]
 
     def self.options
       [['--iced', 'the ice-tea version']].concat(super)

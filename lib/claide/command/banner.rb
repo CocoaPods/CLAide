@@ -83,10 +83,11 @@ module CLAide
       # @return [String] The arguments of the signature.
       #
       def signature_arguments
-        command.arguments.reduce('') do |memo, (name, type)|
-          name = "[#{name}]" if type == :optional
-          memo << ' ' << name
-        end.lstrip
+        command.arguments.map do |arg|
+          names = arg.names.join('|')
+          names.concat(' ' + Argument::ELLIPSIS) if arg.repeatable?
+          arg.required? ? names : "[#{names}]"
+        end.join(' ')
       end
 
       # @return [String] The section describing the subcommands of the command.

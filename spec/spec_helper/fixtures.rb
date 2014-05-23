@@ -20,7 +20,7 @@ module Fixture
       class Lint < CommonInvisibleCommand
         self.summary = 'Checks the validity of a spec file.'
         self.arguments = [
-          ['NAME', :optional]
+          CLAide::Argument.new('NAME', false)
         ]
 
         def self.options
@@ -39,7 +39,7 @@ module Fixture
           and populates it with defaults.
         DESC
         self.arguments = [
-          ['NAME', :optional]
+          CLAide::Argument.new('NAME', false)
         ]
 
         attr_reader :spec

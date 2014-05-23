@@ -1,5 +1,17 @@
 # CLAide Changelog
 
+## Master
+
+###### Enhancements
+
+* Use the Argument class to describe arguments.
+  [Olivier Halligon][AliSoftware]
+  [#33](https://github.com/CocoaPods/CLAide/issues/33)
+
+* Support for argument alternatives and repeatable arguments (ellipsis)
+  [Olivier Halligon][AliSoftware]
+  [#33](https://github.com/CocoaPods/CLAide/issues/33)
+
 ## 0.6.1
 
 ###### Bug Fixes

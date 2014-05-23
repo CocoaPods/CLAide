@@ -89,44 +89,34 @@ module CLAide
       #
       attr_accessor :plugin_prefix
 
-      # @return [Array<Array<String,Symbol>>]
+      # @return [Array<Argument>]
       #         A list of arguments the command handles. This is shown
       #         in the usage section of the command’s help banner.
-      #         Each Array<String,Symbol> tuple in the array represents an
-      #         argument using the form [name, type] where:
-      #          - name is a String containing the argument
-      #          - type is either :optional or :required
+      #         Each Argument in the array represents an argument by its name
+      #         (or list of alternatives) and whether it's required or optional
       #
-      # @todo   Remove deprecation
-      #
-      attr_accessor :arguments
       def arguments
         @arguments ||= []
       end
 
-      # @param [Array<Array<String,Symbol>>] arguments
-      #        An array containing arguments, each described by a tuple of
-      #        the form [name, type], where:
-      #          - name is a String containing the argument
-      #          - type is either :optional or :required
+      # @param [Array<Argument>] arguments
+      #        An array listing the command arguments.
+      #        Each Argument object describe the argument by its name
+      #        (or list of alternatives) and whether it's required or optional
       #
-      # rubocop:disable MethodLength
+      # @todo   Remove deprecation
+      #
       def arguments=(arguments)
         if arguments.is_a?(Array)
-          @arguments = arguments
-        else
-          warn '[!] The specification of arguments as a string has been' \
-            " deprecated #{self}: `#{arguments}`".ansi.yellow
-          @arguments = arguments.split(' ').map do |argument|
-            if argument.start_with?('[')
-              [argument.sub(/\[(.*)\]/, '\1'), :optional]
-            else
-              [argument, :required]
-            end
+          if arguments.empty? || arguments[0].is_a?(Argument)
+            @arguments = arguments
+          else
+            self.arguments_array = arguments
           end
+        else
+          self.arguments_string = arguments
         end
       end
-      # rubocop:enable MethodLength
 
       # @return [Boolean] The default value for {Command#ansi_output}. This
       #         defaults to `true` if `STDOUT` is connected to a TTY and
@@ -467,5 +457,40 @@ module CLAide
     end
 
     #-------------------------------------------------------------------------#
+
+    # Handle deprecated form of self.arguments as an
+    # Array<Array<(String, Symbol)>> like in:
+    #
+    #   self.arguments = [ ['NAME', :required], ['QUERY', :optional] ]
+    #
+    # @todo Remove deprecated format support
+    #
+    def self.arguments_array=(arguments)
+      warn '[!] The signature of CLAide#arguments has changed. ' \
+        "Use CLAide::Argument (#{self}: `#{arguments}`)".ansi.yellow
+      @arguments = arguments.map do |(name_str, type)|
+        names = name_str.split('|')
+        required = (type == :required)
+        Argument.new(names, required)
+      end
+    end
+
+    # Handle deprecated form of self.arguments as a String, like in:
+    #
+    #   self.arguments = 'NAME [QUERY]'
+    #
+    # @todo Remove deprecated format support
+    #
+    def self.arguments_string=(arguments)
+      warn '[!] The specification of arguments as a string has been' \
+            " deprecated #{self}: `#{arguments}`".ansi.yellow
+      @arguments = arguments.split(' ').map do |argument|
+        if argument.start_with?('[')
+          Argument.new(argument.sub(/\[(.*)\]/, '\1').split('|'), false)
+        else
+          Argument.new(argument.split('|'), true)
+        end
+      end
+    end
   end
 end

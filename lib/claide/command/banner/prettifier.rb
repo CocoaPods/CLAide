@@ -30,11 +30,13 @@ module CLAide
         #
         def self.prettify_message(command, message)
           message = message.dup
-          [[command.arguments, :magenta],
-           [command.options, :blue]].each do |(list, ansi_key)|
-            list.map(&:first).each do |name|
-              message.gsub!(/`#{name}`/, "`#{name}`".ansi.apply(ansi_key))
+          command.arguments.each do |arg|
+            arg.names.each do |name|
+              message.gsub!("`#{name.gsub(/\.{3}$/, '')}`", '\0'.ansi.magenta)
             end
+          end
+          command.options.each do |(name, _description)|
+            message.gsub!("`#{name}`", '\0'.ansi.blue)
           end
           message
         end

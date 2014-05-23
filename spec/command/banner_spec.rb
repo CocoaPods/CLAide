@@ -77,5 +77,79 @@ module CLAide
         result.should.include('+ lint      Checks the validity of a spec file')
       end
     end
+
+    describe 'banner command arguments' do
+      it 'should correctly display required single argument' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new('REQUIRED', true)
+          ])
+        banner.send(:signature_arguments).should == 'REQUIRED'
+      end
+
+      it 'should correctly display required alternate arguments' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new(%w(REQ1 REQ2), true)
+          ])
+        banner.send(:signature_arguments).should == 'REQ1|REQ2'
+      end
+
+      it 'should correctly display optional single argument' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new('OPTIONAL', false)
+          ])
+        banner.send(:signature_arguments).should == '[OPTIONAL]'
+      end
+
+      it 'should correctly display optional alternate arguments' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new(%w(OPT1 OPT2), false)
+          ])
+        banner.send(:signature_arguments).should == '[OPT1|OPT2]'
+      end
+
+      it 'should correctly display required, repeatable single argument' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new('REQUIRED', true, true)
+          ])
+        banner.send(:signature_arguments).should == 'REQUIRED ...'
+      end
+
+      it 'should correctly display required, repeatable alternate arguments' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new(%w(REQ1 REQ2), true, true)
+          ])
+        banner.send(:signature_arguments).should == 'REQ1|REQ2 ...'
+      end
+
+      it 'should correctly display optional, repeatable single argument' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new('OPTIONAL', false, true)
+          ])
+        banner.send(:signature_arguments).should == '[OPTIONAL ...]'
+      end
+
+      it 'should correctly display optional, repeatable alternate arguments' do
+        banner = Command::Banner.new(Fixture::Command::SpecFile)
+        Fixture::Command::SpecFile.stubs(:arguments).returns(
+          [
+            CLAide::Argument.new(%w(OPT1 OPT2), false, true)
+          ])
+        banner.send(:signature_arguments).should == '[OPT1|OPT2 ...]'
+      end
+    end
   end
 end

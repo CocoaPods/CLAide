@@ -7,7 +7,7 @@ module Fixture
         Let’s add plugins to CLAide and CocoaPods.
       DESC
       self.arguments = [
-        ['NAME', :optional]
+        CLAide::Argument.new('NAME', false)
       ]
 
       attr_reader :name
