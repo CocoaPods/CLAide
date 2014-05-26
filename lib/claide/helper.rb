@@ -33,9 +33,10 @@ module CLAide
     def self.format_markdown(string, indent = 0, max_width = 80)
       paragraphs = Helper.strip_heredoc(string).split("\n\n")
       paragraphs = paragraphs.map do |paragraph|
-        unless paragraph.start_with?(' ' * 4)
-          full_line = paragraph.gsub("\n", ' ')
-          paragraph = wrap_with_indent(full_line, indent, max_width)
+        if paragraph.start_with?(' ' * 4)
+          paragraph.gsub!(/\n/, "\n#{' ' * indent}")
+        else
+          paragraph = wrap_with_indent(paragraph, indent, max_width)
         end
         paragraph.insert(0, ' ' * indent).rstrip
       end
@@ -62,9 +63,10 @@ module CLAide
         width = [terminal_width, max_width].min
       end
 
+      full_line = string.gsub("\n", ' ')
       available_width = width - indent
       space = ' ' * indent
-      word_wrap(string, available_width).split("\n").join("\n#{space}")
+      word_wrap(full_line, available_width).split("\n").join("\n#{space}")
     end
 
     # @return [String] Lifted straight from ActionView. Thanks guys!

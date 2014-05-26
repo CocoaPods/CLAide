@@ -115,6 +115,27 @@ module CLAide
         DOC
         @subject.format_markdown(string, 0, 20).should == result
       end
+
+      # rubocop:disable all
+      it 'handles multi-line code blocks regarding indentation' do
+        string = <<-DOC.strip_margin('|').rstrip
+          |Examples:
+          |
+          |    $ pod trunk register eloy@example.com 'Eloy Durán' --description='Personal Laptop'
+          |    $ pod trunk register eloy@example.com --description='Work Laptop'
+          |    $ pod trunk register eloy@example.com
+          |
+        DOC
+        result = <<-DOC.strip_margin('|').rstrip
+          |  Examples:
+          |
+          |      $ pod trunk register eloy@example.com 'Eloy Durán' --description='Personal Laptop'
+          |      $ pod trunk register eloy@example.com --description='Work Laptop'
+          |      $ pod trunk register eloy@example.com
+        DOC
+        @subject.format_markdown(string, 2, 20).should == result
+      end
+      # rubocop:enable all
     end
 
     describe '::wrap_with_indent' do
