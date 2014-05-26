@@ -65,8 +65,10 @@ module CLAide
       # @return [String] The signature of the command.
       #
       def signature
-        result = prettify_signature(
-          command.full_command, signature_sub_command, signature_arguments,)
+        full_command = command.full_command
+        sub_command = signature_sub_command
+        arguments = signature_arguments
+        result = prettify_signature(full_command, sub_command, arguments)
         result.insert(0, '$ ')
         result.insert(0, ' ' * (TEXT_INDENT - '$ '.size))
       end
@@ -74,10 +76,8 @@ module CLAide
       # @return [String] The subcommand indicator of the signature.
       #
       def signature_sub_command
-        if command.subcommands.any?
-          command.default_subcommand ? '[COMMAND]' : 'COMMAND'
-        end
-        ''
+        return '[COMMAND]' if command.default_subcommand
+        return 'COMMAND' if command.subcommands.any?
       end
 
       # @return [String] The arguments of the signature.

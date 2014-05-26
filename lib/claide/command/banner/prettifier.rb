@@ -21,8 +21,8 @@ module CLAide
             [argument, :magenta],
           ]
           components.reduce('') do |memo, (string, ansi_key)|
-            memo << ' ' << string.ansi.apply(ansi_key) unless string.empty?
-            memo
+            next memo if !string || string.empty?
+            memo << ' ' << string.ansi.apply(ansi_key)
           end.lstrip
         end
 
