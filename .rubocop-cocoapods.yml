@@ -37,6 +37,11 @@ SingleLineBlockParams:
 Encoding:
   Enabled: false
 
+# Having these make it easier to *not* forget to add one when adding a new
+# value and you can simply copy the previous line.
+TrailingComma:
+  EnforcedStyleForMultiline: comma
+
 #- CocoaPods support for Ruby 1.8.7 ------------------------------------------#
 
 HashSyntax:
@@ -47,6 +52,9 @@ Lambda:
 
 DotPosition:
   EnforcedStyle: trailing
+
+EachWithObject:
+  Enabled: false
 
 #- CocoaPods specs -----------------------------------------------------------#
 
