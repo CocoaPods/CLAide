@@ -30,7 +30,7 @@ module CLAide
           [:arg, 'value'],
           [:flag, ['value', true]],
           [:flag, ['value', false]],
-          [:option, %w(key value)]
+          [:option, %w(key value)],
         ]
       end
     end

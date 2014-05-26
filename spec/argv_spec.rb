@@ -26,7 +26,7 @@ module CLAide
         @subject.options.should == {
           'flag' => true,
           'other-flag' => false,
-          'option' => 'VALUE'
+          'option' => 'VALUE',
         }
       end
 

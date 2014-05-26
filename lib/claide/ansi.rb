@@ -43,7 +43,7 @@ module CLAide
       :underline  => 4,
       :blink      => 5,
       :reverse    => 7,
-      :hidden     => 8
+      :hidden     => 8,
     }
 
     # @return [Hash{Symbol => Fixnum}] The codes to disable a text attribute by
@@ -54,7 +54,7 @@ module CLAide
       :underline  => 24,
       :blink      => 25,
       :reverse    => 27,
-      :hidden     => 28
+      :hidden     => 28,
     }
 
     # Return [String] The escape sequence to reset the graphics.
@@ -71,7 +71,7 @@ module CLAide
       :blue       => 4,
       :magenta    => 5,
       :cyan       => 6,
-      :white      => 7
+      :white      => 7,
     }
 
     # Return [String] The escape sequence for the default foreground color.

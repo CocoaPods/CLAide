@@ -10,7 +10,7 @@ module CLAide
       #
       DEFAULT_ROOT_OPTIONS = [
         ['--completion-script', 'Print the auto-completion script'],
-        ['--version',           'Show the version of the tool']
+        ['--version',           'Show the version of the tool'],
       ]
 
       # @return [Array<Array<String, String>>] The default options implemented
@@ -19,7 +19,7 @@ module CLAide
       DEFAULT_OPTIONS = [
         ['--verbose', 'Show more debugging information'],
         ['--no-ansi', 'Show output without ANSI codes'],
-        ['--help',    'Show help banner of specified command']
+        ['--help',    'Show help banner of specified command'],
       ]
 
       # @return [Array<Array<String, String>>] The list of the default

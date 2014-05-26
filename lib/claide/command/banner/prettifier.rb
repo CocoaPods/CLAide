@@ -18,7 +18,7 @@ module CLAide
           components = [
             [command, :green],
             [subcommand, :green],
-            [argument, :magenta]
+            [argument, :magenta],
           ]
           components.reduce('') do |memo, (string, ansi_key)|
             memo << ' ' << string.ansi.apply(ansi_key) unless string.empty?

@@ -20,7 +20,7 @@ class BeverageMaker < CLAide::Command
   def self.options
     [
       ['--no-milk', 'Don’t add milk to the beverage'],
-      ['--sweetner=[sugar|honey]', 'Use one of the available sweetners']
+      ['--sweetner=[sugar|honey]', 'Use one of the available sweetners'],
     ].concat(super)
   end
 
@@ -63,7 +63,7 @@ class BeverageMaker < CLAide::Command
     DESC
 
     self.arguments = [
-      CLAide::Argument.new(:FLAVOR, false)
+      CLAide::Argument.new(:FLAVOR, false),
     ]
 
     def self.options

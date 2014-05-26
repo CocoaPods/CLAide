@@ -24,7 +24,7 @@ module CLAide
         sections = [
           ['Usage',    formatted_usage_description],
           ['Commands', formatted_subcommand_summaries],
-          ['Options',  formatted_options_description]
+          ['Options',  formatted_options_description],
         ]
         banner = sections.map do |(title, body)|
           [prettify_title("#{title}:"), body] unless body.empty?
@@ -66,7 +66,7 @@ module CLAide
       #
       def signature
         result = prettify_signature(
-          command.full_command, signature_sub_command, signature_arguments)
+          command.full_command, signature_sub_command, signature_arguments,)
         result.insert(0, '$ ')
         result.insert(0, ' ' * (TEXT_INDENT - '$ '.size))
       end
