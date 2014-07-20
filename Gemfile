@@ -15,8 +15,6 @@ group :spec do
   if RUBY_VERSION >= '1.9.3'
     gem 'rubocop'
     gem 'codeclimate-test-reporter', :require => nil
-
-    # Bug: https://github.com/colszowka/simplecov/issues/281
-    gem 'simplecov', '0.7.1'
+    gem 'simplecov'
   end
 end
