@@ -35,7 +35,7 @@ begin
 
   if RUBY_VERSION >= '1.9.3'
     require 'rubocop/rake_task'
-    Rubocop::RakeTask.new
+    RuboCop::RakeTask.new
   end
 
 rescue LoadError
