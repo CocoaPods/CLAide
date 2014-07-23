@@ -440,6 +440,18 @@ module CLAide
 
     protected
 
+    # Returns the class of the invoked command
+    #
+    # @return [Command]
+    #
+    def invoked_command_class
+      if invoked_as_default?
+        self.class.superclass
+      else
+        self.class
+      end
+    end
+
     # @param  [String] error_message
     #         A custom optional error message
     #
@@ -451,12 +463,7 @@ module CLAide
     # @return [void]
     #
     def help!(error_message = nil)
-      if invoked_as_default?
-        command = self.class.superclass
-      else
-        command = self.class
-      end
-      command.help!(error_message)
+      invoked_command_class.help!(error_message)
     end
 
     #-------------------------------------------------------------------------#
