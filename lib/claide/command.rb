@@ -440,6 +440,9 @@ module CLAide
 
     protected
 
+    # @param  [String] error_message
+    #         A custom optional error message
+    #
     # @raise [Help]
     #
     #   Signals CLAide that a help banner for this command should be shown,
