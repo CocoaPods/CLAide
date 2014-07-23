@@ -421,7 +421,7 @@ module CLAide
     # @return [void]
     #
     def validate!
-      help! if @argv.flag?('help')
+      banner! if @argv.flag?('help')
       unless @argv.empty?
         help! ValidationHelper.argument_suggestion(@argv.remainder, self.class)
       end
@@ -464,6 +464,17 @@ module CLAide
     #
     def help!(error_message = nil)
       invoked_command_class.help!(error_message)
+    end
+
+    # Print banner and exit
+    #
+    # @note Calling this method exits the current process.
+    #
+    # @return [void]
+    #
+    def banner!
+      puts invoked_command_class.banner
+      exit 0
     end
 
     #-------------------------------------------------------------------------#
