@@ -142,8 +142,12 @@ module CLAide
     #-------------------------------------------------------------------------#
 
     describe 'default options' do
+      before do
+        @subject.any_instance.stubs(:puts)
+      end
+
       it 'raises a Help exception, without error message' do
-        should_raise_help nil do
+        should_raise_system_exit do
           @subject.parse(%w(--help)).validate!
         end
       end
@@ -174,7 +178,6 @@ module CLAide
     describe 'when running' do
       before do
         @subject.stubs(:puts)
-        @subject.stubs(:exit)
       end
 
       it 'invokes an instance of the parsed subcommand' do
@@ -187,7 +190,18 @@ module CLAide
         ::CLAide::ANSI.disabled = true
         expected = Help.new(@subject.banner).message
         @subject.expects(:puts).with(expected)
-        @subject.run(%w(--help))
+        should_raise_system_exit do
+          @subject.run(%w(--help))
+        end
+      end
+
+      it 'does not print the backtrace if help and verbose are set' do
+        ::CLAide::ANSI.disabled = true
+        expected = Help.new(@subject.banner).message
+        @subject.expects(:puts).with(expected)
+        should_raise_system_exit do
+          @subject.run(%w(--help --verbose))
+        end
       end
 
       it 'prints the backtrace of an InformativeError, if set to verbose' do
@@ -202,7 +216,9 @@ module CLAide
         @subject.expects(:puts).with('the', 'backtrace').
           when(printed.is(:message)).then(printed.is(:done))
 
-        @subject.run(%w(--verbose))
+        should_raise_system_exit do
+          @subject.run(%w(--verbose))
+        end
       end
 
       it 'exits with a failure status when an InformativeError occurs' do
@@ -219,6 +235,7 @@ module CLAide
 
       it 'exits with a success status when an empty Help exception occurs' do
         @subject.expects(:exit).with(0)
+        @subject.any_instance.stubs(:run) # by mocking exit, we reach run
         @subject.run(%w(--help))
       end
 

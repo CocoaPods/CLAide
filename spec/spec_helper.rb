@@ -37,6 +37,16 @@ def should_raise_help(error_message)
   error.error_message.should == error_message
 end
 
+def should_raise_system_exit
+  error = nil
+  begin
+    yield
+  rescue SystemExit => e
+    error = e
+  end
+  error.should.not.nil?
+end
+
 #-- Spec environment ---------------------------------------------------------#
 
 # Specs should produce the same output regardless whether they are called from
