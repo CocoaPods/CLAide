@@ -351,6 +351,19 @@ module CLAide
       banner_class.new(self).formatted_banner
     end
 
+    # @visibility private
+    #
+    # Print banner and exit
+    #
+    # @note Calling this method exits the current process.
+    #
+    # @return [void]
+    #
+    def self.banner!
+      puts banner
+      exit 0
+    end
+
     #-------------------------------------------------------------------------#
 
     # Set to `true` if the user specifies the `--verbose` option.
@@ -473,8 +486,7 @@ module CLAide
     # @return [void]
     #
     def banner!
-      puts invoked_command_class.banner
-      exit 0
+      invoked_command_class.banner!
     end
 
     #-------------------------------------------------------------------------#
