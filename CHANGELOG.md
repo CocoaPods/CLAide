@@ -5,7 +5,7 @@
 ###### Enhancements
 
 * Use the Argument class to describe arguments.  
-  [Olivier Halligon]([https://github.com/AliSoftware)
+  [Olivier Halligon](https://github.com/AliSoftware)
   [#33](https://github.com/CocoaPods/CLAide/issues/33)
 
 * Support for argument alternatives and repeatable arguments (ellipsis)  
