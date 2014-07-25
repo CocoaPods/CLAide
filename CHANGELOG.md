@@ -4,11 +4,11 @@
 
 ###### Enhancements
 
-* Use the Argument class to describe arguments.
+* Use the Argument class to describe arguments.  
   [Olivier Halligon]([https://github.com/AliSoftware)
   [#33](https://github.com/CocoaPods/CLAide/issues/33)
 
-* Support for argument alternatives and repeatable arguments (ellipsis)
+* Support for argument alternatives and repeatable arguments (ellipsis)  
   [Olivier Halligon](https://github.com/AliSoftware)
   [#33](https://github.com/CocoaPods/CLAide/issues/33)
 
@@ -16,11 +16,11 @@
 
 ###### Bug Fixes
 
-* Respect the ANSI flag for the help banner.
+* Respect the ANSI flag for the help banner.  
   [Fabio Pelosin][irrationalfab]
   [#34](https://github.com/CocoaPods/CLAide/issues/34)
 
-* Underline the colon of the titles of the help banner.
+* Underline the colon of the titles of the help banner.  
   [Fabio Pelosin][irrationalfab]
 
 ## 0.6.0
@@ -31,7 +31,7 @@
   [Fabio Pelosin][irrationalfab]
   [#26](https://github.com/CocoaPods/CLAide/issues/26)
 
-* Improved layout and contents of help banner
+* Improved layout and contents of help banner  
   [Fabio Pelosin][irrationalfab]
   [#25](https://github.com/CocoaPods/CLAide/pull/25)
 
@@ -45,7 +45,7 @@
   [#20](https://github.com/CocoaPods/CLAide/pull/20)
   [#24](https://github.com/CocoaPods/CLAide/pull/24)
 
-* Add support for completion script
+* Add support for completion script  
   [Fabio Pelosin][irrationalfab]
   [#19](https://github.com/CocoaPods/CLAide/pull/19)
 
@@ -89,4 +89,3 @@
   [#1](https://github.com/CocoaPods/CLAide/pull/1)
 
 [irrationalfab]: https://github.com/irrationalfab
-
