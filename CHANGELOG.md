@@ -12,6 +12,11 @@
   [Olivier Halligon](https://github.com/AliSoftware)
   [#33](https://github.com/CocoaPods/CLAide/issues/33)
 
+* No stack trace if --help and --vebose are combined.  
+  [Marius Rackwitz](https://github.com/mrackwitz)
+  [#36](https://github.com/CocoaPods/CLAide/issues/36)
+
+
 ## 0.6.1
 
 ###### Bug Fixes
