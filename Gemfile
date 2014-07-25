@@ -4,6 +4,7 @@ gem 'rake'
 
 group :development do
   gem 'kicker'
+  gem 'colored' # for examples
 end
 
 group :spec do

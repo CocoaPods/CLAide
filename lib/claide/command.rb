@@ -351,6 +351,19 @@ module CLAide
       banner_class.new(self).formatted_banner
     end
 
+    # @visibility private
+    #
+    # Print banner and exit
+    #
+    # @note Calling this method exits the current process.
+    #
+    # @return [void]
+    #
+    def self.banner!
+      puts banner
+      exit 0
+    end
+
     #-------------------------------------------------------------------------#
 
     # Set to `true` if the user specifies the `--verbose` option.
@@ -421,7 +434,7 @@ module CLAide
     # @return [void]
     #
     def validate!
-      help! if @argv.flag?('help')
+      banner! if @argv.flag?('help')
       unless @argv.empty?
         help! ValidationHelper.argument_suggestion(@argv.remainder, self.class)
       end
@@ -440,6 +453,21 @@ module CLAide
 
     protected
 
+    # Returns the class of the invoked command
+    #
+    # @return [Command]
+    #
+    def invoked_command_class
+      if invoked_as_default?
+        self.class.superclass
+      else
+        self.class
+      end
+    end
+
+    # @param  [String] error_message
+    #         A custom optional error message
+    #
     # @raise [Help]
     #
     #   Signals CLAide that a help banner for this command should be shown,
@@ -448,12 +476,17 @@ module CLAide
     # @return [void]
     #
     def help!(error_message = nil)
-      if invoked_as_default?
-        command = self.class.superclass
-      else
-        command = self.class
-      end
-      command.help!(error_message)
+      invoked_command_class.help!(error_message)
+    end
+
+    # Print banner and exit
+    #
+    # @note Calling this method exits the current process.
+    #
+    # @return [void]
+    #
+    def banner!
+      invoked_command_class.banner!
     end
 
     #-------------------------------------------------------------------------#
