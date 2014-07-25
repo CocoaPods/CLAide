@@ -143,7 +143,7 @@ module CLAide
 
     describe 'default options' do
       before do
-        @subject.any_instance.stubs(:puts)
+        @subject.stubs(:puts)
       end
 
       it 'raises a Help exception, without error message' do
