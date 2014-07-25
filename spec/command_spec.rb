@@ -147,7 +147,7 @@ module CLAide
       end
 
       it 'raises a Help exception, without error message' do
-        should_raise_system_exit do
+        should.raise SystemExit do
           @subject.parse(%w(--help)).validate!
         end
       end
@@ -190,7 +190,7 @@ module CLAide
         ::CLAide::ANSI.disabled = true
         expected = Help.new(@subject.banner).message
         @subject.expects(:puts).with(expected)
-        should_raise_system_exit do
+        should.raise SystemExit do
           @subject.run(%w(--help))
         end
       end
@@ -199,7 +199,7 @@ module CLAide
         ::CLAide::ANSI.disabled = true
         expected = Help.new(@subject.banner).message
         @subject.expects(:puts).with(expected)
-        should_raise_system_exit do
+        should.raise SystemExit do
           @subject.run(%w(--help --verbose))
         end
       end
@@ -216,7 +216,7 @@ module CLAide
         @subject.expects(:puts).with('the', 'backtrace').
           when(printed.is(:message)).then(printed.is(:done))
 
-        should_raise_system_exit do
+        should.raise SystemExit do
           @subject.run(%w(--verbose))
         end
       end
