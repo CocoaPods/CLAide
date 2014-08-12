@@ -2,72 +2,77 @@
 
 module CLAide
   class Command
-    module PluginsHelper
-      # Loads additional plugins via rubygems looking for files named after the
-      # `PLUGIN_PREFIX_plugin`.
+    # Handles plugin related logic logic for the `Command` class.
+    #
+    # Plugins are loaded the first time a command run and are identified by the
+    # prefix specified in the command class. Plugins must adopt the following
+    # conventions:
+    #
+    # - Support being loaded by a file located under the
+    # `lib/#{plugin_prefix}_plugin` relative path.
+    # - Be stored in a folder named after the plugin.
+    #
+    class PluginsHelper
+      class << self
+        # @return [Array<Pathname>] The list of the root directories of the
+        #         loaded plugins.
+        #
+        attr_reader :plugin_paths
+      end
+
+      # @return [Array<String>] Loads plugins via RubyGems looking for files
+      #         named after the `PLUGIN_PREFIX_plugin` and returns the paths of
+      #         the gems loaded successfully. Plugins are required safely.
       #
       def self.load_plugins(plugin_prefix)
+        return if plugin_paths
         paths = PluginsHelper.plugin_load_paths(plugin_prefix)
-        loaded_paths = []
+        plugin_paths = []
         paths.each do |path|
-          if PluginsHelper.safe_require(path)
-            loaded_paths << path
+          if PluginsHelper.safe_require(path.to_s)
+            plugin_paths << Pathname(path + './../../').cleanpath
           end
         end
-        loaded_paths
+
+        @plugin_paths = plugin_paths
       end
 
-      # Returns the name and the version of the plugin with the given path.
+      # @return [Array<Specification>] The RubyGems specifications for the
+      #         loaded plugins.
       #
-      # @param  [String] path
-      #         The load path of the plugin.
-      #
-      # @return [String] A string including the name and the version or a
-      #         failure message.
-      #
-      def self.plugin_info(path)
-        if gemspec = find_gemspec(path)
-          spec = Gem::Specification.load(gemspec)
-        end
-
-        if spec
-          "#{spec.name}: #{spec.version}"
-        else
-          "[!] Unable to load a specification for `#{path}`"
-        end
+      def self.specifications
+        PluginsHelper.plugin_paths.map do |path|
+          specification(path)
+        end.compact
       end
 
-      # @return [String] Finds the path of the gemspec of a path. The path is
-      # iterated upwards until a dir with a single gemspec is found.
+      # @return [Array<Specification>] The RubyGems specifications for the
+      #         plugin with the given root path.
       #
-      # @param  [String] path
-      #         The load path of a plugin.
+      # @param  [#to_s] path
+      #         The root path of the plugin.
       #
-      def self.find_gemspec(path)
-        reverse_ascending_paths(path).find do |candidate_path|
-          glob = Dir.glob("#{candidate_path}/*.gemspec")
-          if glob.count == 1
-            return glob.first
-          end
+      def self.specification(path)
+        glob = Dir.glob("#{path}/*.gemspec")
+        spec = Gem::Specification.load(glob.first) if glob.count == 1
+        unless spec
+          warn '[!] Unable to load a specification for the plugin ' \
+            "`#{path}`".ansi.yellow
         end
-        nil
+        spec
       end
 
-      # @return [String] Returns the list of the parents paths of a path.
+      # @return [Array<String>] The list of the plugins whose root path appears
+      #         in the backtrace of an exception.
       #
-      # @param  [String] path
-      #         The path for which the list is needed.
+      # @param  [Exception] exception
+      #         The exception to analyze.
       #
-      def self.reverse_ascending_paths(path)
-        components = path.split('/')[0...-1]
-        progress = nil
-        components.map do |component|
-          if progress
-            progress = progress + '/' + component
-          else
-            progress = component
-          end
-        end.reverse
+      def self.plugins_involved_in_exception(exception)
+        paths = plugin_paths.select do |plugin_path|
+          exception.backtrace.any? { |line| line.include?(plugin_path.to_s) }
+        end
+        paths.map { |path| path.to_s.split('/').last }
       end
 
       # Returns the paths of the files to require to load the available
@@ -77,10 +82,11 @@ module CLAide
       #
       def self.plugin_load_paths(plugin_prefix)
         if plugin_prefix && !plugin_prefix.empty?
+          pattern = "#{plugin_prefix}_plugin"
           if Gem.respond_to? :find_latest_files
-            Gem.find_latest_files("#{plugin_prefix}_plugin")
+            Gem.find_latest_files(pattern)
           else
-            Gem.find_files("#{plugin_prefix}_plugin")
+            Gem.find_files(pattern)
           end
         else
           []

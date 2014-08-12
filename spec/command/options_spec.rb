@@ -74,13 +74,10 @@ module CLAide
       end
 
       it 'includes plugins version if the verbose flag has been specified' do
-        path = 'path/to/gems/cocoapods-plugins/lib/cocoapods_plugin.rb'
-        Command::PluginsHelper.expects(:plugin_load_paths).returns([path])
-        Command::PluginsHelper.expects(:plugin_info).
-          returns('cocoapods_plugin: 1.0')
+        spec = stub(:name => 'cocoapods_plugin', :version => '1.0')
+        Command::PluginsHelper.expects(:specifications).returns([spec])
 
         command = Fixture::Command.new(%w(--version --verbose))
-        command.class.stubs(:load_plugins)
         command.class.version = '1.0'
         @subject.print_version(command)
         output = @subject.instance_variable_get(:@fixture_output)
