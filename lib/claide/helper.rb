@@ -6,7 +6,8 @@ module CLAide
     #
     def self.terminal_width
       unless @terminal_width
-        if STDOUT.tty? && system('which tput > /dev/null 2>&1')
+        if STDOUT.tty? && system('which tput > /dev/null 2>&1') &&
+          !ENV['FIXED_WIDTH']
           @terminal_width = `tput cols`.to_i
         else
           @terminal_width = 0
