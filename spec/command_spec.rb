@@ -57,6 +57,22 @@ module CLAide
         STDOUT.expects(:tty?).returns(false)
         @subject.ansi_output.should.be.false
       end
+
+      it 'invokes a command with the convenience method and args list' do
+        @subject.any_instance.expects(:run).once
+        @subject.invoke('arg1', 'arg2')
+        args = @subject.latest_instance.instance_eval { @argv }
+        args.should.be.an.instance_of? CLAide::ARGV
+        args.arguments.should == %w(arg1 arg2)
+      end
+
+      it 'invokes a command with the convenience method and array args' do
+        @subject.any_instance.expects(:run).once
+        @subject.invoke %w(arg1 arg2)
+        args = @subject.latest_instance.instance_eval { @argv }
+        args.should.be.an.instance_of? CLAide::ARGV
+        args.arguments.should == %w(arg1 arg2)
+      end
     end
 
     #-------------------------------------------------------------------------#
