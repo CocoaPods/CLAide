@@ -423,10 +423,11 @@ module CLAide
     # Convenience method.
     # Instantiate the command and run it with the provided arguments at once.
     #
-    # @param [Array<String>] args The arguments to initialize the command with
+    # @param [String..., Array<String>] args
+    #        The arguments to initialize the command with
     #
     def self.invoke(*args)
-      new(ARGV.new(args)).run
+      new(ARGV.new(args.flatten)).run
     end
 
     # @return [Bool] Whether the command was invoked by an abstract command by
