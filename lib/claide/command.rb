@@ -246,8 +246,6 @@ module CLAide
     # {Command.parse}, validates it through {Command#validate!}, and runs it
     # through {Command#run}.
     #
-    # @note   You should normally call this on
-    #
     # @note   The ANSI support is configured before running a command to allow
     #         the same process to run multiple commands with different
     #         settings.  For example a process with ANSI output enabled might
