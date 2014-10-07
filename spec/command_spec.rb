@@ -84,10 +84,9 @@ module CLAide
         error = Fixture::Error.new('validate! did raise')
         @subject::SpecFile.any_instance.stubs(:validate!).raises(error)
 
-        should.raise Fixture::Error do |e|
+        should.raise Fixture::Error do
           @subject::SpecFile.invoke('arg1', 'arg2')
-          e.message.should == 'validate! did raise'
-        end
+        end.message.should.match /validate! did raise/
       end
     end
 
