@@ -423,11 +423,19 @@ module CLAide
     # Convenience method.
     # Instantiate the command and run it with the provided arguments at once.
     #
+    # @note This method validate! the command before running it, but contrary to
+    # CLAide::Command::run, it does not load plugins nor exit on failure.
+    # It is up to the caller to rescue any possible exception raised.
+    #
     # @param [String..., Array<String>] args
     #        The arguments to initialize the command with
     #
+    # @raise [Help] If validate! fails
+    #
     def self.invoke(*args)
-      new(ARGV.new(args.flatten)).run
+      command = new(ARGV.new(args.flatten))
+      command.validate!
+      command.run
     end
 
     # @return [Bool] Whether the command was invoked by an abstract command by
