@@ -1,5 +1,12 @@
 # CLAide Changelog
 
+## Master
+
+###### Breaking
+
+* Support for Ruby < 2.0.0 has been dropped.  
+  [Kyle Fuller](https://github.com/kylef)
+
 ## 0.7.0
 
 ###### Breaking
