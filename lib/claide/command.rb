@@ -4,7 +4,7 @@ require 'claide/command/banner'
 require 'claide/command/plugins_helper'
 require 'claide/command/options'
 require 'claide/command/shell_completion_helper'
-require 'claide/command/validation_helper'
+require 'claide/command/argument_suggester'
 
 module CLAide
   # This class is used to build a command-line interface
@@ -470,7 +470,8 @@ module CLAide
     def validate!
       banner! if @argv.flag?('help')
       unless @argv.empty?
-        help! ValidationHelper.argument_suggestion(@argv.remainder, self.class)
+        argument = @argv.remainder.first
+        help! ArgumentSuggester.new(argument, self.class).suggestion
       end
       help! if self.class.abstract_command?
     end
