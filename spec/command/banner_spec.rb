@@ -270,30 +270,27 @@ class CLAide::Command
 
       describe '::wrap_with_indent' do
         it 'wraps a string according to the terminal width' do
-          TextWrapper.stubs(:terminal_width).returns(10)
-          string = '1234567890 1234567890'
-          TextWrapper.wrap_with_indent(string).should == "1234567890\n1234567890"
+          TextWrapper.stubs(:terminal_width).returns(5)
+          string = '12345 12345'
+          TextWrapper.wrap_with_indent(string).should == "12345\n12345"
         end
 
         it 'indents the lines except the first' do
-          TextWrapper.stubs(:terminal_width).returns(10)
-          string = '1234567890 1234567890'
-          TextWrapper.wrap_with_indent(string, 2).should ==
-            "1234567890\n  1234567890"
+          TextWrapper.stubs(:terminal_width).returns(5)
+          string = '12345 12345'
+          TextWrapper.wrap_with_indent(string, 2).should == "12345\n  12345"
         end
 
         it 'supports a maximum width' do
-          TextWrapper.stubs(:terminal_width).returns(20)
-          string = '1234567890 1234567890'
-          TextWrapper.wrap_with_indent(string, 0, 10).should ==
-            "1234567890\n1234567890"
+          TextWrapper.stubs(:terminal_width).returns(10)
+          string = '12345 12345'
+          TextWrapper.wrap_with_indent(string, 0, 5).should == "12345\n12345"
         end
 
         it 'wraps to the maximum width if the terminal one is not available' do
           TextWrapper.stubs(:terminal_width).returns(0)
-          string = '1234567890 1234567890'
-          TextWrapper.wrap_with_indent(string, 0, 10).should ==
-            "1234567890\n1234567890"
+          string = '12345 12345'
+          TextWrapper.wrap_with_indent(string, 0, 5).should == "12345\n12345"
         end
       end
 
@@ -320,5 +317,4 @@ class CLAide::Command
       end
     end
   end
-
 end
