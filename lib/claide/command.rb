@@ -357,10 +357,11 @@ module CLAide
       result
     end
 
-    # Presents an exception to the user according to class of the .
+    # Presents an exception to the user in a short manner in case of an
+    # `InformativeError` or in long form in other cases,
     #
-    # @param  [Command] command
-    #         The command which originated the exception.
+    # @param  [Command, nil] command
+    #         The command from where the exception originated.
     #
     # @param  [Object] exception
     #         The exception to present.
@@ -370,7 +371,7 @@ module CLAide
     def self.handle_exception(command, exception)
       if exception.is_a?(InformativeError)
         puts exception.message
-        if command.verbose?
+        if command.nil? || command.verbose?
           puts
           puts(*exception.backtrace)
         end
