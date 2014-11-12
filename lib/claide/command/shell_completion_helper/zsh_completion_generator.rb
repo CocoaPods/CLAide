@@ -11,16 +11,16 @@ module CLAide
         #
         # rubocop:disable MethodLength
         def self.generate(command)
-          result = <<-DOC.strip_margin('|')
-            |#compdef #{command.command}
-            |# setopt XTRACE VERBOSE
-            |# vim: ft=zsh sw=2 ts=2 et
-            |
-            |local -a _subcommands
-            |local -a _options
-            |
-            |#{case_statement_fragment(command)}
-          DOC
+          result = <<-DOC
+#compdef #{command.command}
+# setopt XTRACE VERBOSE
+# vim: ft=zsh sw=2 ts=2 et
+
+local -a _subcommands
+local -a _options
+
+#{case_statement_fragment(command)}
+DOC
 
           post_process(result)
         end
@@ -63,15 +63,15 @@ module CLAide
           subcommands = subcommands_fragment(command)
           options = options_fragment(command)
 
-          result = <<-DOC.strip_margin('|')
-            |case "$words[#{nest_level + 2}]" in
-            |  #{ShellCompletionHelper.indent(entries, 1)}
-            |  *) # #{command.full_command}
-            |    #{ShellCompletionHelper.indent(subcommands, 2)}
-            |    #{ShellCompletionHelper.indent(options, 2)}
-            |  ;;
-            |esac
-          DOC
+          result = <<-DOC
+case "$words[#{nest_level + 2}]" in
+  #{ShellCompletionHelper.indent(entries, 1)}
+  *) # #{command.full_command}
+    #{ShellCompletionHelper.indent(subcommands, 2)}
+    #{ShellCompletionHelper.indent(options, 2)}
+  ;;
+esac
+DOC
           result.gsub(/\n *\n/, "\n").chomp
         end
         # rubocop:enable MethodLength
@@ -105,11 +105,11 @@ module CLAide
           subcommands = command.subcommands_for_command_lookup
           subcommands.sort_by(&:name).map do |subcommand|
             subcase = case_statement_fragment(subcommand, nest_level)
-            <<-DOC.strip_margin('|')
-              |#{subcommand.command})
-              |  #{ShellCompletionHelper.indent(subcase, 1)}
-              |;;
-            DOC
+            <<-DOC
+#{subcommand.command})
+  #{ShellCompletionHelper.indent(subcase, 1)}
+;;
+DOC
           end.join("\n")
         end
 
@@ -161,12 +161,12 @@ module CLAide
         #
         def self.describe_fragment(command, name, tag, list)
           if list && !list.empty?
-            <<-DOC.strip_margin('|')
-              |_#{name}=(
-              |  #{ShellCompletionHelper.indent(list.join("\n"), 1)}
-              |)
-              |_describe -t #{tag} "#{command.full_command} #{name}" _#{name}
-            DOC
+            <<-DOC
+_#{name}=(
+  #{ShellCompletionHelper.indent(list.join("\n"), 1)}
+)
+_describe -t #{tag} "#{command.full_command} #{name}" _#{name}
+DOC
           else
             ''
           end
