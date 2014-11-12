@@ -33,9 +33,9 @@ begin
 
   #-- Rubocop ----------------------------------------------------------------#
 
-  if RUBY_VERSION >= '1.9.3'
-    require 'rubocop/rake_task'
-    RuboCop::RakeTask.new
+  desc 'Check code against RuboCop rules'
+  task :rubocop do
+    sh 'bundle exec rubocop'
   end
 
 rescue LoadError
