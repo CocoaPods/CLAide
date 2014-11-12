@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require 'claide/command/banner'
-require 'claide/command/parser'
 require 'claide/command/plugins_helper'
 require 'claide/command/options'
 require 'claide/command/shell_completion_helper'
@@ -272,8 +271,40 @@ module CLAide
       handle_exception(command, exception)
     end
 
+    # @param  [Array, ARGV] argv
+    #         A list of (remaining) parameters.
+    #
+    # @return [Command] An instance of the command class that was matched by
+    #         going through the arguments in the parameters and drilling down
+    #         command classes.
+    #
     def self.parse(argv)
-      Parser.parse(self, argv)
+      argv = ARGV.coherce(argv)
+      cmd = argv.arguments.first
+      if cmd && subcommand = find_subcommand(cmd)
+        argv.shift_argument
+        subcommand.parse(argv)
+      elsif abstract_command? && default_subcommand
+        load_default_subcommand(argv)
+      else
+        new(argv)
+      end
+    end
+
+    # @param  [Array, ARGV] argv
+    #         A list of (remaining) parameters.
+    #
+    # @return [Command] Returns the default subcommand initialized with the
+    #         given arguments.
+    #
+    def self.load_default_subcommand(argv)
+      unless subcommand = find_subcommand(default_subcommand)
+        raise 'Unable to find the default subcommand ' \
+          "`#{default_subcommand}` for command `#{self}`."
+      end
+      result = subcommand.parse(argv)
+      result.invoked_as_default = true
+      result
     end
 
     # Presents an exception to the user according to class of the .
