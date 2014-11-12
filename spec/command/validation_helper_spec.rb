@@ -8,6 +8,13 @@ module CLAide
       @subject = Command::ValidationHelper
     end
 
+    describe '::levenshtein_distance' do
+      it 'returns the distance among two strings' do
+        @subject.levenshtein_distance('word 1', 'word 2').should == 1
+        @subject.levenshtein_distance('word 1', 'dictionary').should == 9
+      end
+    end
+
     describe '::argument_suggestion' do
       it 'returns the message for a command' do
         arguments = ['spec_file']

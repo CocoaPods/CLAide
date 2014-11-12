@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'claide/command/banner/prettifier'
-
 module CLAide
   class Command
     # Creates the formatted banner to present as help of the provided command
@@ -57,7 +55,7 @@ module CLAide
       #
       def formatted_usage_description
         message = command.description || command.summary || ''
-        message = Helper.format_markdown(message, TEXT_INDENT, MAX_WIDTH)
+        message = TextWrapper.wrap_formatted_text(message, TEXT_INDENT, MAX_WIDTH)
         message = prettify_message(command, message)
         "#{signature}\n\n#{message}"
       end
@@ -128,7 +126,7 @@ module CLAide
         result << name
         result << ' ' * DESCRIPTION_SPACES
         result << ' ' * (max_name_width - name_width)
-        result << Helper.wrap_with_indent(description, desc_start, MAX_WIDTH)
+        result << TextWrapper.wrap_with_indent(description, desc_start, MAX_WIDTH)
       end
 
       # @!group Overrides
@@ -137,33 +135,50 @@ module CLAide
       # @return [String] A decorated title.
       #
       def prettify_title(title)
-        Prettifier.prettify_title(title)
-      end
-
-      # @return [String] A decorated textual representation of the command.
-      #
-      def prettify_signature(command, subcommand, argument)
-        Prettifier.prettify_signature(command, subcommand, argument)
-      end
-
-      # @return [String] A decorated command description.
-      #
-      def prettify_message(command, message)
-        Prettifier.prettify_message(command, message)
+        title.ansi.underline
       end
 
       # @return [String] A decorated textual representation of the subcommand
       #         name.
       #
       def prettify_subcommand(name)
-        Prettifier.prettify_subcommand(name)
+        name.chomp.ansi.green
       end
 
       # @return [String] A decorated textual representation of the option name.
       #
       #
       def prettify_option_name(name)
-        Prettifier.prettify_option_name(name)
+        name.chomp.ansi.blue
+      end
+
+      # @return [String] A decorated textual representation of the command.
+      #
+      def prettify_signature(command, subcommand, argument)
+        components = [
+          [command, :green],
+          [subcommand, :green],
+          [argument, :magenta],
+        ]
+        components.reduce('') do |memo, (string, ansi_key)|
+          next memo if !string || string.empty?
+          memo << ' ' << string.ansi.apply(ansi_key)
+        end.lstrip
+      end
+
+      # @return [String] A decorated command description.
+      #
+      def prettify_message(command, message)
+        message = message.dup
+        command.arguments.each do |arg|
+          arg.names.each do |name|
+            message.gsub!("`#{name.gsub(/\.{3}$/, '')}`", '\0'.ansi.magenta)
+          end
+        end
+        command.options.each do |(name, _description)|
+          message.gsub!("`#{name}`", '\0'.ansi.blue)
+        end
+        message
       end
 
       # @!group Private helpers
@@ -189,6 +204,96 @@ module CLAide
         end.max
         widths.flatten.compact.max || 1
       end
+
+      module TextWrapper
+        # @return [String] Wraps a formatted string (e.g. markdown) by stripping
+        #         heredoc indentation and wrapping by word to the terminal width
+        #         taking into account a maximum one, and indenting the string.
+        #         Code lines (i.e. indented by four spaces) are not wrapped.
+        #
+        # @param  [String] string
+        #         The string to format.
+        #
+        # @param  [Fixnum] indent
+        #         The number of spaces to insert before the string.
+        #
+        # @param  [Fixnum] max_width
+        #         The maximum width to use to format the string if the terminal is
+        #         too wide.
+        #
+        def self.wrap_formatted_text(string, indent = 0, max_width = 80)
+          paragraphs = strip_heredoc(string).split("\n\n")
+          paragraphs = paragraphs.map do |paragraph|
+            if paragraph.start_with?(' ' * 4)
+              paragraph.gsub!(/\n/, "\n#{' ' * indent}")
+            else
+              paragraph = wrap_with_indent(paragraph, indent, max_width)
+            end
+            paragraph.insert(0, ' ' * indent).rstrip
+          end
+          paragraphs.join("\n\n")
+        end
+
+        # @return [String] Wraps a string to the terminal width taking into
+        #         account the given indentation.
+        #
+        # @param  [String] string
+        #         The string to indent.
+        #
+        # @param  [Fixnum] indent
+        #         The number of spaces to insert before the string.
+        #
+        # @param  [Fixnum] max_width
+        #         The maximum width to use to format the string if the terminal is
+        #         too wide.
+        #
+        def self.wrap_with_indent(string, indent = 0, max_width = 80)
+          if terminal_width == 0
+            width = max_width
+          else
+            width = [terminal_width, max_width].min
+          end
+
+          full_line = string.gsub("\n", ' ')
+          available_width = width - indent
+          space = ' ' * indent
+          word_wrap(full_line, available_width).split("\n").join("\n#{space}")
+        end
+
+        # @return [String] Lifted straight from ActionView. Thanks guys!
+        #
+        def self.word_wrap(line, line_width)
+          line.gsub(/(.{1,#{line_width}})(\s+|$)/, "\\1\n").strip
+        end
+
+        # @return [String] Lifted straight from ActiveSupport. Thanks guys!
+        #
+        def self.strip_heredoc(string)
+          if min = string.scan(/^[ \t]*(?=\S)/).min
+            string.gsub(/^[ \t]{#{min.size}}/, '')
+          else
+            string
+          end
+        end
+
+        # @!group Private helpers
+        #---------------------------------------------------------------------#
+
+        # @return [Fixnum] The width of the current terminal, unless being piped.
+        #
+        def self.terminal_width
+          unless @terminal_width
+            if STDOUT.tty? && system('which tput > /dev/null 2>&1') &&
+              !ENV['CLAIDE_DISABLE_AUTO_WRAP']
+              @terminal_width = `tput cols`.to_i
+            else
+              @terminal_width = 0
+            end
+          end
+          @terminal_width
+        end
+      end
+
     end
   end
 end

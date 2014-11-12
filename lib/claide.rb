@@ -15,7 +15,6 @@ module CLAide
   require 'claide/argv'
   require 'claide/command'
   require 'claide/help'
-  require 'claide/helper'
   require 'claide/informative_error'
   require 'claide/mixins'
 end
