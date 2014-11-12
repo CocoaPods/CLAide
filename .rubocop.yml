@@ -1,6 +1,3 @@
 inherit_from:
  - .rubocop-cocoapods.yml
 
-ClassLength:
-  Exclude:
-    - lib/claide/command.rb

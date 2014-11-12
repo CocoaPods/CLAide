@@ -281,6 +281,5 @@ module CLAide
         [key, value]
       end
     end
-
   end
 end

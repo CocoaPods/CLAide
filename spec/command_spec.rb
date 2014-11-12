@@ -328,5 +328,4 @@ module CLAide
       cmd.invoked_as_default.should.be.true
     end
   end
-
 end

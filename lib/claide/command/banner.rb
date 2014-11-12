@@ -55,7 +55,9 @@ module CLAide
       #
       def formatted_usage_description
         message = command.description || command.summary || ''
-        message = TextWrapper.wrap_formatted_text(message, TEXT_INDENT, MAX_WIDTH)
+        message = TextWrapper.wrap_formatted_text(message,
+                                                  TEXT_INDENT,
+                                                  MAX_WIDTH)
         message = prettify_message(command, message)
         "#{signature}\n\n#{message}"
       end
@@ -126,7 +128,9 @@ module CLAide
         result << name
         result << ' ' * DESCRIPTION_SPACES
         result << ' ' * (max_name_width - name_width)
-        result << TextWrapper.wrap_with_indent(description, desc_start, MAX_WIDTH)
+        result << TextWrapper.wrap_with_indent(description,
+                                               desc_start,
+                                               MAX_WIDTH)
       end
 
       # @!group Overrides
@@ -218,8 +222,8 @@ module CLAide
         #         The number of spaces to insert before the string.
         #
         # @param  [Fixnum] max_width
-        #         The maximum width to use to format the string if the terminal is
-        #         too wide.
+        #         The maximum width to use to format the string if the terminal
+        #         is too wide.
         #
         def self.wrap_formatted_text(string, indent = 0, max_width = 80)
           paragraphs = strip_heredoc(string).split("\n\n")
@@ -244,8 +248,8 @@ module CLAide
         #         The number of spaces to insert before the string.
         #
         # @param  [Fixnum] max_width
-        #         The maximum width to use to format the string if the terminal is
-        #         too wide.
+        #         The maximum width to use to format the string if the terminal
+        #         is too wide.
         #
         def self.wrap_with_indent(string, indent = 0, max_width = 80)
           if terminal_width == 0
@@ -279,12 +283,12 @@ module CLAide
         # @!group Private helpers
         #---------------------------------------------------------------------#
 
-        # @return [Fixnum] The width of the current terminal, unless being piped.
+        # @return [Fixnum] The width of the current terminal unless being piped.
         #
         def self.terminal_width
           unless @terminal_width
-            if STDOUT.tty? && system('which tput > /dev/null 2>&1') &&
-              !ENV['CLAIDE_DISABLE_AUTO_WRAP']
+            if !ENV['CLAIDE_DISABLE_AUTO_WRAP'] &&
+                STDOUT.tty? && system('which tput > /dev/null 2>&1')
               @terminal_width = `tput cols`.to_i
             else
               @terminal_width = 0
@@ -293,7 +297,6 @@ module CLAide
           @terminal_width
         end
       end
-
     end
   end
 end

@@ -56,7 +56,7 @@ module CLAide
     #
     def ==(other)
       other.is_a?(Argument) &&
-      names == other.names && required == other.required
+        names == other.names && required == other.required
     end
   end
 end

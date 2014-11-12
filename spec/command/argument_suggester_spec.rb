@@ -6,8 +6,9 @@ class CLAide::Command
   describe ArgumentSuggester do
     describe '::levenshtein_distance' do
       it 'returns the distance among two strings' do
-        ArgumentSuggester.levenshtein_distance('word 1', 'word 2').should == 1
-        ArgumentSuggester.levenshtein_distance('word 1', 'dictionary').should == 9
+        suggester = ArgumentSuggester
+        suggester.levenshtein_distance('word 1', 'word 2').should == 1
+        suggester.levenshtein_distance('word 1', 'dictionary').should == 9
       end
     end
 
@@ -41,8 +42,8 @@ class CLAide::Command
       end
 
       it 'returns the message for an option' do
-        result = ArgumentSuggester.new('--verbosea', Fixture::Command).suggestion
-        result.should == "Unknown option: `--verbosea`\nDid you mean: --verbose"
+        result = ArgumentSuggester.new('--verbosa', Fixture::Command).suggestion
+        result.should == "Unknown option: `--verbosa`\nDid you mean: --verbose"
       end
     end
   end
