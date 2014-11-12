@@ -57,6 +57,37 @@ module CLAide
         STDOUT.expects(:tty?).returns(false)
         @command.ansi_output.should.be.false
       end
+
+      it 'invokes a command with the convenience method and args list' do
+        @subject::SpecFile.any_instance.expects(:validate!)
+        @subject::SpecFile.any_instance.expects(:run).once
+
+        @subject::SpecFile.invoke('arg1', 'arg2')
+
+        argv = @subject::SpecFile.latest_instance.instance_eval { @argv }
+        argv.should.be.an.instance_of? CLAide::ARGV
+        argv.arguments.should == %w(arg1 arg2)
+      end
+
+      it 'invokes a command with the convenience method and array args' do
+        @subject::SpecFile.any_instance.expects(:validate!)
+        @subject::SpecFile.any_instance.expects(:run).once
+
+        @subject::SpecFile.invoke %w(arg1 arg2)
+
+        argv = @subject::SpecFile.latest_instance.instance_eval { @argv }
+        argv.should.be.an.instance_of? CLAide::ARGV
+        argv.arguments.should == %w(arg1 arg2)
+      end
+
+      it 'raise when invoking a bad command with the convenience method' do
+        error = Fixture::Error.new('validate! did raise')
+        @subject::SpecFile.any_instance.stubs(:validate!).raises(error)
+
+        should.raise Fixture::Error do
+          @subject::SpecFile.invoke('arg1', 'arg2')
+        end.message.should.match /validate! did raise/
+      end
     end
 
     #-------------------------------------------------------------------------#

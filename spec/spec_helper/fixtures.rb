@@ -9,6 +9,15 @@ module Fixture
     self.command = 'bin'
     self.ansi_output = false
 
+    class << self
+      attr_accessor :latest_instance
+    end
+
+    def initialize(*args)
+      self.class.latest_instance = self
+      super
+    end
+
     class SpecFile < Command
       self.abstract_command = true
       self.description = 'Manage spec files.'
