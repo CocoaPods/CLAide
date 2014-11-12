@@ -198,8 +198,9 @@ module CLAide
       end
 
       it 'does not runs the instance if root options have been specified' do
-        Command::Options.expects(:handle_root_option).returns(true)
-        @command.any_instance.expects(:run).never
+        instance = @command.any_instance
+        instance.expects(:handle_root_command_options).returns(true)
+        instance.expects(:run).never
         @command.run(%w(--version))
       end
     end
@@ -357,6 +358,60 @@ module CLAide
     it 'marks the command as invoked by default' do
       cmd = @command_class.load_default_subcommand([])
       cmd.invoked_as_default.should.be.true
+    end
+  end
+
+  describe 'concerning options' do
+    describe '::options' do
+      it 'returns root options for root commands' do
+        options = Fixture::Command.options.map(&:first)
+        options.should.include? '--verbose'
+        options.should.include? '--version'
+      end
+
+      it 'does not return root options for non-root commands' do
+        options = Fixture::Command::SpecFile.options.map(&:first)
+        options.should.include? '--verbose'
+        options.should.not.include? '--version'
+      end
+    end
+
+    describe '::handle_root_command_options' do
+      before do
+        @version_flag = ARGV.new(['--version'])
+      end
+
+      it 'handles the version flag' do
+        command = Fixture::Command.new([])
+        command.expects(:print_version)
+        command.handle_root_command_options(@version_flag).should.be.true
+      end
+
+      it 'does not handle the version flag for non root commands' do
+        command = Fixture::Command::SpecFile.new([])
+        command.expects(:print_version).never
+        command.handle_root_command_options(@version_flag).should.be.false
+      end
+    end
+
+    describe '#print_version' do
+      it 'prints the version' do
+        command = Fixture::Command.new(%w(--version))
+        command.class.version = '1.0'
+        command.expects(:puts).with('1.0')
+        command.print_version
+      end
+
+      it 'includes plugins version if the verbose flag has been specified' do
+        spec = stub(:name => 'cocoapods_plugin', :version => '1.0')
+        Command::PluginsHelper.expects(:specifications).returns([spec])
+
+        command = Fixture::Command.new(%w(--version --verbose))
+        command.class.version = '1.0'
+        command.expects(:puts).with('1.0')
+        command.expects(:puts).with('cocoapods_plugin: 1.0')
+        command.print_version
+      end
     end
   end
 end

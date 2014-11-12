@@ -27,15 +27,19 @@ require 'spec_helper/string_ext'
 
 #-- Helpers ------------------------------------------------------------------#
 
-def should_raise_help(error_message)
-  error = nil
-  begin
-    yield
-  rescue CLAide::Help => e
-    error = e
+module Bacon
+  class Context
+    def should_raise_help(error_message)
+      error = nil
+      begin
+        yield
+      rescue CLAide::Help => e
+        error = e
+      end
+      error.should.not.nil?
+      error.error_message.should == error_message
+    end
   end
-  error.should.not.nil?
-  error.error_message.should == error_message
 end
 
 #-- Spec environment ---------------------------------------------------------#

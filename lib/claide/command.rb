@@ -2,7 +2,6 @@
 
 require 'claide/command/banner'
 require 'claide/command/plugins_helper'
-require 'claide/command/options'
 require 'claide/command/shell_completion_helper'
 require 'claide/command/argument_suggester'
 
@@ -218,6 +217,17 @@ module CLAide
       subcommands << subcommand
     end
 
+    DEFAULT_ROOT_OPTIONS = [
+      ['--completion-script', 'Print the auto-completion script'],
+      ['--version',           'Show the version of the tool'],
+    ]
+
+    DEFAULT_OPTIONS = [
+      ['--verbose', 'Show more debugging information'],
+      ['--no-ansi', 'Show output without ANSI codes'],
+      ['--help',    'Show help banner of specified command'],
+    ]
+
     # Should be overridden by a subclass if it handles any options.
     #
     # The subclass has to combine the result of calling `super` and its own
@@ -238,7 +248,47 @@ module CLAide
     #   end
     #
     def self.options
-      Options.default_options(self)
+      if root_command?
+        DEFAULT_ROOT_OPTIONS + DEFAULT_OPTIONS
+      else
+        DEFAULT_OPTIONS
+      end
+    end
+
+    # Handles root commands options if appropriate.
+    #
+    # @param  [ARGV] argv
+    #         The parameters of the command.
+    #
+    # @return [Bool] Whether any root command option was handled.
+    #
+    # @todo   Move this back into `::run` once `completion-script` has been
+    #         removed.
+    #
+    def handle_root_command_options(argv)
+      return false unless self.class.root_command?
+      if argv.flag?('version')
+        print_version
+        return true
+      elsif argv.flag?('completion-script')
+        puts ShellCompletionHelper.completion_template(self.class)
+        return true
+      end
+      false
+    end
+
+    # Prints the version of the command optionally including plugins.
+    #
+    # @todo   Move this back into `::run` once `completion-script` has been
+    #         removed.
+    #
+    def print_version
+      puts self.class.version
+      if verbose?
+        PluginsHelper.specifications.each do |spec|
+          puts "#{spec.name}: #{spec.version}"
+        end
+      end
     end
 
     # Instantiates the command class matching the parameters through
@@ -263,7 +313,7 @@ module CLAide
       command = parse(argv)
 
       ANSI.disabled = !command.ansi_output?
-      unless Options.handle_root_option(command, argv)
+      unless command.handle_root_command_options(argv)
         command.validate!
         command.run
       end
