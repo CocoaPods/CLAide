@@ -6,12 +6,12 @@ module CLAide
   # parameters.
   #
   class ARGV
-    # @return [ARGV] Coherces an object to the ARGV class if needed.
+    # @return [ARGV] Coerces an object to the ARGV class if needed.
     #
     # @param  [Object] argv
     #         The object which should be converted to the ARGV class.
     #
-    def self.coherce(argv)
+    def self.coerce(argv)
       if argv.is_a?(ARGV)
         argv
       else

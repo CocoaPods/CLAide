@@ -258,7 +258,7 @@ module CLAide
     # @return [void]
     #
     def self.run(argv = [])
-      argv = ARGV.coherce(argv)
+      argv = ARGV.coerce(argv)
       PluginsHelper.load_plugins(plugin_prefix)
       command = parse(argv)
 
@@ -279,7 +279,7 @@ module CLAide
     #         command classes.
     #
     def self.parse(argv)
-      argv = ARGV.coherce(argv)
+      argv = ARGV.coerce(argv)
       cmd = argv.arguments.first
       if cmd && subcommand = find_subcommand(cmd)
         argv.shift_argument
@@ -443,7 +443,7 @@ module CLAide
     #   A list of (user-supplied) params that should be handled.
     #
     def initialize(argv)
-      argv = ARGV.new(argv) unless argv.is_a?(ARGV)
+      argv = ARGV.coerce(argv)
       @verbose = argv.flag?('verbose')
       @ansi_output = argv.flag?('ansi', Command.ansi_output?)
       @argv = argv
