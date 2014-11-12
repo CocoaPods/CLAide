@@ -81,11 +81,14 @@ module CLAide
       #
       attr_accessor :description
 
-      # @return [String] The prefix for loading CLAide plugins for this
-      #         command. Plugins are loaded via their
-      #         <plugin_prefix>_plugin.rb file.
+      # @return [Array<String>] The prefixes used t osearch for CLAide plugins.
+      #         Plugins are loaded via their `<plugin_prefix>_plugin.rb` file.
+      #         Defaults to search for `claide` plugins.
       #
-      attr_accessor :plugin_prefix
+      def plugin_prefixes
+        @plugin_prefixes ||= ['claide']
+      end
+      attr_writer :plugin_prefixes
 
       # @return [Array<Argument>]
       #         A list of arguments the command handles. This is shown
@@ -308,10 +311,12 @@ module CLAide
     # @return [void]
     #
     def self.run(argv = [])
-      argv = ARGV.coerce(argv)
-      PluginManager.load_plugins(plugin_prefix)
-      command = parse(argv)
+      plugin_prefixes.each do |plugin_prefix|
+        PluginManager.load_plugins(plugin_prefix)
+      end
 
+      argv = ARGV.coerce(argv)
+      command = parse(argv)
       ANSI.disabled = !command.ansi_output?
       unless command.handle_root_command_options(argv)
         command.validate!
@@ -628,6 +633,16 @@ module CLAide
           Argument.new(argument.split('|'), true)
         end
       end
+    end
+
+    # Handle depracted form of assigning a plugin prefix.
+    #
+    # @todo Remove deprecated form.
+    #
+    def self.plugin_prefix=(prefix)
+      warn '[!] The specification of a singular plugin prefix has been ' \
+           "deprecated. Use `#{self}::plugin_prefixes` instead."
+      plugin_prefixes << prefix
     end
   end
 end

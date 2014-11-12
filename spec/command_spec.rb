@@ -104,7 +104,7 @@ module CLAide
             cmd.command == 'demo-plugin'
           end.should.be.nil
 
-          prefix = Fixture::CommandPluginable.plugin_prefix
+          prefix = Fixture::CommandPluginable.plugin_prefixes.last
           Command::PluginManager.load_plugins(prefix)
           plugin_command = Fixture::CommandPluginable.subcommands.find do |cmd|
             cmd.command == 'demo-plugin'
@@ -115,7 +115,7 @@ module CLAide
         end
 
         it 'is available for help' do
-          prefix = Fixture::CommandPluginable.plugin_prefix
+          prefix = Fixture::CommandPluginable.plugin_prefixes.last
           Command::PluginManager.load_plugins(prefix)
           banner = CLAide::Command::Banner.new(Fixture::CommandPluginable)
           banner.formatted_banner.should =~ /demo-plugin/
@@ -123,7 +123,7 @@ module CLAide
       end
 
       it 'fails normally if there is no plugin' do
-        Command::PluginManager.load_plugins(@command.plugin_prefix)
+        Command::PluginManager.load_plugins(@command.plugin_prefixes.last)
         @command.subcommands.find do
           |cmd| cmd.name == 'demo-plugin'
         end.should.be.nil
@@ -138,7 +138,7 @@ module CLAide
 
           Gem.stubs(:find_latest_files).returns([path])
           should.not.raise do
-            Command::PluginManager.load_plugins(@command.plugin_prefix)
+            Command::PluginManager.load_plugins(@command.plugin_prefixes.last)
           end
         end
       end

@@ -61,7 +61,7 @@ module Fixture
   end
 
   class CommandPluginable < CLAide::Command
-    self.plugin_prefix = 'fixture'
+    plugin_prefixes << 'fixture'
     self.ansi_output = false
   end
 end
