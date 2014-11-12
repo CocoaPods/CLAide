@@ -12,12 +12,12 @@ module CLAide
     # `lib/#{plugin_prefix}_plugin` relative path.
     # - Be stored in a folder named after the plugin.
     #
-    class PluginsHelper
-      class << self
-        # @return [Array<Pathname>] The list of the root directories of the
-        #         loaded plugins.
-        #
-        attr_reader :plugin_paths
+    class PluginManager
+      # @return [Array<Pathname>] The list of the root directories of the
+      #         loaded plugins.
+      #
+      def self.plugin_paths
+        @plugin_paths ||= {}
       end
 
       # @return [Array<String>] Loads plugins via RubyGems looking for files
@@ -25,23 +25,23 @@ module CLAide
       #         the gems loaded successfully. Plugins are required safely.
       #
       def self.load_plugins(plugin_prefix)
-        return if plugin_paths
-        paths = PluginsHelper.plugin_load_paths(plugin_prefix)
-        plugin_paths = []
-        paths.each do |path|
-          if PluginsHelper.safe_require(path.to_s)
-            plugin_paths << Pathname(path + './../../').cleanpath
+        return if plugin_paths[plugin_prefix]
+
+        loaded_paths = []
+        plugin_load_paths(plugin_prefix).each do |path|
+          if safe_require(path.to_s)
+            loaded_paths << Pathname(path + './../../').cleanpath
           end
         end
 
-        @plugin_paths = plugin_paths
+        plugin_paths[plugin_prefix] = loaded_paths
       end
 
       # @return [Array<Specification>] The RubyGems specifications for the
       #         loaded plugins.
       #
       def self.specifications
-        PluginsHelper.plugin_paths.map do |path|
+        plugin_paths.values.flatten.map do |path|
           specification(path)
         end.compact
       end
@@ -53,8 +53,8 @@ module CLAide
       #         The root path of the plugin.
       #
       def self.specification(path)
-        glob = Dir.glob("#{path}/*.gemspec")
-        spec = Gem::Specification.load(glob.first) if glob.count == 1
+        matches = Dir.glob("#{path}/*.gemspec")
+        spec = Gem::Specification.load(matches.first) if matches.count == 1
         unless spec
           warn '[!] Unable to load a specification for the plugin ' \
             "`#{path}`".ansi.yellow
@@ -69,7 +69,7 @@ module CLAide
       #         The exception to analyze.
       #
       def self.plugins_involved_in_exception(exception)
-        paths = plugin_paths.select do |plugin_path|
+        paths = plugin_paths.values.flatten.select do |plugin_path|
           exception.backtrace.any? { |line| line.include?(plugin_path.to_s) }
         end
         paths.map { |path| path.to_s.split('/').last }

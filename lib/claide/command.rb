@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 require 'claide/command/banner'
-require 'claide/command/plugins_helper'
+require 'claide/command/plugin_manager'
 require 'claide/command/shell_completion_helper'
 require 'claide/command/argument_suggester'
 
@@ -285,7 +285,7 @@ module CLAide
     def print_version
       puts self.class.version
       if verbose?
-        PluginsHelper.specifications.each do |spec|
+        PluginManager.specifications.each do |spec|
           puts "#{spec.name}: #{spec.version}"
         end
       end
@@ -309,7 +309,7 @@ module CLAide
     #
     def self.run(argv = [])
       argv = ARGV.coerce(argv)
-      PluginsHelper.load_plugins(plugin_prefix)
+      PluginManager.load_plugins(plugin_prefix)
       command = parse(argv)
 
       ANSI.disabled = !command.ansi_output?
@@ -396,7 +396,7 @@ module CLAide
     # @return [void]
     #
     def self.report_error(exception)
-      plugins = PluginsHelper.plugins_involved_in_exception(exception)
+      plugins = PluginManager.plugins_involved_in_exception(exception)
       unless plugins.empty?
         puts '[!] The exception involves the following plugins:' \
           "\n -  #{plugins.join("\n -  ")}\n".ansi.yellow

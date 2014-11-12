@@ -105,7 +105,7 @@ module CLAide
           end.should.be.nil
 
           prefix = Fixture::CommandPluginable.plugin_prefix
-          Command::PluginsHelper.load_plugins(prefix)
+          Command::PluginManager.load_plugins(prefix)
           plugin_command = Fixture::CommandPluginable.subcommands.find do |cmd|
             cmd.command == 'demo-plugin'
           end
@@ -116,14 +116,14 @@ module CLAide
 
         it 'is available for help' do
           prefix = Fixture::CommandPluginable.plugin_prefix
-          Command::PluginsHelper.load_plugins(prefix)
+          Command::PluginManager.load_plugins(prefix)
           banner = CLAide::Command::Banner.new(Fixture::CommandPluginable)
           banner.formatted_banner.should =~ /demo-plugin/
         end
       end
 
       it 'fails normally if there is no plugin' do
-        Command::PluginsHelper.load_plugins(@command.plugin_prefix)
+        Command::PluginManager.load_plugins(@command.plugin_prefix)
         @command.subcommands.find do
           |cmd| cmd.name == 'demo-plugin'
         end.should.be.nil
@@ -138,7 +138,7 @@ module CLAide
 
           Gem.stubs(:find_latest_files).returns([path])
           should.not.raise do
-            Command::PluginsHelper.load_plugins(@command.plugin_prefix)
+            Command::PluginManager.load_plugins(@command.plugin_prefix)
           end
         end
       end
@@ -404,7 +404,7 @@ module CLAide
 
       it 'includes plugins version if the verbose flag has been specified' do
         spec = stub(:name => 'cocoapods_plugin', :version => '1.0')
-        Command::PluginsHelper.expects(:specifications).returns([spec])
+        Command::PluginManager.expects(:specifications).returns([spec])
 
         command = Fixture::Command.new(%w(--version --verbose))
         command.class.version = '1.0'
