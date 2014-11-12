@@ -264,7 +264,7 @@ module CLAide
     #
     # @return [Bool] Whether any root command option was handled.
     #
-    def handle_root_command_options(argv)
+    def handle_root_options(argv)
       return false unless self.class.root_command?
       if argv.flag?('version')
         print_version
@@ -311,7 +311,7 @@ module CLAide
       argv = ARGV.coerce(argv)
       command = parse(argv)
       ANSI.disabled = !command.ansi_output?
-      unless command.handle_root_command_options(argv)
+      unless command.handle_root_options(argv)
         command.validate!
         command.run
       end

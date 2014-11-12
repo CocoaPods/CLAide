@@ -199,7 +199,7 @@ module CLAide
 
       it 'does not runs the instance if root options have been specified' do
         instance = @command.any_instance
-        instance.expects(:handle_root_command_options).returns(true)
+        instance.expects(:handle_root_options).returns(true)
         instance.expects(:run).never
         @command.run(%w(--version))
       end
@@ -376,7 +376,7 @@ module CLAide
       end
     end
 
-    describe '::handle_root_command_options' do
+    describe '::handle_root_options' do
       before do
         @version_flag = ARGV.new(['--version'])
       end
@@ -384,13 +384,13 @@ module CLAide
       it 'handles the version flag' do
         command = Fixture::Command.new([])
         command.expects(:print_version)
-        command.handle_root_command_options(@version_flag).should.be.true
+        command.handle_root_options(@version_flag).should.be.true
       end
 
       it 'does not handle the version flag for non root commands' do
         command = Fixture::Command::SpecFile.new([])
         command.expects(:print_version).never
-        command.handle_root_command_options(@version_flag).should.be.false
+        command.handle_root_options(@version_flag).should.be.false
       end
     end
 
