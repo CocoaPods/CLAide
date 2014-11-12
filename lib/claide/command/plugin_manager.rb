@@ -46,8 +46,8 @@ module CLAide
         end.compact
       end
 
-      # @return [Array<Specification>] The RubyGems specifications for the
-      #         plugin with the given root path.
+      # @return [Specification] The RubyGems specification for the plugin at the
+      #         given path.
       #
       # @param  [#to_s] path
       #         The root path of the plugin.
