@@ -2,7 +2,6 @@
 
 require 'claide/command/banner'
 require 'claide/command/plugin_manager'
-require 'claide/command/shell_completion_helper'
 require 'claide/command/argument_suggester'
 
 module CLAide
@@ -265,16 +264,10 @@ module CLAide
     #
     # @return [Bool] Whether any root command option was handled.
     #
-    # @todo   Move this back into `::run` once `completion-script` has been
-    #         removed.
-    #
     def handle_root_command_options(argv)
       return false unless self.class.root_command?
       if argv.flag?('version')
         print_version
-        return true
-      elsif argv.flag?('completion-script')
-        puts ShellCompletionHelper.completion_template(self.class)
         return true
       end
       false
