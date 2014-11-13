@@ -220,8 +220,7 @@ module CLAide
     end
 
     DEFAULT_ROOT_OPTIONS = [
-      ['--completion-script', 'Print the auto-completion script'],
-      ['--version',           'Show the version of the tool'],
+      ['--version', 'Show the version of the tool'],
     ]
 
     DEFAULT_OPTIONS = [
@@ -274,9 +273,6 @@ module CLAide
     end
 
     # Prints the version of the command optionally including plugins.
-    #
-    # @todo   Move this back into `::run` once `completion-script` has been
-    #         removed.
     #
     def print_version
       puts self.class.version

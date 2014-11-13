@@ -14,7 +14,7 @@ class CLAide::Command
 
     describe '#possibilities' do
       it 'returns the list of valid options' do
-        expected = %w(--completion-script --version --verbose --no-ansi --help)
+        expected = %w(--version --verbose --no-ansi --help)
 
         suggester = ArgumentSuggester.new('--option', Fixture::Command)
         suggester.possibilities.should == expected
