@@ -4,7 +4,6 @@ require File.expand_path('../../spec_helper', __FILE__)
 
 module CLAide
   describe ANSI::Graphics do
-
     before do
       @subject = ANSI::Graphics
     end

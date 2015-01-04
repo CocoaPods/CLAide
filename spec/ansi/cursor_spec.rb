@@ -3,7 +3,6 @@ require File.expand_path('../../spec_helper', __FILE__)
 
 module CLAide
   describe ANSI::Cursor do
-
     before do
       @subject = ANSI::Cursor
     end

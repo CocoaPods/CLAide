@@ -4,11 +4,9 @@ require File.expand_path('../spec_helper', __FILE__)
 
 module CLAide
   describe Help do
-
     #-------------------------------------------------------------------------#
 
     describe 'in general' do
-
       it 'shows just the banner if no error message is specified' do
         banner = 'A descriptive banner'
         Help.new(banner).message.should == banner
@@ -23,6 +21,5 @@ module CLAide
     end
 
     #-------------------------------------------------------------------------#
-
   end
 end
