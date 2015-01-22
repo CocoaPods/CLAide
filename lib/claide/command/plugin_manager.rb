@@ -54,9 +54,9 @@ module CLAide
       #
       def self.specification(path)
         matches = Dir.glob("#{path}/*.gemspec")
-          spec = silence_streams(STDERR) {
-            Gem::Specification.load(matches.first)
-          } if matches.count == 1
+        spec = silence_streams(STDERR) do
+          Gem::Specification.load(matches.first)
+        end if matches.count == 1
         unless spec
           warn '[!] Unable to load a specification for the plugin ' \
             "`#{path}`".ansi.yellow
