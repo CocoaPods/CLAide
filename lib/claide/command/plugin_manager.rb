@@ -54,7 +54,10 @@ module CLAide
       #
       def self.specification(path)
         matches = Dir.glob("#{path}/*.gemspec")
-        spec = Gem::Specification.load(matches.first) if matches.count == 1
+        spec = nil
+        silence_stderr do
+          spec = Gem::Specification.load(matches.first) if matches.count == 1
+        end
         unless spec
           warn '[!] Unable to load a specification for the plugin ' \
             "`#{path}`".ansi.yellow
@@ -113,6 +116,19 @@ module CLAide
         false
       end
       # rubocop:enable RescueException
+
+      private
+
+      def self.silence_stderr
+        begin
+          orig_stderr = $stderr.clone
+          $stderr.reopen File.new('/dev/null', 'w')
+          retval = yield
+        ensure
+          $stderr.reopen orig_stderr
+        end
+        retval
+      end
     end
   end
 end
