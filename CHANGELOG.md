@@ -1,5 +1,14 @@
 # CLAide Changelog
 
+## Master
+
+###### Bug Fixes
+
+* Silence errors while loading plugins.  
+  [Clément Beffa](https://github.com/cl3m)
+  [#44](https://github.com/CocoaPods/CLAide/issues/44)
+
+
 ## 0.8.0
 
 ###### Breaking
@@ -8,7 +17,7 @@
   [Eloy Durán](https://github.com/alloy)
   [#43](https://github.com/CocoaPods/CLAide/issues/43)
 
-* Various refactoring replacing “Helper” API’s which specialised classes such as ArgumentSuggester, TextWrapper and PluginManager.   
+* Various refactoring replacing “Helper” API’s which specialised classes such as ArgumentSuggester, TextWrapper and PluginManager.  
   [Eloy Durán](https://github.com/alloy)
 
 ###### Enhancements
@@ -123,4 +132,3 @@
 * Added support for plugins.  
   [Les Hill](https://github.com/leshill)
   [#1](https://github.com/CocoaPods/CLAide/pull/1)
-
