@@ -1,5 +1,12 @@
 # CLAide Changelog
 
+## 0.9.0
+
+###### Enhancements
+
+* Silence error while loading cocoapods plugins [Clément Beffa](https://github.com/cl3m)
+  [#44](https://github.com/CocoaPods/CLAide/issues/44)
+
 ## 0.8.0
 
 ###### Breaking
