@@ -120,7 +120,7 @@ module CLAide
       #
       # credit to DHH http://stackoverflow.com/a/8959520
       def self.silence_streams(*streams)
-        on_hold = streams.collect(&:dup)
+        on_hold = streams.map(&:dup)
         streams.each do |stream|
           stream.reopen('/dev/null')
           stream.sync = true
