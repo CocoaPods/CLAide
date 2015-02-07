@@ -47,8 +47,8 @@ module CLAide
         gemspec_glob = "#{root}/*.gemspec"
         gemspec_path = @path + '../../fixtures.gemspec'
         spec = stub
-        Dir.expects(:glob).with(gemspec_glob).returns([gemspec_path])
-        Gem::Specification.expects(:load).with(gemspec_path).returns(spec)
+        Pathname.expects(:glob).with(gemspec_glob).returns([gemspec_path])
+        Gem::Specification.expects(:load).with(gemspec_path.to_s).returns(spec)
         @manager.specification(root).should == spec
       end
 

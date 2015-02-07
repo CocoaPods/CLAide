@@ -53,8 +53,13 @@ module CLAide
       #         The root path of the plugin.
       #
       def self.specification(path)
-        matches = Dir.glob("#{path}/*.gemspec")
-        spec = Gem::Specification.load(matches.first) if matches.count == 1
+        matches = Pathname.glob("#{path}/*.gemspec")
+        if matches.count == 1
+          spec_path = matches.first
+          spec = Dir.chdir(spec_path.parent) do
+            Gem::Specification.load(spec_path.to_s)
+          end
+        end
         unless spec
           warn '[!] Unable to load a specification for the plugin ' \
             "`#{path}`".ansi.yellow
