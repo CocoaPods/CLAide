@@ -54,7 +54,9 @@ module CLAide
       #
       def self.specification(path)
         matches = Dir.glob("#{path}/*.gemspec")
-        spec = Gem::Specification.load(matches.first) if matches.count == 1
+        spec = silence_streams(STDERR) do
+          Gem::Specification.load(matches.first)
+        end if matches.count == 1
         unless spec
           warn '[!] Unable to load a specification for the plugin ' \
             "`#{path}`".ansi.yellow
@@ -113,6 +115,28 @@ module CLAide
         false
       end
       # rubocop:enable RescueException
+
+      # Executes the given block while silencing the given streams.
+      #
+      # @return [Object] The value of the given block.
+      #
+      # @param [Array] streams
+      #                The streams to silence.
+      #
+      # @note credit to DHH http://stackoverflow.com/a/8959520
+      #
+      def self.silence_streams(*streams)
+        on_hold = streams.map(&:dup)
+        streams.each do |stream|
+          stream.reopen('/dev/null')
+          stream.sync = true
+        end
+        yield
+      ensure
+        streams.each_with_index do |stream, i|
+          stream.reopen(on_hold[i])
+        end
+      end
     end
   end
 end
