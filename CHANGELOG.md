@@ -1,6 +1,6 @@
 # CLAide Changelog
 
-## Master
+## 0.8.1
 
 ###### Bug Fixes
 
