@@ -123,8 +123,8 @@ module CLAide
 
       it 'fails normally if there is no plugin' do
         Command::PluginManager.load_plugins(@command.plugin_prefixes.last)
-        @command.subcommands.find do
-          |cmd| cmd.name == 'demo-plugin'
+        @command.subcommands.find do |cmd|
+          cmd.name == 'demo-plugin'
         end.should.be.nil
       end
 

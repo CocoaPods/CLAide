@@ -35,7 +35,7 @@ begin
 
   desc 'Check code against RuboCop rules'
   task :rubocop do
-    sh 'bundle exec rubocop lib spec'
+    sh 'bundle exec rubocop'
   end
 
 rescue LoadError
