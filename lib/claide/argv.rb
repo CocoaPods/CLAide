@@ -55,6 +55,20 @@ module CLAide
       end
     end
 
+    # @return [Array<String>] A list of the remaining unhandled parameters, in
+    #         the same format the user specified them.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv.shift_argument # => 'tea'
+    #   argv.remainder!     # => ['--no-milk', '--sweetner=honey']
+    #   argv.remainder      # => []
+    #
+    def remainder!
+      remainder.tap { @entries.clear }
+    end
+
     # @return [Hash] A hash that consists of the remaining flags and options
     #         and their values.
     #

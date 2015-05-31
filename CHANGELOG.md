@@ -1,5 +1,14 @@
 # CLAide Changelog
 
+## Master
+
+##### Enhancements
+
+* Add `ARGV#remainder!`, which returns all the remaining arguments, deleting
+  them from the receiver.  
+  [Samuel Giddins](https://github.com/segiddins)
+
+
 ## 0.8.1
 
 ###### Bug Fixes

@@ -67,6 +67,15 @@ module CLAide
         @argv.arguments!.should == %w(ARG1 ARG2)
         @argv.remainder.should == %w(--flag --option=VALUE --no-other-flag)
       end
+
+      describe '#remainder!' do
+        it 'returns the remainder and removes all entries' do
+          args = %w(--flag --option=VALUE ARG1 ARG2 --no-other-flag)
+          @argv.remainder.should == args
+          @argv.remainder!.should == args
+          @argv.remainder.should == []
+        end
+      end
     end
   end
 
