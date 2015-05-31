@@ -64,3 +64,6 @@ DEPENDENCIES
   rake
   rubocop
   simplecov
+
+BUNDLED WITH
+   1.10.2
