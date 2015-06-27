@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    claide (0.8.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -55,6 +60,7 @@ PLATFORMS
 
 DEPENDENCIES
   bacon
+  claide!
   codeclimate-test-reporter
   colored
   json
