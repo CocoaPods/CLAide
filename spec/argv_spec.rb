@@ -53,6 +53,13 @@ module CLAide
         @argv.remainder.should == %w(--flag ARG1 ARG2 --no-other-flag)
       end
 
+      it 'allows mutliple values for the same option' do
+        @argv = ARGV.new %w(--ignore=foo --ignore=bar)
+        @argv.option('ignore').should == 'bar'
+        @argv.option('ignore').should == 'foo'
+        @argv.option('ignore').should.be.nil
+      end
+
       it 'returns a default value if an option does not exist' do
         @argv.option('flag', 'value').should == 'value'
       end

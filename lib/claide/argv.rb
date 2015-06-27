@@ -207,13 +207,14 @@ module CLAide
     #
     def delete_entry(requested_type, requested_key, default)
       result = nil
-      @entries.delete_if do |type, (key, value)|
+      entry = @entries.reverse_each.find do |type, (key, value)|
         if requested_key == key && requested_type == type
           result = value
           true
         end
       end
-      result.nil? ? default : result
+      @entries.delete(entry) if entry
+      entry.nil? ? default : result
     end
 
     module Parser

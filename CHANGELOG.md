@@ -2,9 +2,14 @@
 
 ## Master
 
+##### Enhancements
+
 * Properly parse everything in `ARGV` after `--` as an argument.  
   [Samuel Giddins](https://github.com/segiddins)
   [#48](https://github.com/CocoaPods/CLAide/issues/48)
+
+* Allow parsing an option that occurs multiple times.  
+  [Samuel Giddins](https://github.com/segiddins)
 
 
 ## 0.8.2
