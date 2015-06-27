@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    claide (0.8.1)
+    claide (0.8.2)
 
 GEM
   remote: https://rubygems.org/
