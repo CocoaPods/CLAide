@@ -184,6 +184,31 @@ module CLAide
       delete_entry(:option, name, default)
     end
 
+    # @return [Array<String>] Returns an array of all the values of the option
+    #                         with the specified `name` among the remaining
+    #                         parameters.
+    #
+    # @param  [String] name
+    #         The name of the option to look for among the remaining
+    #         parameters.
+    #
+    # @note   This will remove the option from the remaining parameters.
+    #
+    # @example
+    #
+    #   argv = CLAide::ARGV.new(['--ignore=foo', '--ignore=bar'])
+    #   argv.all_options('include')  # => []
+    #   argv.all_options('ignore')   # => ['bar', 'foo']
+    #   argv.remainder               # => []
+    #
+    def all_options(name)
+      options = []
+      while entry = option(name)
+        options << entry
+      end
+      options
+    end
+
     private
 
     # @return [Array<Array<Symbol, String, Array>>] A list of tuples for each
@@ -207,13 +232,14 @@ module CLAide
     #
     def delete_entry(requested_type, requested_key, default)
       result = nil
-      @entries.delete_if do |type, (key, value)|
+      entry = @entries.reverse_each.find do |type, (key, value)|
         if requested_key == key && requested_type == type
           result = value
           true
         end
       end
-      result.nil? ? default : result
+      @entries.delete(entry) if entry
+      entry.nil? ? default : result
     end
 
     module Parser
