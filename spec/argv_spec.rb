@@ -109,6 +109,20 @@ module CLAide
           [:option, %w(key value)],
         ]
       end
+
+      describe '--' do
+        it 'parses everything after -- as an arg' do
+          argv = %w(value -- -- value --no-value -- --key=value)
+          @parser.parse(argv).should == [
+            [:arg, 'value'],
+            [:arg, '--'],
+            [:arg, 'value'],
+            [:arg, '--no-value'],
+            [:arg, '--'],
+            [:arg, '--key=value'],
+          ]
+        end
+      end
     end
   end
 end

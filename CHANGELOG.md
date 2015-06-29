@@ -1,5 +1,12 @@
 # CLAide Changelog
 
+## Master
+
+* Properly parse everything in `ARGV` after `--` as an argument.  
+  [Samuel Giddins](https://github.com/segiddins)
+  [#48](https://github.com/CocoaPods/CLAide/issues/48)
+
+
 ## 0.8.2
 
 ##### Enhancements

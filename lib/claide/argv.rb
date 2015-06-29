@@ -231,8 +231,10 @@ module CLAide
       def self.parse(argv)
         entries = []
         copy = argv.map(&:to_s)
+        double_dash = false
         while argument = copy.shift
-          type = argument_type(argument)
+          next if !double_dash && double_dash = (argument == '--')
+          type = double_dash ? :arg : argument_type(argument)
           parsed_argument = parse_argument(type, argument)
           entries << [type, parsed_argument]
         end
