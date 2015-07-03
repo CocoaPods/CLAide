@@ -156,7 +156,7 @@ module CLAide
     #   argv.remainder           # => ['tea', '--sweetner=honey']
     #
     def flag?(name, default = nil)
-      delete_entry(:flag, name, default)
+      delete_entry(:flag, name, default, true)
     end
 
     # @return [String, nil] Returns the value of the option by the specified
@@ -230,16 +230,18 @@ module CLAide
     # @param  [Bool, String, Nil] default
     #         The value which should be returned if the entry is not present.
     #
-    def delete_entry(requested_type, requested_key, default)
-      result = nil
-      entry = @entries.reverse_each.find do |type, (key, value)|
-        if requested_key == key && requested_type == type
-          result = value
-          true
-        end
+    # @param  [Bool] delete_all
+    #         Whether all values matching `requested_type` and `requested_key`
+    #         should be deleted.
+    #
+    def delete_entry(requested_type, requested_key, default, delete_all = false)
+      pred = proc do |type, (key, _value)|
+        requested_key == key && requested_type == type
       end
-      @entries.delete(entry) if entry
-      entry.nil? ? default : result
+      entry = entries.reverse_each.find(&pred)
+      delete_all ? entries.delete_if(&pred) : entries.delete(entry)
+
+      entry.nil? ? default : entry.last.last
     end
 
     module Parser

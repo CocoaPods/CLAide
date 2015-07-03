@@ -46,6 +46,16 @@ module CLAide
         @argv.flag?('option', false).should == false
       end
 
+      it 'allows multiple values for the same flag' do
+        argv = ARGV.new(%w(--verbose --no-verbose))
+        argv.flag?('verbose').should == false
+        argv.remainder.should == []
+
+        argv = ARGV.new(%w(--verbose --verbose))
+        argv.flag?('verbose').should == true
+        argv.remainder.should == []
+      end
+
       it 'returns an option and deletes it' do
         @argv.option('flag').should.nil?
         @argv.option('other-flag').should.nil?

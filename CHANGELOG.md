@@ -1,5 +1,15 @@
 # CLAide Changelog
 
+## Master
+
+##### Bug Fixes
+
+* Fix a regression when contradictory flags were given in `ARGV` -- the last
+  flag given will once again be the value returned, and all entries for that key
+  are removed.  
+  [Samuel Giddins](https://github.com/segiddins)
+
+
 ## 0.9.0
 
 ##### Enhancements
