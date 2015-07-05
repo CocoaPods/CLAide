@@ -1,6 +1,6 @@
 # CLAide Changelog
 
-## Master
+## 0.9.1
 
 ##### Bug Fixes
 
