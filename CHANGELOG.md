@@ -1,6 +1,6 @@
 # CLAide Changelog
 
-## 0.9.1
+## 0.9.1 (2015-07-05)
 
 ##### Bug Fixes
 
@@ -10,7 +10,7 @@
   [Samuel Giddins](https://github.com/segiddins)
 
 
-## 0.9.0
+## 0.9.0 (2015-07-02)
 
 ##### Enhancements
 
@@ -22,7 +22,7 @@
   [Samuel Giddins](https://github.com/segiddins)
 
 
-## 0.8.2
+## 0.8.2 (2015-06-27)
 
 ##### Enhancements
 
@@ -31,7 +31,7 @@
   [Samuel Giddins](https://github.com/segiddins)
 
 
-## 0.8.1
+## 0.8.1 (2015-02-25)
 
 ###### Bug Fixes
 
@@ -40,7 +40,7 @@
   [#44](https://github.com/CocoaPods/CLAide/issues/44)
 
 
-## 0.8.0
+## 0.8.0 (2014-12-25)
 
 ###### Breaking
 
@@ -60,7 +60,7 @@
 * Changes to the PluginManager to handle multiple plugin prefixes, which by default adds the `clad` plugin prefix.  
   [Eloy Durán](https://github.com/alloy)
 
-## 0.7.0
+## 0.7.0 (2014-09-11)
 
 ###### Breaking
 
@@ -88,7 +88,7 @@
   [#36](https://github.com/CocoaPods/CLAide/issues/36)
 
 
-## 0.6.1
+## 0.6.1 (2014-05-20)
 
 ###### Bug Fixes
 
@@ -99,7 +99,7 @@
 * Underline the colon of the titles of the help banner.  
   [Fabio Pelosin](https://github.com/fabiopelosin)
 
-## 0.6.0
+## 0.6.0 (2014-05-19)
 
 ###### Enhancements
 
@@ -133,7 +133,7 @@
   [#13](https://github.com/CocoaPods/CLAide/issues/13)
   [#14](https://github.com/CocoaPods/CLAide/issues/14)
 
-## 0.5.0
+## 0.5.0 (2014-03-26)
 
 ###### Enhancements
 
@@ -156,7 +156,7 @@
   [#6](https://github.com/CocoaPods/CLAide/issues/6)
 
 
-## 0.4.0
+## 0.4.0 (2013-11-14)
 
 ###### Enhancements
 
