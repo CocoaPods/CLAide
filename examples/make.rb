@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
 
 require 'claide'
 
-# Loading this third-part gem will automatically cause CLAide to color some of
+# Loading this third-party gem will automatically cause CLAide to color some of
 # its output.
 require 'colored'
 
