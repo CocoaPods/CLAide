@@ -50,6 +50,8 @@ end
 #
 CLAide::Command.ansi_output = false
 
+Mocha::Configuration.prevent(:stubbing_non_existent_method)
+
 module Bacon
   class Context
     old_run_requirement = instance_method(:run_requirement)
