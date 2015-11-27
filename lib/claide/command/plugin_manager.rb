@@ -32,6 +32,10 @@ module CLAide
           end.compact
       end
 
+      # @return [Array<[Gem::Specification, Array<String>]>]
+      #         Returns an array of tuples containing the specifications and
+      #         plugin files to require for a given plugin prefix.
+      #
       def self.plugin_gems_for_prefix(prefix)
         glob = "#{prefix}_plugin#{Gem.suffix_pattern}"
         Gem::Specification.latest_specs(true).map do |spec|
