@@ -23,6 +23,7 @@ require 'mocha-on-bacon'
 require 'pretty_bacon'
 require 'claide'
 require 'spec_helper/fixtures'
+require 'spec_helper/rubygems'
 require 'spec_helper/string_ext'
 
 #-- Helpers ------------------------------------------------------------------#

@@ -94,8 +94,9 @@ module CLAide
     describe 'plugins' do
       describe 'when the plugin is at <command-prefix>_plugin.rb' do
         before do
-          path = ROOT + 'spec/fixture/command/plugin_fixture.rb'
-          Gem.stubs(:find_latest_files).returns([path])
+          path = ROOT + 'spec/fixture/command/fixture_plugin.rb'
+          spec = SpecHelper::RubyGems.fixture_spec_with_file(path)
+          SpecHelper::RubyGems.stub_latest_specs(spec)
         end
 
         it 'loads the plugin' do
