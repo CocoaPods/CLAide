@@ -63,7 +63,7 @@ module CLAide
         end
 
         should.not.raise do
-          @manager.safe_activate_and_require(@spec, [path.to_path])
+          @manager.safe_activate_and_require(@spec, [path.to_s])
         end
 
         output = @manager.instance_variable_get(:@fixture_output)

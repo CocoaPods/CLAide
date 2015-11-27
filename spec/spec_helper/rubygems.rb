@@ -6,7 +6,7 @@ module SpecHelper
       Gem::Specification.new do |s|
         s.name = 'fixture-demo-plugin'
         s.version = '1.0.0'
-        s.files = [file.to_path]
+        s.files = [file.to_s]
         s.require_path = ''
         def s.full_gem_path
           File.expand_path('..', files.first)
