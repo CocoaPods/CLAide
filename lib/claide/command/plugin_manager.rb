@@ -32,18 +32,6 @@ module CLAide
           end.compact
       end
 
-      # @return [Array<[Gem::Specification, Array<String>]>]
-      #         Returns an array of tuples containing the specifications and
-      #         plugin files to require for a given plugin prefix.
-      #
-      def self.plugin_gems_for_prefix(prefix)
-        glob = "#{prefix}_plugin#{Gem.suffix_pattern}"
-        Gem::Specification.latest_specs(true).map do |spec|
-          matches = spec.matches_for_glob(glob)
-          [spec, matches] unless matches.empty?
-        end.compact
-      end
-
       # @return [Array<Specification>] The RubyGems specifications for the
       #         loaded plugins.
       #
@@ -58,13 +46,27 @@ module CLAide
       #         The exception to analyze.
       #
       def self.plugins_involved_in_exception(exception)
-        loaded_plugins.values.flatten.select do |gemspec|
+        specifications.select do |gemspec|
           exception.backtrace.any? do |line|
             gemspec.full_require_paths.any? do |plugin_path|
               line.include?(plugin_path)
             end
           end
-        end.uniq.map(&:name)
+        end.map(&:name)
+      end
+
+      # @group Helper Methods
+
+      # @return [Array<[Gem::Specification, Array<String>]>]
+      #         Returns an array of tuples containing the specifications and
+      #         plugin files to require for a given plugin prefix.
+      #
+      def self.plugin_gems_for_prefix(prefix)
+        glob = "#{prefix}_plugin#{Gem.suffix_pattern}"
+        Gem::Specification.latest_specs(true).map do |spec|
+          matches = spec.matches_for_glob(glob)
+          [spec, matches] unless matches.empty?
+        end.compact
       end
 
       # Loads the given path. If any exception occurs it is catched and an
