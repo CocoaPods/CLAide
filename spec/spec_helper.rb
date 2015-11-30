@@ -23,6 +23,7 @@ require 'mocha-on-bacon'
 require 'pretty_bacon'
 require 'claide'
 require 'spec_helper/fixtures'
+require 'spec_helper/rubygems'
 require 'spec_helper/string_ext'
 
 #-- Helpers ------------------------------------------------------------------#
@@ -48,6 +49,8 @@ end
 # a TTY or not.
 #
 CLAide::Command.ansi_output = false
+
+Mocha::Configuration.prevent(:stubbing_non_existent_method)
 
 module Bacon
   class Context

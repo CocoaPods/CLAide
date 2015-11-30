@@ -13,55 +13,30 @@ module CLAide
     # - Be stored in a folder named after the plugin.
     #
     class PluginManager
-      # @return [Array<Pathname>] The list of the root directories of the
-      #         loaded plugins.
+      # @return [Hash<String,Gem::Specification>] The loaded plugins,
+      #         grouped by plugin prefix.
       #
-      def self.plugin_paths
-        @plugin_paths ||= {}
+      def self.loaded_plugins
+        @loaded_plugins ||= {}
       end
 
-      # @return [Array<String>] Loads plugins via RubyGems looking for files
-      #         named after the `PLUGIN_PREFIX_plugin` and returns the paths of
-      #         the gems loaded successfully. Plugins are required safely.
+      # @return [Array<Gem::Specification>] Loads plugins via RubyGems looking
+      #         for files named after the `PLUGIN_PREFIX_plugin` and returns the
+      #         specifications of the gems loaded successfully.
+      #         Plugins are required safely.
       #
       def self.load_plugins(plugin_prefix)
-        return if plugin_paths[plugin_prefix]
-
-        loaded_paths = []
-        plugin_load_paths(plugin_prefix).each do |path|
-          if safe_require(path.to_s)
-            loaded_paths << Pathname(path + './../../').cleanpath
-          end
-        end
-
-        plugin_paths[plugin_prefix] = loaded_paths
+        loaded_plugins[plugin_prefix] ||=
+          plugin_gems_for_prefix(plugin_prefix).map do |spec, paths|
+            spec if safe_activate_and_require(spec, paths)
+          end.compact
       end
 
       # @return [Array<Specification>] The RubyGems specifications for the
       #         loaded plugins.
       #
       def self.specifications
-        plugin_paths.values.flatten.map do |path|
-          specification(path)
-        end.compact
-      end
-
-      # @return [Specification] The RubyGems specification for the plugin at the
-      #         given path.
-      #
-      # @param  [#to_s] path
-      #         The root path of the plugin.
-      #
-      def self.specification(path)
-        matches = Dir.glob("#{path}/*.gemspec")
-        spec = silence_streams(STDERR) do
-          Gem::Specification.load(matches.first)
-        end if matches.count == 1
-        unless spec
-          warn '[!] Unable to load a specification for the plugin ' \
-            "`#{path}`".ansi.yellow
-        end
-        spec
+        loaded_plugins.values.flatten.uniq
       end
 
       # @return [Array<String>] The list of the plugins whose root path appears
@@ -71,28 +46,27 @@ module CLAide
       #         The exception to analyze.
       #
       def self.plugins_involved_in_exception(exception)
-        paths = plugin_paths.values.flatten.select do |plugin_path|
-          exception.backtrace.any? { |line| line.include?(plugin_path.to_s) }
-        end
-        paths.map { |path| path.to_s.split('/').last }
+        specifications.select do |gemspec|
+          exception.backtrace.any? do |line|
+            gemspec.full_require_paths.any? do |plugin_path|
+              line.include?(plugin_path)
+            end
+          end
+        end.map(&:name)
       end
 
-      # Returns the paths of the files to require to load the available
-      # plugins.
+      # @group Helper Methods
+
+      # @return [Array<[Gem::Specification, Array<String>]>]
+      #         Returns an array of tuples containing the specifications and
+      #         plugin files to require for a given plugin prefix.
       #
-      # @return [Array] The found plugins load paths.
-      #
-      def self.plugin_load_paths(plugin_prefix)
-        if plugin_prefix && !plugin_prefix.empty?
-          pattern = "#{plugin_prefix}_plugin"
-          if Gem.respond_to? :find_latest_files
-            Gem.find_latest_files(pattern)
-          else
-            Gem.find_files(pattern)
-          end
-        else
-          []
-        end
+      def self.plugin_gems_for_prefix(prefix)
+        glob = "#{prefix}_plugin#{Gem.suffix_pattern}"
+        Gem::Specification.latest_specs(true).map do |spec|
+          matches = spec.matches_for_glob(glob)
+          [spec, matches] unless matches.empty?
+        end.compact
       end
 
       # Loads the given path. If any exception occurs it is catched and an
@@ -102,16 +76,17 @@ module CLAide
       #         The path to load
       #
       # rubocop:disable RescueException
-      def self.safe_require(path)
-        require path
+      def self.safe_activate_and_require(spec, paths)
+        spec.activate
+        paths.each { |path| require(path) }
         true
       rescue Exception => exception
         message = "\n---------------------------------------------"
-        message << "\nError loading the plugin with path `#{path}`.\n"
+        message << "\nError loading the plugin `#{spec.full_name}`.\n"
         message << "\n#{exception.class} - #{exception.message}"
         message << "\n#{exception.backtrace.join("\n")}"
         message << "\n---------------------------------------------\n"
-        puts message.ansi.yellow
+        warn message.ansi.yellow
         false
       end
       # rubocop:enable RescueException

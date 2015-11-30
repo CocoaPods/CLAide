@@ -12,8 +12,7 @@ Gem::Specification.new do |s|
 
   s.summary  = "A small command-line interface framework."
 
-  s.files = Dir["lib/**/*.rb"] + %w{ README.markdown LICENSE }
-  s.require_paths = %w{ lib }
+  s.files = `git ls-files -z`.split("\0").reject { |f| f =~ /\A(spec|examples)/i }
 
   ## Make sure you can build the gem on older versions of RubyGems too:
   s.rubygems_version = "1.6.2"
