@@ -39,6 +39,14 @@ module CLAide
         loaded_plugins.values.flatten.uniq
       end
 
+
+      # @return [Array<Specification>] The RubyGems specifications for the
+      #         installed plugins that match the given `plugin_prefix`.
+      #
+      def self.installed_specifications_for_prefix(plugin_prefix)
+        loaded_plugins[plugin_prefix] || plugin_gems_for_prefix(plugin_prefix).map(&:first)
+      end
+
       # @return [Array<String>] The list of the plugins whose root path appears
       #         in the backtrace of an exception.
       #
@@ -69,11 +77,17 @@ module CLAide
         end.compact
       end
 
-      # Loads the given path. If any exception occurs it is catched and an
+      # Activates the given spec and requires the given paths.
+      # If any exception occurs it is caught and an
       # informative message is printed.
       #
-      # @param  [String] path
-      #         The path to load
+      # @param  [Gem::Specification] spec
+      #         The spec to be activated.
+      #
+      # @param  [String] paths
+      #         The paths to require.
+      #
+      # @return [Bool] Whether activation and requiring succeeded.
       #
       # rubocop:disable RescueException
       def self.safe_activate_and_require(spec, paths)

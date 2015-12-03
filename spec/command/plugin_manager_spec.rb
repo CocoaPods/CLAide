@@ -42,6 +42,18 @@ module CLAide
       end
     end
 
+    describe '::installed_specifications_for_prefix' do
+      it 'returns the list of specifications when the prefix has been loaded' do
+        @manager.load_plugins('fixture')
+        @manager.expects(:plugin_gems_for_prefix).never
+        @manager.installed_specifications_for_prefix('fixture').should == [@spec]
+      end
+
+      it 'returns the lists of specifications when the prefix has not been loaded' do
+        @manager.installed_specifications_for_prefix('fixture').should == [@spec]
+      end
+    end
+
     describe '::plugins_involved_in_exception' do
       it 'returns the list of the plugins involved in an exception' do
         backtrace = [(@path + '../command.rb').to_s]
