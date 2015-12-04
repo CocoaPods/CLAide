@@ -39,12 +39,12 @@ module CLAide
         loaded_plugins.values.flatten.uniq
       end
 
-
       # @return [Array<Specification>] The RubyGems specifications for the
       #         installed plugins that match the given `plugin_prefix`.
       #
       def self.installed_specifications_for_prefix(plugin_prefix)
-        loaded_plugins[plugin_prefix] || plugin_gems_for_prefix(plugin_prefix).map(&:first)
+        loaded_plugins[plugin_prefix] ||
+          plugin_gems_for_prefix(plugin_prefix).map(&:first)
       end
 
       # @return [Array<String>] The list of the plugins whose root path appears

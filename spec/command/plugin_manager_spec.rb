@@ -46,11 +46,14 @@ module CLAide
       it 'returns the list of specifications when the prefix has been loaded' do
         @manager.load_plugins('fixture')
         @manager.expects(:plugin_gems_for_prefix).never
-        @manager.installed_specifications_for_prefix('fixture').should == [@spec]
+        @manager.installed_specifications_for_prefix('fixture').
+          should == [@spec]
       end
 
-      it 'returns the lists of specifications when the prefix has not been loaded' do
-        @manager.installed_specifications_for_prefix('fixture').should == [@spec]
+      it 'returns the lists of specifications when the prefix has not been ' \
+         'loaded' do
+        @manager.installed_specifications_for_prefix('fixture').
+          should == [@spec]
       end
     end
 
