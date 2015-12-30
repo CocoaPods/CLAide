@@ -1,5 +1,14 @@
 # CLAide Changelog
 
+## Master
+
+##### Bug Fixes
+
+* The plugin manager will now properly activate plugin gems, ensuring all of
+  their files are requirable.  
+  [Samuel Giddins](https://github.com/segiddins)
+
+
 ## 0.9.1 (2015-07-05)
 
 ##### Bug Fixes
