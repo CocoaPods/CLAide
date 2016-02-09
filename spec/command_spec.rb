@@ -25,6 +25,11 @@ module CLAide
         subcommands.map(&:command).should == %w(lint create)
       end
 
+      it 'returns subcommand for look up and includes alias commands' do
+        subcommands = @command::SpecFile.subcommands_for_command_lookup
+        subcommands.map(&:alias_commands).should == [%w(l), %w(c)]
+      end
+
       it 'returns whether it is the root command' do
         @command.should.be.root_command?
         @command::SpecFile.should.not.be.root_command?

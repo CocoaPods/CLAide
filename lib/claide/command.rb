@@ -143,6 +143,10 @@ module CLAide
       end
       attr_writer :command
 
+      # @return [Array<String>] Aliases for the command.
+      #
+      attr_accessor :alias_commands
+
       # @return [String] The version of the command. This value will be printed
       #         by the `--version` flag if used for the root command.
       #
@@ -208,7 +212,16 @@ module CLAide
     # @return [CLAide::Command, nil] The subcommand, if found.
     #
     def self.find_subcommand(name)
-      subcommands_for_command_lookup.find { |sc| sc.command == name }
+      command = subcommands_for_command_lookup.find { |sc| sc.command == name }
+
+      unless command
+        command = subcommands_for_command_lookup.find do |sc|
+          next unless sc.alias_commands
+          sc.alias_commands.find { |ac| ac == name }
+        end
+      end
+
+      command
     end
 
     # @visibility private

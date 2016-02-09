@@ -31,6 +31,7 @@ module Fixture
         self.arguments = [
           CLAide::Argument.new('NAME', false),
         ]
+        self.alias_commands = ['l']
 
         def self.options
           [['--only-errors', 'Skip warnings']].concat(super)
@@ -50,6 +51,7 @@ module Fixture
         self.arguments = [
           CLAide::Argument.new('NAME', false),
         ]
+        self.alias_commands = ['c']
 
         attr_reader :spec
         def initialize(argv)
