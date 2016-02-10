@@ -94,6 +94,9 @@ EachWithObject:
 Style/SpecialGlobalVars:
   Enabled: false
 
+Metrics/LineLength:
+  Max: 88
+
 #- CocoaPods specs -----------------------------------------------------------#
 
 # Allow for `should.match /regexp/`.
@@ -113,4 +116,3 @@ ClassAndModuleChildren:
 UselessComparison:
   Exclude:
     - spec/**/*
-

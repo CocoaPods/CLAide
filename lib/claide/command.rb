@@ -220,13 +220,13 @@ module CLAide
     end
 
     DEFAULT_ROOT_OPTIONS = [
-      ['--version', 'Show the version of the tool'],
+      [['--version', '-v'], 'Show the version of the tool'],
     ]
 
     DEFAULT_OPTIONS = [
-      ['--verbose', 'Show more debugging information'],
-      ['--no-ansi', 'Show output without ANSI codes'],
-      ['--help',    'Show help banner of specified command'],
+      [['--verbose'], 'Show more debugging information'],
+      [['--no-ansi'], 'Show output without ANSI codes'],
+      [['--help', '-h'], 'Show help banner of specified command'],
     ]
 
     # Should be overridden by a subclass if it handles any options.
@@ -243,8 +243,8 @@ module CLAide
     #
     #   def self.options
     #     [
-    #       ['--verbose', 'Print more info'],
-    #       ['--help',    'Print help banner'],
+    #       [['--verbose'], 'Print more info'],
+    #       [['--help'],    'Print help banner'],
     #     ].concat(super)
     #   end
     #

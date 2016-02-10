@@ -152,8 +152,8 @@ module CLAide
       # @return [String] A decorated textual representation of the option name.
       #
       #
-      def prettify_option_name(name)
-        name.chomp.ansi.blue
+      def prettify_option_name(names)
+        Array(names).each { |n| n.chomp.ansi.blue }.join(', ')
       end
 
       # @return [String] A decorated textual representation of the command.

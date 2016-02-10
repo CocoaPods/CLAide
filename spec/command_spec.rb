@@ -365,14 +365,14 @@ module CLAide
     describe '::options' do
       it 'returns root options for root commands' do
         options = Fixture::Command.options.map(&:first)
-        options.should.include? '--verbose'
-        options.should.include? '--version'
+        options.should.include? ['--verbose']
+        options.should.include? ['--version', '-v']
       end
 
       it 'does not return root options for non-root commands' do
         options = Fixture::Command::SpecFile.options.map(&:first)
-        options.should.include? '--verbose'
-        options.should.not.include? '--version'
+        options.should.include? ['--verbose']
+        options.should.not.include? ['--version']
       end
     end
 

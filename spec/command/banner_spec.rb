@@ -47,8 +47,8 @@ class CLAide::Command
         banner = Banner.new(Fixture::Command::SpecFile)
         banner.send(:formatted_subcommand_summaries).should ==
           <<-COMMANDS.strip_margin('|').rstrip
-            |    + create    Creates a spec file stub.
-            |    + lint      Checks the validity of a spec file.
+            |    + create   Creates a spec file stub.
+            |    + lint     Checks the validity of a spec file.
         COMMANDS
       end
 
@@ -56,25 +56,25 @@ class CLAide::Command
         banner = Banner.new(Fixture::Command::SpecFile)
         banner.send(:formatted_options_description).should ==
           <<-OPTIONS.strip_margin('|').rstrip
-            |    --verbose   Show more debugging information
-            |    --no-ansi   Show output without ANSI codes
-            |    --help      Show help banner of specified command
+            |    --verbose          Show more debugging information
+            |    --no-ansi          Show output without ANSI codes
+            |    --help, -h         Show help banner of specified command
         OPTIONS
       end
 
       it 'aligns the descriptions of the subcommands and of the options' do
         banner = Banner.new(Fixture::Command::SpecFile)
         result = banner.formatted_banner
-        result.should.include('    + create    Creates a spec file stub.')
-        result.should.include('    --verbose   Show more debugging')
+        result.should.include('+ create   Creates a spec file stub.')
+        result.should.include('--verbose          Show more debugging information')
       end
 
       it 'highlights the default subcommand' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:default_subcommand).returns('create')
         result = banner.formatted_banner
-        result.should.include('> create    Creates a spec file stub')
-        result.should.include('+ lint      Checks the validity of a spec file')
+        result.should.include('> create   Creates a spec file stub')
+        result.should.include('+ lint     Checks the validity of a spec file')
       end
     end
 
