@@ -146,20 +146,11 @@ class CLAide::Command
 
         it 'returns the width of the terminal' do
           STDOUT.expects(:tty?).returns(true)
-          TextWrapper.expects(:system).with('which tput > /dev/null 2>&1').
-            returns(true)
-          TextWrapper.expects(:`).with('tput cols').returns('80')
+          STDOUT.expects(:winsize).returns([20, 80])
           TextWrapper.terminal_width.should == 80
         end
 
-        it 'is robust against the tput command not being available' do
-          STDOUT.expects(:tty?).returns(true)
-          TextWrapper.expects(:system).with('which tput > /dev/null 2>&1').
-            returns(false)
-          TextWrapper.terminal_width.should == 0
-        end
-
-        it 'is robust against the tput command not being available' do
+        it 'is robust against not being a tty' do
           STDOUT.expects(:tty?).returns(false)
           TextWrapper.terminal_width.should == 0
         end

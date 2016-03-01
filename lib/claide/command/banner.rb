@@ -286,16 +286,21 @@ module CLAide
         # @return [Fixnum] The width of the current terminal unless being piped.
         #
         def self.terminal_width
-          unless @terminal_width
-            if !ENV['CLAIDE_DISABLE_AUTO_WRAP'] &&
-                STDOUT.tty? && system('which tput > /dev/null 2>&1')
-              @terminal_width = `tput cols`.to_i
-            else
-              @terminal_width = 0
-            end
-          end
-          @terminal_width
+          @terminal_width ||=
+            (!ENV['CLAIDE_DISABLE_AUTO_WRAP'] &&
+             STDOUT.tty? &&
+             calculate_terminal_width) || 0
         end
+
+        def self.calculate_terminal_width
+          require 'io/console'
+          STDOUT.winsize.last
+        rescue LoadError
+          (system('which tput > /dev/null 2>&1') && `tput cols`.to_i) || 0
+        rescue
+          0
+        end
+        private_class_method :calculate_terminal_width
       end
     end
   end
