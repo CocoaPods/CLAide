@@ -146,7 +146,13 @@ class CLAide::Command
 
         it 'returns the width of the terminal' do
           STDOUT.expects(:tty?).returns(true)
-          STDOUT.expects(:winsize).returns([20, 80])
+          if RUBY_VERSION > '1.8.7'
+            STDOUT.expects(:winsize).returns([20, 80])
+          else
+            TextWrapper.expects(:system).with('which tput > /dev/null 2>&1').
+              returns(true)
+            TextWrapper.expects(:`).with('tput cols').returns(80)
+          end
           TextWrapper.terminal_width.should == 80
         end
 
