@@ -1,5 +1,13 @@
 # CLAide Changelog
 
+## Master
+
+##### Bug Fixes
+
+* Attempt to get the terminal width without shelling out to `tput`.  
+  [Samuel Giddins](https://github.com/segiddins)
+
+
 ## 1.0.0.beta.1 (2015-12-30)
 
 ##### Bug Fixes
