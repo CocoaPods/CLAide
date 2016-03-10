@@ -45,7 +45,7 @@ module CLAide
           pretty_suggestion = self.class.prettify_suggestion(suggestion,
                                                              @argument_type)
           "Unknown #{argument_description}: `#{@argument}`\n" \
-            "Did you mean: #{pretty_suggestion}"
+            "Did you mean: #{pretty_suggestion}?"
         else
           "Unknown #{argument_description}: `#{@argument}`"
         end
@@ -64,7 +64,7 @@ module CLAide
       def self.prettify_suggestion(suggestion, argument_type)
         case argument_type
         when :option, :flag
-          suggestion = "#{suggestion}"
+          suggestion = suggestion.to_s
           suggestion.ansi.blue
         when :arg
           suggestion.ansi.green

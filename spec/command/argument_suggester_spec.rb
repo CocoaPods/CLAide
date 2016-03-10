@@ -32,7 +32,8 @@ class CLAide::Command
     describe '#suggestion' do
       it 'returns the message for a command' do
         result = ArgumentSuggester.new('spec_file', Fixture::Command).suggestion
-        result.should == "Unknown command: `spec_file`\nDid you mean: spec-file"
+        result.
+          should == "Unknown command: `spec_file`\nDid you mean: spec-file?"
       end
 
       it 'returns the message for when no suggestion is possible' do
@@ -43,7 +44,7 @@ class CLAide::Command
 
       it 'returns the message for an option' do
         result = ArgumentSuggester.new('--verbosa', Fixture::Command).suggestion
-        result.should == "Unknown option: `--verbosa`\nDid you mean: --verbose"
+        result.should == "Unknown option: `--verbosa`\nDid you mean: --verbose?"
       end
     end
   end
