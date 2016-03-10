@@ -153,12 +153,12 @@ module CLAide
       end
 
       it 'raises a Help exception when created with an invalid subcommand' do
-        message = "Unknown command: `unknown`\nDid you mean: spec-file"
+        message = "Unknown command: `unknown`\nDid you mean: spec-file?"
         should_raise_help message do
           @command.parse(%w(unknown)).validate!
         end
 
-        should_raise_help "Unknown command: `unknown`\nDid you mean: lint" do
+        should_raise_help "Unknown command: `unknown`\nDid you mean: lint?" do
           @command.parse(%w(spec-file unknown)).validate!
         end
       end
