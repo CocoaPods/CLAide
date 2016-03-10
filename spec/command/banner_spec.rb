@@ -243,7 +243,6 @@ class CLAide::Command
           TextWrapper.wrap_formatted_text(string, 0, 20).should == result
         end
 
-        # rubocop:disable all
         it 'handles multi-line code blocks regarding indentation' do
           string = <<-DOC.strip_margin('|').rstrip
             |Examples:
@@ -262,7 +261,6 @@ class CLAide::Command
           DOC
           TextWrapper.wrap_formatted_text(string, 2, 20).should == result
         end
-        # rubocop:enable all
       end
 
       describe '::wrap_with_indent' do
