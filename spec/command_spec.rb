@@ -381,6 +381,10 @@ module CLAide
         @command_class = Class.new(Fixture::Command)
       end
 
+      after do
+        Fixture::Command.subcommands.delete(@command_class)
+      end
+
       it 'adds the option' do
         @command_class.module_eval do
           option '--foo', 'Does the thing'
@@ -395,13 +399,13 @@ module CLAide
           option '--foo', 'Does the thing'
         end
 
-        @command_class = Class.new(@command_class) do
+        command_class = Class.new(@command_class) do
           def self.options
-            super.reject { |n, d| n == '--foo' }
+            super.reject { |n, _d| n == '--foo' }
           end
         end
 
-        options = @command_class.options
+        options = command_class.options
         options.should.not.include ['--foo', 'Does the thing']
       end
     end
