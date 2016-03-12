@@ -256,6 +256,18 @@ module CLAide
       end
     end
 
+    def self.option(name, description)
+      mod = Module.new do
+        define_method(:options) do
+          [
+            [name, description],
+          ].concat(super())
+        end
+      end
+      extend(mod)
+    end
+    private_class_method :option
+
     # Handles root commands options if appropriate.
     #
     # @param  [ARGV] argv
