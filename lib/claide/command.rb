@@ -256,6 +256,16 @@ module CLAide
       end
     end
 
+    # Adds a new option for the current command.
+    #
+    # This method can be used in conjunction with overriding `options`.
+    #
+    # @return [void]
+    #
+    # @example
+    #
+    #   option '--help', 'Print help banner '
+    #
     def self.option(name, description)
       mod = Module.new do
         define_method(:options) do
