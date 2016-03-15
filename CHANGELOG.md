@@ -4,7 +4,9 @@
 
 ##### Enhancements
 
-* None.  
+* Added `Command.option` to easily add a single option to a command class.  
+  [Samuel Giddins](https://github.com/segiddins)
+  [#64](https://github.com/CocoaPods/CLAide/issues/64)
 
 ##### Bug Fixes
 

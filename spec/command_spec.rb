@@ -376,6 +376,40 @@ module CLAide
       end
     end
 
+    describe '.option' do
+      before do
+        @command_class = Class.new(Fixture::Command)
+      end
+
+      after do
+        Fixture::Command.subcommands.delete(@command_class)
+      end
+
+      it 'adds the option' do
+        @command_class.module_eval do
+          option '--foo', 'Does the thing'
+        end
+
+        options = @command_class.options
+        options.should.include ['--foo', 'Does the thing']
+      end
+
+      it 'allows removing the option' do
+        @command_class.module_eval do
+          option '--foo', 'Does the thing'
+        end
+
+        command_class = Class.new(@command_class) do
+          def self.options
+            super.reject { |n, _d| n == '--foo' }
+          end
+        end
+
+        options = command_class.options
+        options.should.not.include ['--foo', 'Does the thing']
+      end
+    end
+
     describe '::handle_root_options' do
       before do
         @version_flag = ARGV.new(['--version'])
