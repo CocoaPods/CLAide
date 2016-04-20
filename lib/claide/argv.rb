@@ -209,13 +209,15 @@ module CLAide
       options
     end
 
-    private
+    protected
 
     # @return [Array<Array<Symbol, String, Array>>] A list of tuples for each
     #         non consumed parameter, where the first entry is the `type` and
     #         the second entry the actual parsed parameter.
     #
     attr_reader :entries
+
+    private
 
     # @return [Bool, String, Nil] Removes an entry from the entries list and
     #         returns its value or the default value if the entry was not
