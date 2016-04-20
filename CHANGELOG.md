@@ -8,7 +8,9 @@
 
 ##### Bug Fixes
 
-* None.  
+* Fix circular require of `claide/ansi` in `claide/ansi/string_escaper`.  
+  [bootstraponline](https://github.com/bootstraponline)
+  [#66](https://github.com/CocoaPods/CLAide/issues/66)  
 
 
 ## 1.0.0.beta.3 (2016-03-15)
