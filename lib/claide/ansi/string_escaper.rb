@@ -1,5 +1,3 @@
-require 'claide/ansi'
-
 module CLAide
   class ANSI
     # Provides support to wrap strings in ANSI sequences according to the
