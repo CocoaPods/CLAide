@@ -10,7 +10,13 @@
 
 * Fix circular require of `claide/ansi` in `claide/ansi/string_escaper`.  
   [bootstraponline](https://github.com/bootstraponline)
-  [#66](https://github.com/CocoaPods/CLAide/issues/66)  
+  [#66](https://github.com/CocoaPods/CLAide/issues/66)
+* Fix private attribute warning in `claide/argv`.  
+  [bootstraponline](https://github.com/bootstraponline)
+  [#68](https://github.com/CocoaPods/CLAide/issues/64)
+* Fix `exit_status` method redefined warning in `claide/informative_error`.  
+  [bootstraponline](https://github.com/bootstraponline)
+  [#68](https://github.com/CocoaPods/CLAide/issues/64)
 
 
 ## 1.0.0.beta.3 (2016-03-15)
