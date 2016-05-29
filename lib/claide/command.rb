@@ -80,7 +80,7 @@ module CLAide
       #
       attr_accessor :description
 
-      # @return [Array<String>] The prefixes used t osearch for CLAide plugins.
+      # @return [Array<String>] The prefixes used to search for CLAide plugins.
       #         Plugins are loaded via their `<plugin_prefix>_plugin.rb` file.
       #         Defaults to search for `claide` plugins.
       #
@@ -233,7 +233,7 @@ module CLAide
     #
     # The subclass has to combine the result of calling `super` and its own
     # list of options. The recommended way of doing this is by concatenating
-    # concatenating to this classes’ own options.
+    # to this classes’ own options.
     #
     # @return [Array<Array>]
     #
