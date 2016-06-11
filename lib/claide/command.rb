@@ -564,7 +564,7 @@ module CLAide
     # This method should be overridden by the command class to perform its
     # work.
     #
-    # @return [void
+    # @return [void]
     #
     def run
       raise 'A subclass should override the `CLAide::Command#run` method to ' \
