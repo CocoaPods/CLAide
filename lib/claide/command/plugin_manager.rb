@@ -98,7 +98,11 @@ module CLAide
         message = "\n---------------------------------------------"
         message << "\nError loading the plugin `#{spec.full_name}`.\n"
         message << "\n#{exception.class} - #{exception.message}"
-        message << "\n#{exception.backtrace.join("\n")}"
+        if exception.backtrace
+          # An exception might have no stack trace, for example when
+          # one of the plugins has a syntax error
+          message << "\n#{exception.backtrace.join("\n")}"
+        end
         message << "\n---------------------------------------------\n"
         warn message.ansi.yellow
         false
