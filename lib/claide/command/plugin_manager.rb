@@ -56,7 +56,7 @@ module CLAide
       def self.plugins_involved_in_exception(exception)
         specifications.select do |gemspec|
           exception.backtrace.any? do |line|
-            gemspec.full_require_paths.any? do |plugin_path|
+            full_require_paths_for(gemspec).any? do |plugin_path|
               line.include?(plugin_path)
             end
           end
@@ -89,12 +89,11 @@ module CLAide
       #
       # @return [Bool] Whether activation and requiring succeeded.
       #
-      # rubocop:disable RescueException
       def self.safe_activate_and_require(spec, paths)
         spec.activate
         paths.each { |path| require(path) }
         true
-      rescue Exception => exception
+      rescue Exception => exception # rubocop:disable RescueException
         message = "\n---------------------------------------------"
         message << "\nError loading the plugin `#{spec.full_name}`.\n"
         message << "\n#{exception.class} - #{exception.message}"
@@ -103,7 +102,22 @@ module CLAide
         warn message.ansi.yellow
         false
       end
-      # rubocop:enable RescueException
+
+      def self.full_require_paths_for(gemspec)
+        if gemspec.respond_to?(:full_require_paths)
+          return gemspec.full_require_paths
+        end
+
+        # RubyGems < 2.2
+        gemspec.require_paths.map do |require_path|
+          if require_path.include?(gemspec.full_gem_path)
+            require_path
+          else
+            File.join(gemspec.full_gem_path, require_path)
+          end
+        end
+      end
+      private_class_method :full_require_paths_for
     end
   end
 end
