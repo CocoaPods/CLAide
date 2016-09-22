@@ -1,5 +1,14 @@
 # CLAide Changelog
 
+## Master
+
+##### Bug Fixes
+
+* Adds a fix for older versions of Rubygems when CLAide crashes.  
+  [Samuel Giddins](https://github.com/segiddins)
+  [#73](https://github.com/CocoaPods/CLAide/issues/73)
+
+
 ## 1.0.0 (2016-05-10)
 
 ##### Enhancements
