@@ -8,7 +8,7 @@ module CLAide
   #
   #   CLAide’s version, following [semver](http://semver.org).
   #
-  VERSION = '1.0.0'.freeze
+  VERSION = '1.0.1'.freeze
 
   require 'claide/ansi'
   require 'claide/argument'
