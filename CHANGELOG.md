@@ -1,6 +1,6 @@
 # CLAide Changelog
 
-## Master
+## 1.0.1 (2016-10-10)
 
 ##### Bug Fixes
 
