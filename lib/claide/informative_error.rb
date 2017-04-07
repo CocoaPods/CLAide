@@ -12,7 +12,7 @@ module CLAide
     # @return [Numeric] The exist status code that should be used to terminate
     #         the program with. Defaults to `1`.
     #
-    attr_accessor :exit_status
+    attr_writer :exit_status
 
     def exit_status
       @exit_status ||= 1
