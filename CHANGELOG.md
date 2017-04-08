@@ -8,7 +8,8 @@
 
 ##### Bug Fixes
 
-* None.  
+* Avoid a method redefinition warning when requiring `claide`.  
+  [Samuel Giddins](https://github.com/segiddins)
 
 
 ## 1.0.1 (2016-10-10)

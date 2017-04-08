@@ -11,7 +11,7 @@ end
 
 group :spec do
   gem 'bacon'
-  gem 'json'
+  gem 'json', '< 2'
   gem 'mocha-on-bacon'
   gem 'prettybacon'
 
