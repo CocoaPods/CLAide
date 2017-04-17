@@ -236,11 +236,33 @@ module CLAide
         end
       end
 
+      it 'prints the cause of an InformativeError' do
+        error = Fixture::Error.new
+        first_error = Fixture::Error.new
+        second_error = Fixture::Error.new
+        @command.any_instance.stubs(:validate!).raises(error)
+        error.stubs(:message).returns('the message')
+        error.stubs(:cause).returns(first_error)
+        first_error.stubs(:message).returns('first message')
+        first_error.stubs(:cause).returns(second_error)
+        second_error.stubs(:message).returns('second message')
+        @command.expects(:puts).with <<-EOS.strip
+the message
+  <| first message
+    <| second message
+        EOS
+
+        should.raise SystemExit do
+          @command.run(%w())
+        end
+      end
+
       it 'prints the backtrace of an InformativeError, if set to verbose' do
         error = Fixture::Error.new
         @command.any_instance.stubs(:validate!).raises(error)
         error.stubs(:message).returns('the message')
         error.stubs(:backtrace).returns(%w(the backtrace))
+        error.stubs(:cause).returns(nil)
 
         printed = states('printed').starts_as(:nothing)
         @command.expects(:puts).with('the message').

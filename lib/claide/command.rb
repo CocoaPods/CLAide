@@ -386,7 +386,7 @@ module CLAide
     #
     def self.handle_exception(command, exception)
       if exception.is_a?(InformativeError)
-        puts exception.message
+        puts recursive_error_message(exception)
         if command.nil? || command.verbose?
           puts
           puts(*exception.backtrace)
@@ -395,6 +395,20 @@ module CLAide
       else
         report_error(exception)
       end
+    end
+
+    def self.recursive_error_message(exception)
+      message = ''
+      indentation_level = 0
+      while exception
+        if indentation_level > 0
+          message << "\n#{' ' * indentation_level}<| "
+        end
+        message << exception.message
+        exception = exception.respond_to?(:cause) && exception.cause
+        indentation_level += 2
+      end
+      message
     end
 
     # Allows the application to perform custom error reporting, by overriding
