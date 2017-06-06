@@ -1,5 +1,16 @@
 # CLAide Changelog
 
+## Master
+
+##### Enhancements
+
+* None.  
+
+##### Bug Fixes
+
+* None.  
+
+
 ## 1.0.2 (2017-06-06)
 
 ##### Enhancements
