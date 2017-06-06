@@ -1,6 +1,6 @@
 # CLAide Changelog
 
-## Master
+## 1.0.2 (2017-06-06)
 
 ##### Enhancements
 
