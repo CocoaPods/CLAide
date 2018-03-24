@@ -38,9 +38,9 @@ module CLAide
     #
     # @example
     #
-    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetener=honey'])
     #   argv.shift_argument # => 'tea'
-    #   argv.remainder      # => ['--no-milk', '--sweetner=honey']
+    #   argv.remainder      # => ['--no-milk', '--sweetener=honey']
     #
     def remainder
       @entries.map do |type, (key, value)|
@@ -60,9 +60,9 @@ module CLAide
     #
     # @example
     #
-    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetener=honey'])
     #   argv.shift_argument # => 'tea'
-    #   argv.remainder!     # => ['--no-milk', '--sweetner=honey']
+    #   argv.remainder!     # => ['--no-milk', '--sweetener=honey']
     #   argv.remainder      # => []
     #
     def remainder!
@@ -74,8 +74,8 @@ module CLAide
     #
     # @example
     #
-    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
-    #   argv.options # => { 'milk' => false, 'sweetner' => 'honey' }
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetener=honey'])
+    #   argv.options # => { 'milk' => false, 'sweetener' => 'honey' }
     #
     def options
       options = {}
@@ -149,11 +149,11 @@ module CLAide
     #
     # @example
     #
-    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetener=honey'])
     #   argv.flag?('milk')       # => false
     #   argv.flag?('milk')       # => nil
     #   argv.flag?('milk', true) # => true
-    #   argv.remainder           # => ['tea', '--sweetner=honey']
+    #   argv.remainder           # => ['tea', '--sweetener=honey']
     #
     def flag?(name, default = nil)
       delete_entry(:flag, name, default, true)
@@ -174,10 +174,10 @@ module CLAide
     #
     # @example
     #
-    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
-    #   argv.option('sweetner')          # => 'honey'
-    #   argv.option('sweetner')          # => nil
-    #   argv.option('sweetner', 'sugar') # => 'sugar'
+    #   argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetener=honey'])
+    #   argv.option('sweetener')          # => 'honey'
+    #   argv.option('sweetener')          # => nil
+    #   argv.option('sweetener', 'sugar') # => 'sugar'
     #   argv.remainder                   # => ['tea', '--no-milk']
     #
     def option(name, default = nil)
@@ -251,10 +251,10 @@ module CLAide
       #
       # @example
       #
-      #   list = parse(['tea', '--no-milk', '--sweetner=honey'])
+      #   list = parse(['tea', '--no-milk', '--sweetener=honey'])
       #   list # => [[:arg, "tea"],
       #              [:flag, ["milk", false]],
-      #              [:option, ["sweetner", "honey"]]]
+      #              [:option, ["sweetener", "honey"]]]
       #
       def self.parse(argv)
         entries = []
