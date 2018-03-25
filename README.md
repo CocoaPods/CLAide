@@ -28,24 +28,24 @@ by the user.
 Working with parameters is done through the `CLAide::ARGV` class. It takes an
 array of parameters and parses them as either flags, options, or arguments.
 
-| Parameter             | Description                                       |
-| :---:                 | :---:                                             |
-| `--milk`, `--no-milk` | A boolean ‘flag’, which may be negated.           |
-| `--sweetner=honey`    | A ‘option’ consists of a key, a ‘=’, and a value. |
-| `tea`                 | A ‘argument’ is just a value.                     |
+| Parameter              | Description                                        |
+| :---:                  | :---:                                              |
+| `--milk`, `--no-milk`  | A boolean ‘flag’, which may be negated.            |
+| `--sweetener=honey`    | An ‘option’ consists of a key, a ‘=’, and a value. |
+| `tea`                  | An ‘argument’ is just a value.                     |
 
 
 Accessing flags, options, and arguments, with the following methods, will also
 remove the parameter from the remaining unprocessed parameters.
 
 ```ruby
-argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetner=honey'])
-argv.shift_argument     # => 'tea'
-argv.shift_argument     # => nil
-argv.flag?('milk')      # => false
-argv.flag?('milk')      # => nil
-argv.option('sweetner') # => 'honey'
-argv.option('sweetner') # => nil
+argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetener=honey'])
+argv.shift_argument      # => 'tea'
+argv.shift_argument      # => nil
+argv.flag?('milk')       # => false
+argv.flag?('milk')       # => nil
+argv.option('sweetener') # => 'honey'
+argv.option('sweetener') # => nil
 ```
 
 
@@ -55,7 +55,7 @@ specify a default value to be used as the optional second method parameter:
 ```ruby
 argv = CLAide::ARGV.new(['tea'])
 argv.flag?('milk', true)         # => true
-argv.option('sweetner', 'sugar') # => 'sugar'
+argv.option('sweetener', 'sugar') # => 'sugar'
 ```
 
 

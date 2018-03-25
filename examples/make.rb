@@ -20,20 +20,20 @@ class BeverageMaker < CLAide::Command
   def self.options
     [
       ['--no-milk', 'Don’t add milk to the beverage'],
-      ['--sweetner=[sugar|honey]', 'Use one of the available sweetners'],
+      ['--sweetener=[sugar|honey]', 'Use one of the available sweeteners'],
     ].concat(super)
   end
 
   def initialize(argv)
     @add_milk = argv.flag?('milk', true)
-    @sweetner = argv.option('sweetner')
+    @sweetener = argv.option('sweetener')
     super
   end
 
   def validate!
     super
-    if @sweetner && !%w(sugar honey).include?(@sweetner)
-      help! "`#{@sweetner}' is not a valid sweetner."
+    if @sweetener && !%w(sugar honey).include?(@sweetener)
+      help! "`#{@sweetener}' is not a valid sweetener."
     end
   end
 
@@ -44,8 +44,8 @@ class BeverageMaker < CLAide::Command
       puts '* Adding milk…'
       sleep 1
     end
-    if @sweetner
-      puts "* Adding #{@sweetner}…"
+    if @sweetener
+      puts "* Adding #{@sweetener}…"
       sleep 1
     end
   end
