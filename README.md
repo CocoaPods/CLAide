@@ -40,10 +40,10 @@ remove the parameter from the remaining unprocessed parameters.
 
 ```ruby
 argv = CLAide::ARGV.new(['tea', '--no-milk', '--sweetener=honey'])
-argv.shift_argument     # => 'tea'
-argv.shift_argument     # => nil
-argv.flag?('milk')      # => false
-argv.flag?('milk')      # => nil
+argv.shift_argument      # => 'tea'
+argv.shift_argument      # => nil
+argv.flag?('milk')       # => false
+argv.flag?('milk')       # => nil
 argv.option('sweetener') # => 'honey'
 argv.option('sweetener') # => nil
 ```
