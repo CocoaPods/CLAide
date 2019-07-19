@@ -8,7 +8,9 @@
 
 ##### Bug Fixes
 
-* None.  
+* Correctly handle `--help` flags when using `argv.remainder!` after initialization  
+  [Eric Amorde](https://github.com/amorde),
+  [tripleCC](https://github.com/tripleCC)
 
 
 ## 1.0.2 (2017-06-06)
