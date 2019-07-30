@@ -41,7 +41,7 @@ module CLAide
 
       # @return [Fixnum] The maximum width of the text.
       #
-      MAX_WIDTH = TEXT_INDENT + 80
+      MAX_WIDTH = TEXT_INDENT + 160
 
       # @return [Fixnum] The minimum between a name and its description.
       #
