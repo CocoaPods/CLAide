@@ -1,5 +1,16 @@
 # CLAide Changelog
 
+## Master
+
+##### Enhancements
+
+* None.  
+
+##### Bug Fixes
+
+* None.  
+
+
 ## 1.0.3 (2019-08-02)
 
 ##### Enhancements
