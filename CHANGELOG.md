@@ -11,6 +11,20 @@
 * None.  
 
 
+## 1.0.3 (2019-08-02)
+
+##### Enhancements
+
+* None.  
+
+##### Bug Fixes
+
+* Correctly handle `--help` flags when using `argv.remainder!` after initialization  
+  [Eric Amorde](https://github.com/amorde),
+  [tripleCC](https://github.com/tripleCC)
+  [#87](https://github.com/CocoaPods/CLAide/pull/87)
+
+
 ## 1.0.2 (2017-06-06)
 
 ##### Enhancements

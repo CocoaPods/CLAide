@@ -304,6 +304,15 @@ module CLAide
         cmd.class.expects(:help!)
         cmd.send(:help!)
       end
+
+      it 'remembers if --help was specified' do
+        args = ARGV.coerce(%w(create --help))
+        cmd = @command_class.new(args)
+        args.remainder!
+        cmd.expects(:banner!).once
+        cmd.stubs(:help!)
+        cmd.send(:validate!)
+      end
     end
   end
 
