@@ -497,6 +497,15 @@ module CLAide
     attr_accessor :ansi_output
     alias_method :ansi_output?, :ansi_output
 
+    # Set to `true` if initialized with a `--help` flag
+    #
+    # @return [Boolean]
+    #
+    #   Whether the command was initialized with argv containing --help
+    #
+    attr_accessor :help_arg
+    alias_method :help?, :help_arg
+
     # Subclasses should override this method to remove the arguments/options
     # they support from `argv` _before_ calling `super`.
     #
@@ -514,6 +523,7 @@ module CLAide
       @verbose = argv.flag?('verbose')
       @ansi_output = argv.flag?('ansi', Command.ansi_output?)
       @argv = argv
+      @help_arg = argv.flag?('help')
     end
 
     # Convenience method.
@@ -553,7 +563,7 @@ module CLAide
     # @return [void]
     #
     def validate!
-      banner! if @argv.flag?('help')
+      banner! if help?
       unless @argv.empty?
         argument = @argv.remainder.first
         help! ArgumentSuggester.new(argument, self.class).suggestion
