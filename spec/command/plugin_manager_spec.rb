@@ -16,7 +16,7 @@ module CLAide
 
     describe '::load_plugins' do
       it 'requires the plugins paths' do
-        @manager.expects(:safe_activate_and_require).with(@spec, [@path.to_s])
+        @manager.expects(:safe_require).with([@path.to_s])
         @manager.load_plugins('fixture')
       end
 
@@ -28,8 +28,8 @@ module CLAide
       end
 
       it 'requires the plugins only if they have not been already loaded' do
-        @manager.expects(:safe_activate_and_require).
-          with(@spec, [@path.to_s]).once
+        @manager.expects(:safe_require).
+          with([@path.to_s]).once
         @manager.load_plugins('fixture')
         @manager.load_plugins('fixture')
       end
@@ -68,7 +68,7 @@ module CLAide
       end
     end
 
-    describe '::safe_activate_and_require' do
+    describe '::safe_require' do
       it 'requires a path catching any exception' do
         @manager.unstub(:require)
         path = ROOT + 'spec/fixture/command/load_error_fixture_plugin.rb'
@@ -78,11 +78,11 @@ module CLAide
         end
 
         should.not.raise do
-          @manager.safe_activate_and_require(@spec, [path.to_s])
+          @manager.safe_require([path.to_s])
         end
 
         output = @manager.instance_variable_get(:@fixture_output)
-        output.should.include('Error loading the plugin')
+        output.should.include('Error loading plugin file')
         output.should.include('LoadError')
       end
     end
