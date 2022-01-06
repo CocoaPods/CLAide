@@ -1,6 +1,6 @@
 # Hi, I’m Claide, your command-line tool aide.
 
-[![Build Status](https://img.shields.io/travis/CocoaPods/CLAide/master.svg?style=flat)](https://travis-ci.org/CocoaPods/CLAide)
+[![Build Status](https://github.com/CocoaPods/CLAide/workflows/ci/badge.svg)](https://github.com/CocoaPods/CLAide/actions?query=workflow%3A"ci")
 [![Code Climate](https://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
 [![Coverage](https://img.shields.io/codeclimate/coverage/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
 
@@ -111,8 +111,6 @@ should not be a need to validate the parameters.
 See the [example][example] for a illustration of how to define commands.
 
 
-[travis]: https://secure.travis-ci.org/CocoaPods/CLAide
-[travis-status]: https://secure.travis-ci.org/CocoaPods/CLAide.png
 [docs]: http://www.rubydoc.info/github/CocoaPods/CLAide/index
 [example]: https://github.com/CocoaPods/CLAide/blob/master/examples/make.rb
 [report-error]: https://github.com/CocoaPods/CocoaPods/blob/054fe5c861d932219ec40a91c0439a7cfc3a420c/lib/cocoapods/command.rb#L36

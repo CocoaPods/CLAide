@@ -28,7 +28,7 @@ begin
     files = FileList['spec/**/*_spec.rb'].shuffle.join(' ')
     sh "bundle exec bacon #{files}"
 
-    Rake::Task['rubocop'].invoke if RUBY_VERSION >= '1.9.3'
+    Rake::Task['rubocop'].invoke
   end
 
   #-- Rubocop ----------------------------------------------------------------#

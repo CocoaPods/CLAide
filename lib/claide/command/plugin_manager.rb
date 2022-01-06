@@ -28,7 +28,7 @@ module CLAide
       def self.load_plugins(plugin_prefix)
         loaded_plugins[plugin_prefix] ||=
           plugin_gems_for_prefix(plugin_prefix).map do |spec, paths|
-            spec if safe_activate_and_require(spec, paths)
+            spec if safe_require(paths)
           end.compact
       end
 
@@ -77,30 +77,31 @@ module CLAide
         end.compact
       end
 
-      # Activates the given spec and requires the given paths.
+      # Requires the given paths.
       # If any exception occurs it is caught and an
       # informative message is printed.
-      #
-      # @param  [Gem::Specification] spec
-      #         The spec to be activated.
       #
       # @param  [String] paths
       #         The paths to require.
       #
-      # @return [Bool] Whether activation and requiring succeeded.
+      # @return [Bool] Whether requiring succeeded.
       #
-      def self.safe_activate_and_require(spec, paths)
-        spec.activate
-        paths.each { |path| require(path) }
+      def self.safe_require(paths)
+        paths.each do |path|
+          begin
+            require(path)
+          rescue Exception => exception # rubocop:disable RescueException
+            message = "\n---------------------------------------------"
+            message << "\nError loading plugin file `#{path}`.\n"
+            message << "\n#{exception.class} - #{exception.message}"
+            message << "\n#{exception.backtrace.join("\n")}"
+            message << "\n---------------------------------------------\n"
+            warn message.ansi.yellow
+            return false
+          end
+        end
+
         true
-      rescue Exception => exception # rubocop:disable RescueException
-        message = "\n---------------------------------------------"
-        message << "\nError loading the plugin `#{spec.full_name}`.\n"
-        message << "\n#{exception.class} - #{exception.message}"
-        message << "\n#{exception.backtrace.join("\n")}"
-        message << "\n---------------------------------------------\n"
-        warn message.ansi.yellow
-        false
       end
 
       def self.full_require_paths_for(gemspec)
