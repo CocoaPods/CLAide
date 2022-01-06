@@ -145,6 +145,7 @@ class CLAide::Command
         end
 
         it 'returns the width of the terminal' do
+          require "io/console"
           STDOUT.expects(:tty?).returns(true)
           STDOUT.expects(:winsize).returns([20, 80])
           TextWrapper.terminal_width.should == 80
