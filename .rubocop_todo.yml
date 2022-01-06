@@ -13,7 +13,7 @@ Lint/IneffectiveAccessModifier:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-Lint/UnneededDisable:
+Lint/RedundantCopDisableDirective:
   Exclude:
     - 'spec/command/banner_spec.rb'
 
@@ -65,6 +65,6 @@ Style/ParallelAssignment:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-Style/UnneededInterpolation:
+Style/RedundantInterpolation:
   Exclude:
     - 'lib/claide/command/argument_suggester.rb'
