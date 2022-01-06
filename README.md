@@ -111,8 +111,6 @@ should not be a need to validate the parameters.
 See the [example][example] for a illustration of how to define commands.
 
 
-[travis]: https://secure.travis-ci.org/CocoaPods/CLAide
-[travis-status]: https://secure.travis-ci.org/CocoaPods/CLAide.png
 [docs]: http://www.rubydoc.info/github/CocoaPods/CLAide/index
 [example]: https://github.com/CocoaPods/CLAide/blob/master/examples/make.rb
 [report-error]: https://github.com/CocoaPods/CocoaPods/blob/054fe5c861d932219ec40a91c0439a7cfc3a420c/lib/cocoapods/command.rb#L36
