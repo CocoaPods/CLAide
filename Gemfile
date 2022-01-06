@@ -15,9 +15,7 @@ group :spec do
   gem 'mocha-on-bacon'
   gem 'prettybacon'
 
-  install_if RUBY_VERSION >= '1.9.3' do
-    gem 'rubocop'
-    gem 'codeclimate-test-reporter', :require => nil
-    gem 'simplecov'
-  end
+  gem 'rubocop'
+  gem 'codeclimate-test-reporter', :require => nil
+  gem 'simplecov'
 end
