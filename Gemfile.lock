@@ -8,8 +8,6 @@ GEM
   specs:
     ast (2.4.2)
     bacon (1.2.0)
-    codeclimate-test-reporter (0.4.1)
-      simplecov (>= 0.7.1, < 1.0.0)
     colored (1.2)
     docile (1.1.5)
     ffi (1.14.2)
@@ -66,7 +64,6 @@ PLATFORMS
 DEPENDENCIES
   bacon
   claide!
-  codeclimate-test-reporter
   colored
   json (< 3)
   kicker

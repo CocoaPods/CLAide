@@ -1,6 +1,6 @@
 # Hi, I’m Claide, your command-line tool aide.
 
-[![Build Status](https://img.shields.io/travis/CocoaPods/CLAide/master.svg?style=flat)](https://travis-ci.org/CocoaPods/CLAide)
+[![Build Status](https://github.com/CocoaPods/CLAide/workflows/ci/badge.svg)](https://github.com/CocoaPods/CLAide/actions?query=workflow%3A"ci")
 [![Code Climate](https://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
 [![Coverage](https://img.shields.io/codeclimate/coverage/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
 

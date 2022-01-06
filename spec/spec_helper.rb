@@ -1,12 +1,7 @@
 # encoding: utf-8
 
-require 'codeclimate-test-reporter'
-
-CodeClimate::TestReporter.configure do |config|
-  config.logger.level = Logger::WARN
-end
-
-CodeClimate::TestReporter.start
+require 'simplecov'
+SimpleCov.start
 
 #-----------------------------------------------------------------------------#
 
