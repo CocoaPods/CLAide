@@ -1,8 +1,7 @@
 # Hi, I’m Claide, your command-line tool aide.
 
-[![Build Status](https://github.com/CocoaPods/CLAide/workflows/ci/badge.svg)](https://github.com/CocoaPods/CLAide/actions?query=workflow%3A"ci")
-[![Code Climate](https://img.shields.io/codeclimate/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
-[![Coverage](https://img.shields.io/codeclimate/coverage/github/CocoaPods/CLAide.svg?style=flat)](https://codeclimate.com/github/CocoaPods/CLAide)
+[![Build Status](https://img.shields.io/github/workflow/status/CocoaPods/claide/ci)](https://github.com/CocoaPods/claide/actions)
+[![Gem Version](https://img.shields.io/gem/v/claide)](https://rubygems.org/gems/claide)
 
 I was born out of a need for a _simple_ option and command parser, while still
 providing an API that allows you to quickly create a full featured command-line
