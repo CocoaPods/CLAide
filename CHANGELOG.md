@@ -1,5 +1,16 @@
 # CLAide Changelog
 
+## Master
+
+##### Enhancements
+
+* None.  
+
+##### Bug Fixes
+
+* None.  
+
+
 ## 1.1.0 (2022-01-12)
 
 ##### Enhancements
