@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.unshift File.expand_path('../lib', __FILE__)
-require 'claide'
+require File.expand_path('../lib/claide/gem_version', __FILE__)
 
 Gem::Specification.new do |s|
   s.name     = "claide"

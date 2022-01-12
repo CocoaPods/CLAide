@@ -4,12 +4,6 @@
 # {CLAide::InformativeError}
 #
 module CLAide
-  # @return [String]
-  #
-  #   CLAide’s version, following [semver](http://semver.org).
-  #
-  VERSION = '1.0.3'.freeze
-
   require 'claide/ansi'
   require 'claide/argument'
   require 'claide/argv'
