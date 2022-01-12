@@ -1,6 +1,6 @@
 # CLAide Changelog
 
-## Master
+## 1.1.0 (2022-01-12)
 
 ##### Enhancements
 
