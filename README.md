@@ -1,6 +1,6 @@
 # Hi, I’m Claide, your command-line tool aide.
 
-[![Build Status](https://img.shields.io/github/workflow/status/CocoaPods/claide/ci)](https://github.com/CocoaPods/claide/actions)
+[![Build Status](https://github.com/CocoaPods/CLAide/workflows/ci/badge.svg)](https://github.com/CocoaPods/CLAide/actions/workflows/ci.yml)
 [![Gem Version](https://img.shields.io/gem/v/claide)](https://rubygems.org/gems/claide)
 
 I was born out of a need for a _simple_ option and command parser, while still
