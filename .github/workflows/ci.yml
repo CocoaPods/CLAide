@@ -38,8 +38,3 @@ jobs:
 
       - name: Run Test
         run: bundle exec rake spec
-
-      - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v3.0.0
-        env:
-          CC_TEST_REPORTER_ID: 46c8b29dd6711f35704e7c5a541486cbbf2cff8b2df8ce755bfc09917d3c1cbb
