@@ -13,92 +13,92 @@ module CLAide
       it 'converts objects into strings while parsing' do
         flag = stub(:to_s => '--flag')
         arg = stub(:to_s => 'ARG')
-        ARGV.new([flag, arg]).remainder.should == %w(--flag ARG)
+        expect(ARGV.new([flag, arg]).remainder).to eq(%w(--flag ARG))
       end
 
       it 'only removes one entry when calling shift_argument' do
         argv = ARGV.new(%w(ARG ARG))
         argv.shift_argument
-        argv.remainder.should == %w(ARG)
+        expect(argv.remainder).to eq(%w(ARG))
       end
 
       it 'returns the options as a hash' do
-        @argv.options.should == {
+        expect(@argv.options).to eq(
           'flag' => true,
           'other-flag' => false,
           'option' => 'VALUE',
-        }
+        )
       end
 
       it 'returns the arguments' do
-        @argv.arguments.should == %w(ARG1 ARG2)
+        expect(@argv.arguments).to eq(%w(ARG1 ARG2))
       end
 
       it 'returns a flag and deletes it' do
-        @argv.flag?('flag').should == true
-        @argv.flag?('other-flag').should == false
-        @argv.flag?('option').should.nil?
-        @argv.remainder.should == %w(--option=VALUE ARG1 ARG2)
+        expect(@argv.flag?('flag')).to eq(true)
+        expect(@argv.flag?('other-flag')).to eq(false)
+        expect(@argv.flag?('option')).to be_nil
+        expect(@argv.remainder).to eq(%w(--option=VALUE ARG1 ARG2))
       end
 
       it 'returns a default value if a flag does not exist' do
-        @argv.flag?('option', true).should == true
-        @argv.flag?('option', false).should == false
+        expect(@argv.flag?('option', true)).to eq(true)
+        expect(@argv.flag?('option', false)).to eq(false)
       end
 
       it 'allows multiple values for the same flag' do
         argv = ARGV.new(%w(--verbose --no-verbose))
-        argv.flag?('verbose').should == false
-        argv.remainder.should == []
+        expect(argv.flag?('verbose')).to eq(false)
+        expect(argv.remainder).to eq([])
 
         argv = ARGV.new(%w(--verbose --verbose))
-        argv.flag?('verbose').should == true
-        argv.remainder.should == []
+        expect(argv.flag?('verbose')).to eq(true)
+        expect(argv.remainder).to eq([])
       end
 
       it 'returns an option and deletes it' do
-        @argv.option('flag').should.nil?
-        @argv.option('other-flag').should.nil?
-        @argv.option('option').should == 'VALUE'
-        @argv.remainder.should == %w(--flag ARG1 ARG2 --no-other-flag)
+        expect(@argv.option('flag')).to be_nil
+        expect(@argv.option('other-flag')).to be_nil
+        expect(@argv.option('option')).to eq('VALUE')
+        expect(@argv.remainder).to eq(%w(--flag ARG1 ARG2 --no-other-flag))
       end
 
       it 'allows multiple values for the same option' do
         @argv = ARGV.new %w(--ignore=foo --ignore=bar)
-        @argv.option('ignore').should == 'bar'
-        @argv.option('ignore').should == 'foo'
-        @argv.option('ignore').should.be.nil
+        expect(@argv.option('ignore')).to eq('bar')
+        expect(@argv.option('ignore')).to eq('foo')
+        expect(@argv.option('ignore')).to be_nil
       end
 
       it 'returns all values for the same option' do
         @argv = ARGV.new %w(--ignore=foo --ignore=bar)
-        @argv.all_options('ignore').should == %w(bar foo)
-        @argv.all_options('ignore').should == []
-        @argv.all_options('include').should == []
-        @argv.option('ignore').should.be.nil
+        expect(@argv.all_options('ignore')).to eq(%w(bar foo))
+        expect(@argv.all_options('ignore')).to eq([])
+        expect(@argv.all_options('include')).to eq([])
+        expect(@argv.option('ignore')).to be_nil
       end
 
       it 'returns a default value if an option does not exist' do
-        @argv.option('flag', 'value').should == 'value'
+        expect(@argv.option('flag', 'value')).to eq('value')
       end
 
       it 'returns the first argument and deletes it' do
-        @argv.shift_argument.should == 'ARG1'
-        @argv.remainder.should ==
-          %w(--flag --option=VALUE ARG2 --no-other-flag)
+        expect(@argv.shift_argument).to eq('ARG1')
+        expect(@argv.remainder).
+          to eq(%w(--flag --option=VALUE ARG2 --no-other-flag))
       end
 
       it 'returns and deletes all arguments' do
-        @argv.arguments!.should == %w(ARG1 ARG2)
-        @argv.remainder.should == %w(--flag --option=VALUE --no-other-flag)
+        expect(@argv.arguments!).to eq(%w(ARG1 ARG2))
+        expect(@argv.remainder).to eq(%w(--flag --option=VALUE --no-other-flag))
       end
 
       describe '#remainder!' do
         it 'returns the remainder and removes all entries' do
           args = %w(--flag --option=VALUE ARG1 ARG2 --no-other-flag)
-          @argv.remainder.should == args
-          @argv.remainder!.should == args
-          @argv.remainder.should == []
+          expect(@argv.remainder).to eq(args)
+          expect(@argv.remainder!).to eq(args)
+          expect(@argv.remainder).to eq([])
         end
       end
     end
@@ -111,34 +111,36 @@ module CLAide
 
     describe '::parse' do
       it 'handles regular arguments' do
-        @parser.parse(%w(value)).should == [[:arg, 'value']]
+        expect(@parser.parse(%w(value))).to eq([[:arg, 'value']])
       end
 
       it 'returns the parameter for a positive flag' do
-        @parser.parse(%w(--value)).should == [[:flag, ['value', true]]]
+        expect(@parser.parse(%w(--value))).to eq([[:flag, ['value', true]]])
       end
 
       it 'returns the parameter for a negative flag' do
-        @parser.parse(%w(--no-value)).should == [[:flag, ['value', false]]]
+        expect(@parser.parse(%w(--no-value))).to eq([[:flag, ['value', false]]])
       end
 
       it 'returns the parameter for an option' do
-        @parser.parse(%w(--key=value)).should == [[:option, %w(key value)]]
+        expect(@parser.parse(%w(--key=value))).to eq([[:option, %w(key value)]])
       end
 
       it 'returns the parameter for a combination of arguments' do
-        @parser.parse(%w(value --value --no-value --key=value)).should == [
+        expected = [
           [:arg, 'value'],
           [:flag, ['value', true]],
           [:flag, ['value', false]],
           [:option, %w(key value)],
         ]
+        expect(@parser.parse(%w(value --value --no-value --key=value))).
+          to eq(expected)
       end
 
       describe '--' do
         it 'parses everything after -- as an arg' do
           argv = %w(value -- -- value --no-value -- --key=value)
-          @parser.parse(argv).should == [
+          expected = [
             [:arg, 'value'],
             [:arg, '--'],
             [:arg, 'value'],
@@ -146,6 +148,7 @@ module CLAide
             [:arg, '--'],
             [:arg, '--key=value'],
           ]
+          expect(@parser.parse(argv)).to eq(expected)
         end
       end
     end

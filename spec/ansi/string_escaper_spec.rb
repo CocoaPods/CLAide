@@ -10,65 +10,65 @@ module CLAide
     end
 
     it "doesn't edit in place the original string" do
-      @subject.ansi.yellow.should == "\e[33mtest string\e[39m"
-      @subject.should == 'test string'
+      expect(@subject.ansi.yellow).to eq("\e[33mtest string\e[39m")
+      expect(@subject).to eq('test string')
     end
 
     it 'supports chaining' do
-      @subject.ansi.yellow.bold.should ==
-        "\e[1m\e[33mtest string\e[39m\e[21m"
+      expect(@subject.ansi.yellow.bold).
+        to eq("\e[1m\e[33mtest string\e[39m\e[21m")
     end
 
     it 'allows to apply a single key' do
-      @subject.ansi.apply(:yellow).should == "\e[33mtest string\e[39m"
+      expect(@subject.ansi.apply(:yellow)).to eq("\e[33mtest string\e[39m")
     end
 
     it 'allows to apply a multiple keys' do
-      @subject.ansi.apply(:yellow, :bold).should ==
-        "\e[1m\e[33mtest string\e[39m\e[21m"
+      expect(@subject.ansi.apply(:yellow, :bold)).
+        to eq("\e[1m\e[33mtest string\e[39m\e[21m")
 
-      @subject.ansi.apply([:yellow, :bold]).should ==
-        "\e[1m\e[33mtest string\e[39m\e[21m"
+      expect(@subject.ansi.apply([:yellow, :bold])).
+        to eq("\e[1m\e[33mtest string\e[39m\e[21m")
     end
 
     it 'includes methods to set the foreground color' do
-      @subject.ansi.yellow.should == "\e[33mtest string\e[39m"
+      expect(@subject.ansi.yellow).to eq("\e[33mtest string\e[39m")
     end
 
     it 'includes methods to set the background color' do
-      @subject.ansi.on_red.should == "\e[41mtest string\e[49m"
+      expect(@subject.ansi.on_red).to eq("\e[41mtest string\e[49m")
     end
 
     it 'includes methods to set text attributes' do
-      @subject.ansi.bold.should == "\e[1mtest string\e[21m"
+      expect(@subject.ansi.bold).to eq("\e[1mtest string\e[21m")
     end
 
     it 'supports multiple nested foreground colors' do
-      "#{@subject.ansi.red} example".ansi.green.should ==
-        "\e[32m\e[31mtest string\e[32m example\e[39m"
+      expect("#{@subject.ansi.red} example".ansi.green).
+        to eq("\e[32m\e[31mtest string\e[32m example\e[39m")
     end
 
     it 'supports multiple nested foreground colors' do
-      "#{@subject.ansi.on_red} example".ansi.on_green.should ==
-        "\e[42m\e[41mtest string\e[42m example\e[49m"
+      expect("#{@subject.ansi.on_red} example".ansi.on_green).
+        to eq("\e[42m\e[41mtest string\e[42m example\e[49m")
     end
 
     it 'supports multiple nested text attributes' do
-      "#{@subject.ansi.underline} example".ansi.bold.should ==
-        "\e[1m\e[4mtest string\e[24m example\e[21m"
+      expect("#{@subject.ansi.underline} example".ansi.bold).
+        to eq("\e[1m\e[4mtest string\e[24m example\e[21m")
     end
 
     it 'clears a setting without resetting the whole graphics mode' do
       result = @subject.ansi.red
-      result.should.not.include?("\e[0")
+      expect(result).not_to include("\e[0")
     end
 
     it 'enables the support for ANSI sequences even if it was disabled' do
       ANSI.disabled = true
-      @subject.ansi.yellow.should == @subject
+      expect(@subject.ansi.yellow).to eq(@subject)
 
       ANSI.disabled = false
-      @subject.ansi.yellow.should == "\e[33mtest string\e[39m"
+      expect(@subject.ansi.yellow).to eq("\e[33mtest string\e[39m")
     end
   end
 end

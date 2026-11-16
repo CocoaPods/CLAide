@@ -10,10 +10,9 @@ group :development do
 end
 
 group :spec do
-  gem 'bacon'
   gem 'json', '< 3'
-  gem 'mocha-on-bacon'
-  gem 'prettybacon'
+  gem 'mocha', '~> 3.1'
+  gem 'rspec', '~> 3.13'
 
   gem 'parallel', '<= 1.19.2'
   gem 'rubocop', '<= 0.81.0'

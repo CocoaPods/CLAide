@@ -7,8 +7,8 @@ class CLAide::Command
     describe '::levenshtein_distance' do
       it 'returns the distance among two strings' do
         suggester = ArgumentSuggester
-        suggester.levenshtein_distance('word 1', 'word 2').should == 1
-        suggester.levenshtein_distance('word 1', 'dictionary').should == 9
+        expect(suggester.levenshtein_distance('word 1', 'word 2')).to eq(1)
+        expect(suggester.levenshtein_distance('word 1', 'dictionary')).to eq(9)
       end
     end
 
@@ -17,34 +17,35 @@ class CLAide::Command
         expected = %w(--version --verbose --no-ansi --help)
 
         suggester = ArgumentSuggester.new('--option', Fixture::Command)
-        suggester.possibilities.should == expected
+        expect(suggester.possibilities).to eq(expected)
 
         suggester = ArgumentSuggester.new('--flag', Fixture::Command)
-        suggester.possibilities.should == expected
+        expect(suggester.possibilities).to eq(expected)
       end
 
       it 'returns the list of valid subcommands' do
         suggester = ArgumentSuggester.new('command', Fixture::Command)
-        suggester.possibilities.should == %w(spec-file)
+        expect(suggester.possibilities).to eq(%w(spec-file))
       end
     end
 
     describe '#suggestion' do
       it 'returns the message for a command' do
         result = ArgumentSuggester.new('spec_file', Fixture::Command).suggestion
-        result.
-          should == "Unknown command: `spec_file`\nDid you mean: spec-file?"
+        expect(result).
+          to eq("Unknown command: `spec_file`\nDid you mean: spec-file?")
       end
 
       it 'returns the message for when no suggestion is possible' do
         suggester = ArgumentSuggester.new('spec_file', Fixture::Command)
         suggester.stubs(:possibilities).returns([])
-        suggester.suggestion.should == 'Unknown command: `spec_file`'
+        expect(suggester.suggestion).to eq('Unknown command: `spec_file`')
       end
 
       it 'returns the message for an option' do
         result = ArgumentSuggester.new('--verbosa', Fixture::Command).suggestion
-        result.should == "Unknown option: `--verbosa`\nDid you mean: --verbose?"
+        expect(result).
+          to eq("Unknown option: `--verbosa`\nDid you mean: --verbose?")
       end
     end
   end

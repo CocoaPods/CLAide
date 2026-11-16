@@ -1,7 +1,10 @@
 # encoding: utf-8
 
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter '/spec/'
+  add_filter '/vendor/'
+end
 
 #-----------------------------------------------------------------------------#
 
@@ -11,9 +14,8 @@ $LOAD_PATH.unshift((ROOT + 'lib').to_s)
 $LOAD_PATH.unshift((ROOT + 'spec').to_s)
 
 require 'bundler/setup'
-require 'bacon'
-require 'mocha-on-bacon'
-require 'pretty_bacon'
+require 'rspec'
+require 'mocha/api'
 require 'claide'
 require 'spec_helper/fixtures'
 require 'spec_helper/rubygems'
@@ -21,17 +23,12 @@ require 'spec_helper/string_ext'
 
 #-- Helpers ------------------------------------------------------------------#
 
-module Bacon
-  class Context
-    def should_raise_help(error_message)
-      error = nil
-      begin
-        yield
-      rescue CLAide::Help => e
-        error = e
+module SpecHelper
+  module Help
+    def should_raise_help(error_message, &block)
+      expect(&block).to raise_error(CLAide::Help) do |error|
+        expect(error.error_message).to eq(error_message)
       end
-      error.should.not.nil?
-      error.error_message.should == error_message
     end
   end
 end
@@ -43,14 +40,14 @@ end
 #
 CLAide::Command.ansi_output = false
 
-Mocha::Configuration.prevent(:stubbing_non_existent_method)
+Mocha.configure { |c| c.stubbing_non_existent_method = :prevent }
 
-module Bacon
-  class Context
-    old_run_requirement = instance_method(:run_requirement)
-    define_method(:run_requirement) do |description, spec|
-      ::CLAide::ANSI.disabled = true
-      old_run_requirement.bind(self).call(description, spec)
-    end
+RSpec.configure do |config|
+  config.mock_with :mocha
+  config.expect_with(:rspec) { |c| c.syntax = :expect }
+  config.include SpecHelper::Help
+
+  config.before do
+    ::CLAide::ANSI.disabled = true
   end
 end

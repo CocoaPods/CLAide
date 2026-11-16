@@ -14,6 +14,10 @@ module CLAide
       stub_latest_specs(@spec)
     end
 
+    after do
+      @manager.instance_variable_set(:@loaded_plugins, nil)
+    end
+
     describe '::load_plugins' do
       it 'requires the plugins paths' do
         @manager.expects(:safe_require).with([@path.to_s])
@@ -22,9 +26,9 @@ module CLAide
 
       it 'stores the plugins paths per plugin prefix' do
         @manager.load_plugins('fixture')
-        @manager.loaded_plugins.should == {
+        expect(@manager.loaded_plugins).to eq(
           'fixture' => [@spec],
-        }
+        )
       end
 
       it 'requires the plugins only if they have not been already loaded' do
@@ -38,7 +42,7 @@ module CLAide
     describe '::specifications' do
       it 'returns the list of the specifications' do
         @manager.load_plugins('fixture')
-        @manager.specifications.should == [@spec]
+        expect(@manager.specifications).to eq([@spec])
       end
     end
 
@@ -46,14 +50,14 @@ module CLAide
       it 'returns the list of specifications when the prefix has been loaded' do
         @manager.load_plugins('fixture')
         @manager.expects(:plugin_gems_for_prefix).never
-        @manager.installed_specifications_for_prefix('fixture').
-          should == [@spec]
+        expect(@manager.installed_specifications_for_prefix('fixture')).
+          to eq([@spec])
       end
 
       it 'returns the lists of specifications when the prefix has not been ' \
          'loaded' do
-        @manager.installed_specifications_for_prefix('fixture').
-          should == [@spec]
+        expect(@manager.installed_specifications_for_prefix('fixture')).
+          to eq([@spec])
       end
     end
 
@@ -62,9 +66,11 @@ module CLAide
         backtrace = [(@path + '../command.rb').to_s]
         exception = stub(:backtrace => backtrace)
         @manager.load_plugins('fixture')
-        @manager.plugins_involved_in_exception(exception).should == [
+        expected = [
           @spec.name,
         ]
+        expect(@manager.plugins_involved_in_exception(exception)).
+          to eq(expected)
       end
     end
 
@@ -77,13 +83,13 @@ module CLAide
           (@fixture_output ||= '') << text
         end
 
-        should.not.raise do
+        expect do
           @manager.safe_require([path.to_s])
-        end
+        end.not_to raise_error
 
         output = @manager.instance_variable_get(:@fixture_output)
-        output.should.include('Error loading plugin file')
-        output.should.include('LoadError')
+        expect(output).to include('Error loading plugin file')
+        expect(output).to include('LoadError')
       end
     end
   end
