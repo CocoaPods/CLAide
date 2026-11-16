@@ -9,17 +9,17 @@ module CLAide
     end
 
     it 'converts a single name into a 1-item array' do
-      @subject.new('STRING', true).names.should == ['STRING']
+      expect(@subject.new('STRING', true).names).to eq(['STRING'])
     end
 
     it 'accepts an array of names' do
       list = %w(FOO BAR BAZ)
-      @subject.new(list, true).names.should == list
+      expect(@subject.new(list, true).names).to eq(list)
     end
 
     it 'should be non-repeatable by default' do
-      @subject.new('REQUIRED', true).repeatable?.should.be.false?
-      @subject.new('OPTIONAL', false).repeatable?.should.be.false?
+      expect(@subject.new('REQUIRED', true).repeatable?).to be(false)
+      expect(@subject.new('OPTIONAL', false).repeatable?).to be(false)
     end
   end
 end

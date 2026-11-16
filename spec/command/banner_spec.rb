@@ -7,8 +7,8 @@ class CLAide::Command
     describe 'in general' do
       it 'combines the summary/description, commands, and options' do
         banner = Banner.new(Fixture::Command::SpecFile::Create)
-        banner.formatted_banner.should ==
-          <<-BANNER.strip_margin('|').rstrip
+        expect(banner.formatted_banner).
+          to eq(<<-BANNER.strip_margin('|').rstrip)
             |Usage:
             |
             |#{banner.send(:formatted_usage_description)}
@@ -24,8 +24,8 @@ class CLAide::Command
       it "returns a usage description based on the command's description" do
         Banner::TextWrapper.stubs(:terminal_width).returns(52)
         banner = Banner.new(Fixture::Command::SpecFile::Create)
-        banner.send(:formatted_usage_description).should ==
-          <<-USAGE.strip_margin('|').rstrip
+        expect(banner.send(:formatted_usage_description)).
+          to eq(<<-USAGE.strip_margin('|').rstrip)
             |    $ bin spec-file create [NAME]
             |
             |      Creates a spec file called NAME and populates
@@ -35,8 +35,8 @@ class CLAide::Command
 
       it "uses the command's summary as fall-back for the description" do
         banner = Banner.new(Fixture::Command::SpecFile::Lint::Repo)
-        banner.send(:formatted_usage_description).should ==
-          <<-USAGE.strip_margin('|').rstrip
+        expect(banner.send(:formatted_usage_description)).
+          to eq(<<-USAGE.strip_margin('|').rstrip)
             |    $ bin spec-file lint repo
             |
             |      Checks the validity of ALL specs in a repo.
@@ -45,8 +45,8 @@ class CLAide::Command
 
       it 'returns summaries of the subcommands of a command, sorted by name' do
         banner = Banner.new(Fixture::Command::SpecFile)
-        banner.send(:formatted_subcommand_summaries).should ==
-          <<-COMMANDS.strip_margin('|').rstrip
+        expect(banner.send(:formatted_subcommand_summaries)).
+          to eq(<<-COMMANDS.strip_margin('|').rstrip)
             |    + create    Creates a spec file stub.
             |    + lint      Checks the validity of a spec file.
         COMMANDS
@@ -54,8 +54,8 @@ class CLAide::Command
 
       it 'returns the options' do
         banner = Banner.new(Fixture::Command::SpecFile)
-        banner.send(:formatted_options_description).should ==
-          <<-OPTIONS.strip_margin('|').rstrip
+        expect(banner.send(:formatted_options_description)).
+          to eq(<<-OPTIONS.strip_margin('|').rstrip)
             |    --verbose   Show more debugging information
             |    --no-ansi   Show output without ANSI codes
             |    --help      Show help banner of specified command
@@ -65,16 +65,17 @@ class CLAide::Command
       it 'aligns the descriptions of the subcommands and of the options' do
         banner = Banner.new(Fixture::Command::SpecFile)
         result = banner.formatted_banner
-        result.should.include('    + create    Creates a spec file stub.')
-        result.should.include('    --verbose   Show more debugging')
+        expect(result).to include('    + create    Creates a spec file stub.')
+        expect(result).to include('    --verbose   Show more debugging')
       end
 
       it 'highlights the default subcommand' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:default_subcommand).returns('create')
         result = banner.formatted_banner
-        result.should.include('> create    Creates a spec file stub')
-        result.should.include('+ lint      Checks the validity of a spec file')
+        expect(result).to include('> create    Creates a spec file stub')
+        expect(result).
+          to include('+ lint      Checks the validity of a spec file')
       end
     end
 
@@ -83,56 +84,56 @@ class CLAide::Command
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new('REQUIRED', true)])
-        banner.send(:signature_arguments).should == 'REQUIRED'
+        expect(banner.send(:signature_arguments)).to eq('REQUIRED')
       end
 
       it 'should correctly display required alternate arguments' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new(%w(REQ1 REQ2), true)])
-        banner.send(:signature_arguments).should == 'REQ1|REQ2'
+        expect(banner.send(:signature_arguments)).to eq('REQ1|REQ2')
       end
 
       it 'should correctly display optional single argument' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new('OPTIONAL', false)])
-        banner.send(:signature_arguments).should == '[OPTIONAL]'
+        expect(banner.send(:signature_arguments)).to eq('[OPTIONAL]')
       end
 
       it 'should correctly display optional alternate arguments' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new(%w(OPT1 OPT2), false)])
-        banner.send(:signature_arguments).should == '[OPT1|OPT2]'
+        expect(banner.send(:signature_arguments)).to eq('[OPT1|OPT2]')
       end
 
       it 'should correctly display required, repeatable single argument' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new('REQUIRED', true, true)])
-        banner.send(:signature_arguments).should == 'REQUIRED ...'
+        expect(banner.send(:signature_arguments)).to eq('REQUIRED ...')
       end
 
       it 'should correctly display required, repeatable alternate arguments' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new(%w(REQ1 REQ2), true, true)])
-        banner.send(:signature_arguments).should == 'REQ1|REQ2 ...'
+        expect(banner.send(:signature_arguments)).to eq('REQ1|REQ2 ...')
       end
 
       it 'should correctly display optional, repeatable single argument' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new('OPTIONAL', false, true)])
-        banner.send(:signature_arguments).should == '[OPTIONAL ...]'
+        expect(banner.send(:signature_arguments)).to eq('[OPTIONAL ...]')
       end
 
       it 'should correctly display optional, repeatable alternate arguments' do
         banner = Banner.new(Fixture::Command::SpecFile)
         Fixture::Command::SpecFile.stubs(:arguments).
           returns([CLAide::Argument.new(%w(OPT1 OPT2), false, true)])
-        banner.send(:signature_arguments).should == '[OPT1|OPT2 ...]'
+        expect(banner.send(:signature_arguments)).to eq('[OPT1|OPT2 ...]')
       end
     end
   end
@@ -148,12 +149,12 @@ class CLAide::Command
           require "io/console"
           STDOUT.expects(:tty?).returns(true)
           STDOUT.expects(:winsize).returns([20, 80])
-          TextWrapper.terminal_width.should == 80
+          expect(TextWrapper.terminal_width).to eq(80)
         end
 
         it 'is robust against not being a tty' do
           STDOUT.expects(:tty?).returns(false)
-          TextWrapper.terminal_width.should == 0
+          expect(TextWrapper.terminal_width).to eq(0)
         end
       end
 
@@ -181,7 +182,7 @@ class CLAide::Command
             |specified in your
             |`Podfile` like this:
           DOC
-          TextWrapper.wrap_formatted_text(string).should == result
+          expect(TextWrapper.wrap_formatted_text(string)).to eq(result)
         end
 
         it 'supports an optional indentation' do
@@ -201,7 +202,7 @@ class CLAide::Command
             |  project in
             |  `./Pods`.
           DOC
-          TextWrapper.wrap_formatted_text(string, 2).should == result
+          expect(TextWrapper.wrap_formatted_text(string, 2)).to eq(result)
         end
 
         it 'supports an optional indentation' do
@@ -219,7 +220,7 @@ class CLAide::Command
             |Pods library project
             |in `./Pods`.
           DOC
-          TextWrapper.wrap_formatted_text(string, 0, 20).should == result
+          expect(TextWrapper.wrap_formatted_text(string, 0, 20)).to eq(result)
         end
 
         it 'preserves the line formatting of code paragraphs' do
@@ -235,7 +236,7 @@ class CLAide::Command
             |
             |    TextWrapper.wrap_formatted_text(string, 0, 20)
           DOC
-          TextWrapper.wrap_formatted_text(string, 0, 20).should == result
+          expect(TextWrapper.wrap_formatted_text(string, 0, 20)).to eq(result)
         end
 
         it 'handles multi-line code blocks regarding indentation' do
@@ -254,7 +255,7 @@ class CLAide::Command
             |      $ pod trunk register eloy@example.com --description='Work Laptop'
             |      $ pod trunk register eloy@example.com
           DOC
-          TextWrapper.wrap_formatted_text(string, 2, 20).should == result
+          expect(TextWrapper.wrap_formatted_text(string, 2, 20)).to eq(result)
         end
       end
 
@@ -262,32 +263,36 @@ class CLAide::Command
         it 'wraps a string according to the terminal width' do
           TextWrapper.stubs(:terminal_width).returns(5)
           string = '12345 12345'
-          TextWrapper.wrap_with_indent(string).should == "12345\n12345"
+          expect(TextWrapper.wrap_with_indent(string)).to eq("12345\n12345")
         end
 
         it 'indents the lines except the first' do
           TextWrapper.stubs(:terminal_width).returns(5)
           string = '12345 12345'
-          TextWrapper.wrap_with_indent(string, 2).should == "12345\n  12345"
+          expect(TextWrapper.wrap_with_indent(string, 2)).
+            to eq("12345\n  12345")
         end
 
         it 'supports a maximum width' do
           TextWrapper.stubs(:terminal_width).returns(10)
           string = '12345 12345'
-          TextWrapper.wrap_with_indent(string, 0, 5).should == "12345\n12345"
+          expect(TextWrapper.wrap_with_indent(string, 0, 5)).
+            to eq("12345\n12345")
         end
 
         it 'wraps to the maximum width if the terminal one is not available' do
           TextWrapper.stubs(:terminal_width).returns(0)
           string = '12345 12345'
-          TextWrapper.wrap_with_indent(string, 0, 5).should == "12345\n12345"
+          expect(TextWrapper.wrap_with_indent(string, 0, 5)).
+            to eq("12345\n12345")
         end
       end
 
       describe '::word_wrap' do
         it 'wraps by word a string a string with the given width' do
           string = 'one two three four'
-          TextWrapper.word_wrap(string, 3).should == "one\ntwo\nthree\nfour"
+          expect(TextWrapper.word_wrap(string, 3)).
+            to eq("one\ntwo\nthree\nfour")
         end
       end
 
@@ -297,12 +302,12 @@ class CLAide::Command
               word 1
             word 2
           DOC
-          TextWrapper.strip_heredoc(string).should == "  word 1\nword 2\n"
+          expect(TextWrapper.strip_heredoc(string)).to eq("  word 1\nword 2\n")
         end
 
         it 'is robust against whitespace only strings' do
           string = "  \n"
-          TextWrapper.strip_heredoc(string).should == string
+          expect(TextWrapper.strip_heredoc(string)).to eq(string)
         end
       end
     end

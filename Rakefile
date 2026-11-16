@@ -25,8 +25,7 @@ begin
   desc 'Run specs'
   task :spec do
     title 'Running Unit Tests'
-    files = FileList['spec/**/*_spec.rb'].shuffle.join(' ')
-    sh "bundle exec bacon #{files}"
+    sh 'bundle exec rspec'
 
     Rake::Task['rubocop'].invoke
   end

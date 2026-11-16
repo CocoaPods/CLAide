@@ -9,14 +9,14 @@ module CLAide
     describe 'in general' do
       it 'shows just the banner if no error message is specified' do
         banner = 'A descriptive banner'
-        Help.new(banner).message.should == banner
+        expect(Help.new(banner).message).to eq(banner)
       end
 
       it 'shows the specified error message before the rest of the banner' do
         banner = 'A descriptive banner'
         error_message = 'Unable to process, captain.'
         expected = "[!] #{error_message}\n\n#{banner}"
-        Help.new(banner, error_message).message.should == expected
+        expect(Help.new(banner, error_message).message).to eq(expected)
       end
     end
 

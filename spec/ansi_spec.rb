@@ -10,29 +10,29 @@ module CLAide
 
     describe '::code_for_key' do
       it 'returns the code for a given key' do
-        @subject.code_for_key(:red, ANSI::COLORS).should == 1
+        expect(@subject.code_for_key(:red, ANSI::COLORS)).to eq(1)
       end
 
       it 'raises if the key is nil' do
-        should.raise ArgumentError do
+        expect do
           @subject.code_for_key(nil, ANSI::COLORS)
-        end.message.should.match /A key must be provided/
+        end.to raise_error(ArgumentError, /A key must be provided/)
       end
 
       it 'raises if the key is nil' do
-        should.raise ArgumentError do
+        expect do
           @subject.code_for_key(:bold, ANSI::COLORS)
-        end.message.should.match /Unsupported key/
+        end.to raise_error(ArgumentError, /Unsupported key/)
       end
     end
 
     describe 'String mixin' do
       it 'enables the support for ANSI sequences even if it was disabled' do
         @subject.disabled = true
-        'test string'.ansi.yellow.should == 'test string'
+        expect('test string'.ansi.yellow).to eq('test string')
 
         @subject.disabled = false
-        'test string'.ansi.yellow.should == "\e[33mtest string\e[39m"
+        expect('test string'.ansi.yellow).to eq("\e[33mtest string\e[39m")
       end
     end
   end
